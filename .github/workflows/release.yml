@@ -15,7 +15,8 @@ run-name: Pedagogue installers (${{ github.event_name == 'push' && github.ref_na
 #
 # What starts a run:
 # - A pushed vX.Y.Z tag that names the workspace version: build, check,
-#   assemble and publish.
+#   assemble and publish. Only cppalliance/pedagogue publishes: in a copy
+#   of the repository the run ends after assemble.
 # - A pull request that touches the paths below, or a manual run on any
 #   ref: build, check and assemble. The files stay as workflow artifacts
 #   for 7 days, and the publish job is skipped.
@@ -381,9 +382,13 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  # One repository publishes. A copy that is not a fork runs the jobs above
+  # for a tag pushed to it, and without this condition it would publish a
+  # release of its own. After a rename of the repository, the name here
+  # has to follow, or a tag publishes nothing.
   publish:
     needs: [prepare, assemble]
-    if: ${{ !github.event.repository.fork && github.event_name == 'push' }}
+    if: ${{ github.repository == 'cppalliance/pedagogue' && github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
