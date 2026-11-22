@@ -175,7 +175,7 @@
     padding: 5px 12px;
   }
 
-  .notice b {
+  .notice strong {
     color: var(--ok);
     font-weight: 600;
   }

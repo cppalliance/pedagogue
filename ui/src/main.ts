@@ -16,7 +16,11 @@ function start(): void {
   const send: SendFrame = (frame) => {
     socket.send(frame);
   };
-  const chat = new ChatView(chatPane);
+  const chat = new ChatView(chatPane, {
+    send,
+    now: () => new Date(),
+    copy: (text) => navigator.clipboard.writeText(text),
+  });
   const page = new PageView(pagePane, send, (chapter, section) => {
     chat.setPlace(chapter, section);
   });

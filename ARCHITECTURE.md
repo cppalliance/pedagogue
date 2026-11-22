@@ -46,6 +46,7 @@ The session is the one place that holds state. A host changes it through a handl
   - `src/wording.ts` holds every fixed line the student reads, and `src/dom.ts` the helpers that build nodes.
   - `src/markdown.ts` turns markdown into nodes: marked, then DOMPurify, then the classes of the design. Raw HTML and images in the source are left out.
   - `src/page/page-view.ts` keeps one element tree per page and matches blocks by id, so a page frame redraws only the blocks that changed. `src/page/scroll-cues.ts` is the scroll viewport, and `src/page/blocks/` holds one renderer per kind of block.
+  - `src/chat/chat-view.ts` draws the chat. A chat only grows, so it draws the entries it has yet to draw. `src/chat/composer.ts` is the edit box with its four looks, and `src/chat/chips.ts` the suggestion chips.
   - `test/helpers/boot.mjs` runs the built bundle in jsdom with a scripted socket, and `test/helpers/skeleton.mjs` turns an element into the text that the markup tests compare with the design files.
 - `design/` - the two design reference files. They link the CSS files under `ui/src`, so the look has one home, and each keeps its icons in a sprite of its own.
 
