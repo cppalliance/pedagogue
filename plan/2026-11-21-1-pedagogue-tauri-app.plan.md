@@ -819,3 +819,42 @@ Planned for the UI steps, in the same commit as the renderer:
 
 - **Sample content drawn by the app's rules.** The code sample takes the `code` element and the highlighter's coloring in the same five colors, list lead-ins become markdown emphasis, and a notice's bold lead becomes markdown's. Reason: markdown and the highlighter produce these, so hand-written samples differ from what the app draws.
 
+# What the build found
+
+The plan held. All 15 steps are done, in the 15 commits from `964fe90` to `e5cb416`, and the last step, `verify`, needed no change to the code. At the end every check was green: format, clippy, 196 Rust tests and the docs build, and for the UI the type check, oxlint, Stylelint, Prettier and 72 tests.
+
+This plan had no copy in the repository while it ran. Its commits name it by the path it had on the author's machine, `.cursor/plans/pedagogue_tauri_app_2ed96ac8.plan.md`.
+
+## What the last step showed
+
+- The page column of the app and of the design file have the same layout. Lines of text land within one pixel of each other.
+- The markup tests compare tags, classes, attributes and text. The app draws the same markup as the design files for every page element, all 13 quiz samples, the live chat panel and each labeled chat state.
+- The desktop app played the straw poll lesson and was driven in Chrome on its address: a message with the typing dots and the fixed reply, a wrong pick, the right pick, the two notices with the exact text for a model, Continue, and the page buttons.
+- By keyboard alone, Tab reaches every control in reading order, each control shows a focus ring, and Enter submits a quiz answer and sends a message.
+- The window closes with exit code 0 within a fifth of a second, with the socket open.
+
+## Design changes beyond the list above
+
+- Option text flows as one run, so the letter of an option and inline code sit a normal space apart. Reason: an option that mixes text and code has to wrap as one line.
+- The geometry of the tree diagram is computed, so the middle row sits a little wider and lower. Reason: the app draws trees from data.
+- The page-end row has samples for the first page and for the page after Continue, beside the earlier page with its Next section button.
+- Smaller ones, with the look unchanged: typing dots and wave bars have classes of their own, a hidden scroll cue is out of reach of pointer and keyboard, two-column options keep the order A, B, C, D in the markup, the recording bars are one element cut by a CSS mask, the mic button swaps its label between Record and Stop recording, icon-only buttons have tooltips, the scroll-cue sample uses an observer on two markers, the sample link has a real address and a hidden "opens in a new window" note, and the figures have labels worded from their data.
+
+## Decisions beyond the plan
+
+- The stand-in marks a live free-text answer: the first try as not quite and later tries as correct, with feedback that says it is the stand-in. Reason: a live Submit would otherwise stay on "Sent to your tutor".
+- Try again reopens the box in the page alone, and the next Submit sends the answer.
+- The record button shows the recording look and its timer only, and leaves the edit box as it was.
+- The content policy also has `form-action 'none'`, so a quiz form stays on the page if its script fails.
+- Links are handled in Rust in the desktop app, since the page has no access to Tauri's API.
+- `Cargo.lock` holds the Tauri family at the versions of Runvil Workshop. A fresh resolve picks a runtime crate that Tauri 2.11 fails to compile against.
+- The demo has one error type for reading and playing a script, and `play` is public beside `run`.
+- Only the desktop icon set is in the repository.
+
+## Left open
+
+- The multiple-select rule is the first guess that the plan called for, and it is the least settled rule.
+- A code block inside a chat bubble has plain coloring.
+- A link in the desktop window that goes to the system browser was checked by its policy tests only.
+- Three paths have no automated test: two threads that race on the session's wake-up, a live student action that arrives between two script steps, and a server stop while an action waits for room on the event stream.
+- A release build on Windows has no console, so a startup error shows only in a debug build.
