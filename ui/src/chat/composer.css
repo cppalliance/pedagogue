@@ -1,0 +1,167 @@
+@layer reset, base, components, utilities;
+
+@layer components {
+  /* Composer: an edit box, a mic button and a send button. */
+  .composer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 6px 14px 14px;
+    background: var(--surface);
+    border: 1px solid var(--composer-bd);
+    border-radius: 24px;
+    padding: 5px 6px 5px 16px;
+    min-height: 50px;
+  }
+
+  .composer:focus-within {
+    border-color: var(--composer-bd-focus);
+  }
+
+  .composer.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .composer input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--text);
+    font: inherit;
+    font-size: 1rem;
+    padding: 8px 0;
+  }
+
+  .composer input::placeholder {
+    color: var(--placeholder);
+  }
+
+  .composer button {
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    padding: 0;
+    flex: none;
+  }
+
+  .composer button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .composer svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .composer .mic {
+    background: none;
+    color: var(--text-soft);
+  }
+
+  .composer .mic:hover {
+    color: var(--text);
+    background: var(--wash-hover);
+  }
+
+  .composer .send {
+    background: var(--out);
+    color: var(--on-accent);
+  }
+
+  .composer .send:hover {
+    background: var(--out-hover);
+  }
+
+  .composer .send[disabled] {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  /* Recording state. */
+  .composer.recording {
+    padding-left: 12px;
+  }
+
+  .composer.recording .field-area {
+    display: none;
+  }
+
+  .composer .rec-area {
+    display: none;
+    flex: 1;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .composer.recording .rec-area {
+    display: flex;
+  }
+
+  .rec-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--rec);
+    animation: pulse 1.1s infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  .rec-time {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .rec-bars {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 24px;
+    overflow: hidden;
+  }
+
+  .rec-bars i {
+    width: 3px;
+    border-radius: 2px;
+    background: var(--rec-bar);
+    flex: none;
+  }
+
+  .composer.recording .mic {
+    background: var(--rec);
+    color: var(--on-accent);
+  }
+
+  .composer.recording .mic:hover {
+    background: var(--rec-hover);
+  }
+
+  .composer.recording .send {
+    display: none;
+  }
+}

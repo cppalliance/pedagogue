@@ -1,0 +1,117 @@
+@layer reset, base, components, utilities;
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+  }
+}
+
+@layer base {
+  /* The textbook side: a white page with serif text. Box colors have fixed
+     meanings: blue is information, yellow is a personal note, red is a quiz
+     and green is progress. */
+  .textbook {
+    --ink: #1c1c1e;
+    --ink-soft: #55555b;
+    --paper: #fff;
+    --desk: #e9e6df;
+    --rule: #c9c9cc;
+    --muted: #8a8a90;
+    --link: #1d4880;
+    --on-accent: #fff;
+    --serif:
+      "Sabon", "Minion Pro", "Source Serif 4", "Iowan Old Style",
+      "Palatino Linotype", "Palatino", "Georgia", "Times New Roman", serif;
+    --sans:
+      "Myriad Pro", "Source Sans 3", "Optima", "Segoe UI", "Helvetica Neue",
+      "Arial", sans-serif;
+    --mono:
+      "JetBrains Mono", "Cascadia Mono", "SF Mono", "Consolas",
+      "Liberation Mono", monospace;
+    --info-bg: #e8f0fb;
+    --info-bd: #9db9e0;
+    --info-ink: #1d4880;
+    --note-bg: #fdf3d4;
+    --note-bd: #e2c56a;
+    --note-ink: #7a5800;
+    --quiz-bg: #fbe9ea;
+    --quiz-bd: #b3383b;
+    --quiz-bd-hover: #9c2c2f;
+    --quiz-ink: #8c1f22;
+    --quiz-bar: #c4545a;
+    --quiz-rule: #ecc3c5;
+    --ok-bg: #e5f3e2;
+    --ok-bd: #8abb85;
+    --ok-ink: #2b6a28;
+    --code-bg: #f4f3f1;
+    --code-bar: #5b86c4;
+    --code-tint: #444;
+    --code-kw: #2f3f9e;
+    --code-ty: #0e6f6f;
+    --code-st: #9a3c1a;
+    --code-cm: #6b6b70;
+    --code-fn: #7a2d8c;
+    --teal: #2b7a78;
+    --chart-ink: #333;
+    --chart-accent: #6f8fc4;
+    --chart-neutral: #aaa;
+    --chart-negative: #c99a9a;
+    --tree-ink: #222;
+    --field-bd: #b9b2b2;
+    --neutral-bg: #ecebe7;
+    --neutral-bd: #cfcdc6;
+    --focus-ring: #6aa0f0;
+    --progress-track: #d3dbd1;
+    --progress-fill: #6fa56a;
+    --scrollbar: #b6b6bc;
+    --cue: #707076;
+    --page-w: 620px;
+  }
+
+  /* The tutor side: a dark chat panel, so it contrasts with the white page. */
+  .tutor {
+    --sans:
+      -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+      "Source Sans 3", "Helvetica Neue", "Arial", sans-serif;
+    --mono:
+      "JetBrains Mono", "Cascadia Mono", "SF Mono", "Consolas",
+      "Liberation Mono", monospace;
+    --bg: #141416;
+    --surface: #1f1f22;
+    --line: #2c2c30;
+    --in: #2b2b2f;
+    --out: #0b7bf0;
+    --out-hover: #2a8cf5;
+    --on-accent: #fff;
+    --text: #f2f2f4;
+    --text-soft: #a4a4ab;
+    --muted: #7c7c84;
+    --accent: #4da3ff;
+    --rec: #ff453a;
+    --rec-hover: #ff5e54;
+    --rec-bar: #6d6d76;
+    --ok: #32d583;
+    --desk: #0b0b0c;
+    --avatar-from: #3a6fd8;
+    --avatar-to: #7a4fd0;
+    --scrollbar: #3a3a40;
+    --dot: #9a9aa3;
+    --chip-bd: #34343a;
+    --composer-bd: #38383e;
+    --composer-bd-focus: #5a5a63;
+    --placeholder: #8b8b93;
+    --wash-code: rgb(255 255 255 / 10%);
+    --wash-hover: rgb(255 255 255 / 7%);
+    --wash-chip: rgb(255 255 255 / 6%);
+  }
+}

@@ -1,0 +1,31 @@
+@layer reset, base, components, utilities;
+
+@layer components {
+  /* Suggestion chips. */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 18px 10px;
+  }
+
+  .chip {
+    border: 1px solid var(--chip-bd);
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.85rem;
+    border-radius: 999px;
+    padding: 6px 13px;
+    cursor: pointer;
+  }
+
+  .chip:hover {
+    background: var(--wash-chip);
+  }
+
+  .chip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+}

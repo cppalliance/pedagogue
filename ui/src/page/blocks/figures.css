@@ -1,0 +1,128 @@
+@layer reset, base, components, utilities;
+
+@layer base {
+  :where(.page) figure {
+    margin: 1.4em 0;
+    text-align: center;
+  }
+
+  :where(.page) figure svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  :where(.page) figcaption {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    margin-top: 0.4em;
+  }
+
+  :where(.page) figcaption em {
+    font-style: italic;
+  }
+}
+
+@layer components {
+  .fig-no {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-style: normal;
+    color: var(--ink);
+    margin-right: 0.4em;
+  }
+
+  /* Bar chart. */
+  .chart-axis {
+    stroke: var(--chart-ink);
+    stroke-width: 1.2;
+  }
+
+  .chart-label {
+    font-family: var(--sans);
+    font-size: 14px;
+    text-anchor: middle;
+    fill: var(--chart-ink);
+  }
+
+  .bar.accent {
+    fill: var(--chart-accent);
+  }
+
+  .bar.neutral {
+    fill: var(--chart-neutral);
+  }
+
+  .bar.negative {
+    fill: var(--chart-negative);
+  }
+
+  /* Tree diagram. */
+  .tree-edge {
+    stroke: var(--teal);
+    stroke-width: 1.5;
+    fill: none;
+  }
+
+  .tree-root {
+    fill: var(--teal);
+  }
+
+  .tree-label {
+    font-family: var(--serif);
+    font-size: 17px;
+    text-anchor: middle;
+    fill: var(--tree-ink);
+  }
+
+  .tree-label.leaf {
+    font-style: italic;
+  }
+
+  /* Timeline. Each stop after the first draws the line back to the stop
+     before it, so the line fits any number of stops. The timeline isolates
+     its stacking, so those lines sit behind every dot. */
+  .timeline {
+    display: flex;
+    justify-content: space-between;
+    margin: 1.6em 8px 1.2em;
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    isolation: isolate;
+  }
+
+  .stop {
+    position: relative;
+    flex: 1;
+    text-align: center;
+  }
+
+  .stop + .stop::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 30px;
+    right: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--teal);
+  }
+
+  .stop b {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .stop i {
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--teal);
+    margin: 0 auto 8px;
+  }
+
+  .stop span {
+    color: var(--teal);
+  }
+}

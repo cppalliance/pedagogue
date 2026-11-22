@@ -1,0 +1,73 @@
+@layer reset, base, components, utilities;
+
+@layer components {
+  /* The page scrolls inside a viewport. A faded edge and a small chevron
+     show at the top or the bottom only while more content lies that way. */
+  .viewport {
+    position: relative;
+    overflow: hidden;
+    background: var(--paper);
+  }
+
+  .scroller {
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+  }
+
+  /* A hidden cue is out of reach of the pointer and the keyboard. The
+     visibility change waits for the fade to finish. */
+  .cue {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.2s,
+      visibility 0.2s;
+    pointer-events: none;
+  }
+
+  .cue.top {
+    top: 0;
+    align-items: flex-start;
+    background: linear-gradient(var(--paper) 25%, transparent);
+  }
+
+  .cue.bottom {
+    bottom: 0;
+    align-items: flex-end;
+    background: linear-gradient(transparent, var(--paper) 75%);
+  }
+
+  .viewport[data-top="more"] .cue.top,
+  .viewport[data-bottom="more"] .cue.bottom {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .cue button {
+    pointer-events: auto;
+    border: 0;
+    background: none;
+    color: var(--cue);
+    padding: 3px 18px;
+    cursor: pointer;
+    line-height: 0;
+  }
+
+  .cue svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}

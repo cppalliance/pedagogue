@@ -1,0 +1,89 @@
+@layer reset, base, components, utilities;
+
+@layer components {
+  .callout {
+    border: 1px solid;
+    border-radius: 10px;
+    padding: 13px 18px 15px;
+    margin: 1.4em 0;
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  .callout p {
+    text-align: left;
+    margin: 0 0 0.5em;
+  }
+
+  .callout p:last-child {
+    margin-bottom: 0;
+  }
+
+  .callout-title {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 6px;
+  }
+
+  .callout-title svg {
+    width: 19px;
+    height: 19px;
+    flex: none;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Blue: information. */
+  .callout.info {
+    --box-ink: var(--info-ink);
+    --box-tint: var(--info-ink);
+
+    background: var(--info-bg);
+    border-color: var(--info-bd);
+  }
+
+  .callout.info .callout-title {
+    color: var(--info-ink);
+  }
+
+  /* Yellow: a personal note. */
+  .callout.note {
+    --box-ink: var(--note-ink);
+    --box-tint: var(--note-ink);
+
+    background: var(--note-bg);
+    border-color: var(--note-bd);
+  }
+
+  .callout.note .callout-title {
+    color: var(--note-ink);
+  }
+
+  /* Green: progress. */
+  .callout.ok {
+    --box-ink: var(--ok-ink);
+    --box-tint: var(--ok-ink);
+
+    background: var(--ok-bg);
+    border-color: var(--ok-bd);
+  }
+
+  .callout.ok .callout-title {
+    color: var(--ok-ink);
+  }
+
+  .callout.success {
+    background: var(--ok-bg);
+    border-color: var(--ok-bd);
+    font-style: italic;
+    text-align: center;
+    padding: 12px 18px;
+  }
+}

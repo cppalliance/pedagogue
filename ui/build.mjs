@@ -3,12 +3,16 @@
 // folder (default dist/) and `--watch` rebuilds on save. The server crate's
 // build script runs this same file into OUT_DIR, so the jsdom tests and the
 // app load the same bundle.
-import { copyFile, mkdir } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import * as esbuild from "esbuild";
+import { collectSprites } from "./sprites.mjs";
 
 const uiDir = import.meta.dirname;
+const designDir = path.join(uiDir, "..", "design");
+const DESIGN_FILES = ["page-contact-sheet.html", "chat-panel.html"];
+const ICON_MARKER = "<!-- icons -->";
 
 const { values: flags } = parseArgs({
   options: {
@@ -21,6 +25,17 @@ const outDir =
     ? path.join(uiDir, "dist")
     : path.resolve(uiDir, flags.out);
 
+async function readDesignFiles() {
+  return Promise.all(
+    DESIGN_FILES.map(async (name) => ({
+      name,
+      html: await readFile(path.join(designDir, name), "utf8"),
+    })),
+  );
+}
+
+// Writes index.html with the design files' icon sprites in place of the
+// marker. It runs after every build, watch rebuilds included.
 const writeIndexHtml = {
   name: "write-index-html",
   setup(build) {
@@ -28,10 +43,15 @@ const writeIndexHtml = {
       if (result.errors.length > 0) {
         return;
       }
+      const page = await readFile(path.join(uiDir, "index.html"), "utf8");
+      if (!page.includes(ICON_MARKER)) {
+        throw new Error(`index.html has no ${ICON_MARKER} marker`);
+      }
+      const sprites = collectSprites(await readDesignFiles());
       await mkdir(outDir, { recursive: true });
-      await copyFile(
-        path.join(uiDir, "index.html"),
+      await writeFile(
         path.join(outDir, "index.html"),
+        page.replace(ICON_MARKER, sprites),
       );
     });
   },

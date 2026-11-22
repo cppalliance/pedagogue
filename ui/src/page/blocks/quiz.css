@@ -1,0 +1,144 @@
+@layer reset, base, components, utilities;
+
+@layer base {
+  :where(.page) textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+}
+
+@layer components {
+  /* Quizzes: pale rose, a thin soft outline and a thick bar on the left
+     edge. The quiz is the only box with a thick edge. */
+  .callout.quiz {
+    --box-ink: var(--quiz-ink);
+    --box-tint: var(--quiz-ink);
+
+    background: var(--quiz-bg);
+    border: 1px solid var(--quiz-rule);
+    border-left: 7px solid var(--quiz-bar);
+    padding: 14px 20px 16px 18px;
+  }
+
+  .callout.quiz .callout-title {
+    color: var(--ink);
+    font-size: 1.05rem;
+  }
+
+  /* Quiz action buttons sit on the right. */
+  .callout.quiz > .btn {
+    display: block;
+    margin-left: auto;
+  }
+
+  .q {
+    font-family: var(--serif);
+    margin: 0 0 0.5em;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0.3em 0 0.4em;
+  }
+
+  .options.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16px;
+  }
+
+  .opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 2px;
+    font-family: var(--serif);
+    cursor: pointer;
+    border-radius: 6px;
+  }
+
+  .opt:has([tabindex="-1"]) {
+    pointer-events: none;
+  }
+
+  .opt.correct {
+    font-weight: 600;
+  }
+
+  .opt input {
+    width: 19px;
+    height: 19px;
+    margin: 0;
+    accent-color: var(--quiz-bd);
+    flex: none;
+  }
+
+  .tag {
+    margin-left: auto;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .opt.correct .tag {
+    color: var(--ok-ink);
+  }
+
+  .opt.wrong .tag {
+    color: var(--quiz-ink);
+  }
+
+  .feedback {
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    color: var(--quiz-ink);
+  }
+
+  .feedback.good {
+    color: var(--ok-ink);
+  }
+
+  .field {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--field-bd);
+    border-radius: 8px;
+    background: var(--paper);
+    padding: 9px 12px;
+    font: inherit;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+
+  .field.mono {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+  }
+
+  .field:focus {
+    outline: 2px solid var(--quiz-bd);
+    outline-offset: 1px;
+  }
+
+  .q-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  .row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .row .field {
+    flex: 1;
+  }
+}

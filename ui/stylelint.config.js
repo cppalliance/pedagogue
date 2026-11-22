@@ -8,5 +8,8 @@ export default {
     "declaration-no-important": true,
     "selector-no-qualifying-type": true,
     "selector-max-compound-selectors": 3,
+    // BlinkMacSystemFont is the conventional spelling of Chrome's system
+    // font keyword on macOS.
+    "value-keyword-case": ["lower", { ignoreKeywords: ["BlinkMacSystemFont"] }],
   },
 };
