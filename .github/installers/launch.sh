@@ -67,10 +67,12 @@ curl -sf --max-time 30 "${url}app.js" -o "$logs/app.js" || fail "${url}app.js di
 [ -s "$logs/app.js" ] || fail "${url}app.js is empty"
 
 # 3. The page in the window connects back. The two requests above open no
-# socket, so the first "socket opened" comes from the window.
+# socket, so the first "socket opened" comes from the window. The app logs
+# to its stderr, and xvfb-run sends the stderr of its command to stdout, so
+# the line is looked for in both.
 connected=""
 for _ in $(seq 1 "$limit"); do
-  if grep -Fq 'socket opened' "$logs/stderr.log"; then
+  if grep -Fq 'socket opened' "$logs/stderr.log" "$logs/stdout.log"; then
     connected=yes
     break
   fi
