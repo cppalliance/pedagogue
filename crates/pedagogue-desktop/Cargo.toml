@@ -6,10 +6,31 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 publish.workspace = true
+build = "build.rs"
 
 [[bin]]
 name = "pedagogue"
 path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+pedagogue-demo.workspace = true
+pedagogue-server.workspace = true
+pedagogue-session.workspace = true
+tauri.workspace = true
+tauri-plugin-opener.workspace = true
+# `sync` for the stop signal and `time` for the bound on the stop. The
+# tasks run on Tauri's async runtime, which is tokio.
+tokio = { workspace = true, features = ["sync", "time"] }
+tracing.workspace = true
+tracing-subscriber.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[build-dependencies]
+tauri-build.workspace = true
 
 [lints]
 workspace = true

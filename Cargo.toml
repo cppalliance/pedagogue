@@ -39,7 +39,11 @@ url = "2"
 tracing = { version = "0.1", default-features = false, features = ["std"] }
 # A plain stderr subscriber for the two binaries: no colors, no log bridge.
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std"] }
-# Tauri v2 desktop framework, pinned as Runvil Workshop pins it.
+# Tauri v2 desktop framework, pinned as Runvil Workshop pins it. Cargo.lock
+# holds the whole Tauri family at Workshop's versions (tauri 2.11.5 with
+# tauri-runtime 2.11.3, tauri-runtime-wry 2.11.4, wry 0.55.1 and tao
+# 0.35.3). A fresh resolve picks tauri-runtime 2.12, which tauri 2.11 does
+# not compile against, so move these together and with Workshop.
 tauri = "~2.11"
 tauri-build = "2.6.3"
 tauri-plugin-opener = "2.5.5"

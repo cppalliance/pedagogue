@@ -37,6 +37,9 @@ The session is the one place that holds state. A host changes it through a handl
   - `src/cross_site.rs` guards the socket and the command route against other sites, `src/csp.rs` stamps the content policy on every response, and `src/error.rs` holds the refusals sent over HTTP.
   - `examples/serve.rs` runs the server and the demo together for a browser.
 - `crates/pedagogue-desktop/` - the Tauri app. It owns the session and the one async runtime, starts the server and the demo on it, and opens a window on the server's address.
+  - `src/run.rs` holds `run`: it reads the script and opens the listener before the window exists, spawns the server and the demo on Tauri's async runtime, and after the window closes it signals the server and waits for it for a few seconds at most.
+  - `src/navigation.rs` is the navigation policy: the window loads only the app's own address, and any other link opens in the system browser. The page has no access to Tauri's API, so links are handled in Rust.
+  - `src/main.rs` only calls `run` and returns its exit code. `app-icon.png` is the source of the files in `icons/`, made with `cargo tauri icon`.
 - `ui/` - the TypeScript UI. `ui/src/main.ts` is the entry point. `ui/src/tokens.css` holds the layer order, the reset and the two palettes. `ui/src/page/` is the textbook side and `ui/src/chat/` is the tutor side, and each component keeps its CSS file beside it. `ui/build.mjs` bundles them into three files and copies the icon sprites out of the design files.
 - `design/` - the two design reference files. They link the CSS files under `ui/src`, so the look has one home, and each keeps its icons in a sprite of its own.
 

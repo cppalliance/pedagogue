@@ -4,7 +4,15 @@ Pedagogue is a "living textbook": a textbook page on the left and a tutor chat o
 
 ## Run it
 
-In a browser, with the server and the demo in one process:
+The desktop app:
+
+```text
+cargo run -p pedagogue-desktop
+```
+
+It opens one window and plays the straw poll lesson. Pass a script as the first argument to play another one, such as `cargo run -p pedagogue-desktop -- samples/contact-sheet.json`. It prints its loopback address, and a browser on that address shows the same lesson.
+
+In a browser alone, with the server and the demo in one process:
 
 ```text
 cargo run -p pedagogue-server --example serve
