@@ -219,4 +219,16 @@ pub(crate) enum Misstep {
         /// The number of the page.
         page: PageNumber,
     },
+    /// An answer holds both picks and text, or neither.
+    #[error("the answer to quiz `{quiz}` holds neither picks alone nor text alone")]
+    AnswerShape {
+        /// The id of the quiz.
+        quiz: BlockId,
+    },
+    /// A chat message holds no text.
+    #[error("the message is empty")]
+    EmptyMessage,
+    /// The student asked for a reply again before the tutor gave one.
+    #[error("the tutor has given no reply to repeat")]
+    NoReply,
 }

@@ -1,10 +1,11 @@
-//! Text a model reads: the receipt of each command and the sentence of each
-//! refusal.
+//! Text a model reads: the receipt of each command, the sentence of each
+//! refusal, and the line that reports each thing the student did.
 //!
 //! Every sentence is short and stands on its own, and a refusal says what to
 //! fix. This file is the one home of that wording in this crate.
 
-use crate::lesson::{Flaw, Receipt, Refusal, TOOLS, Verdict};
+use crate::event::{Pick, QuizAnswer, StudentEvent};
+use crate::lesson::{Flaw, Receipt, Refusal, ResponseKind, TOOLS, Verdict};
 
 /// Writes the receipt a model reads after a command applied.
 ///
@@ -123,6 +124,56 @@ fn flaw_sentence(tool: &str, flaw: &Flaw) -> String {
         Flaw::RightOptions { multiple: true, .. } => {
             format!("A select-all {tool} needs one or more options with \"correct\": true.")
         }
+    }
+}
+
+/// Writes what the student did as one line of plain text for a model.
+///
+/// A chat message is its own text. Every other event is a sentence that
+/// names the quiz or the page it happened on.
+pub(crate) fn student_event(event: &StudentEvent) -> String {
+    match event {
+        StudentEvent::UserMessage { text } => text.clone(),
+        StudentEvent::QuizAnswered {
+            quiz,
+            attempt,
+            answer: QuizAnswer::Picks { picks, correct },
+        } => {
+            let verdict = if *correct { "Correct." } else { "Incorrect." };
+            format!(
+                "Quiz {quiz}, attempt {attempt}: chose {}. {verdict}",
+                list_picks(picks)
+            )
+        }
+        StudentEvent::QuizAnswered {
+            quiz,
+            attempt,
+            answer: QuizAnswer::Text { kind, text },
+        } => {
+            let kind = match kind {
+                ResponseKind::ShortAnswer => "short answer",
+                ResponseKind::ShortEssay => "short essay",
+                ResponseKind::TryIt => "try it",
+            };
+            format!("Quiz {quiz} ({kind}), attempt {attempt}: the student wrote \"{text}\"")
+        }
+        StudentEvent::ContinuePressed { page, label } => {
+            format!("The student pressed \"{label}\" on page {page}.")
+        }
+        StudentEvent::RegeneratePressed => "The student asked for the last reply again.".to_owned(),
+    }
+}
+
+/// Lists picked options as `A "one", B "two" and C "three"`.
+fn list_picks(picks: &[Pick]) -> String {
+    let named: Vec<String> = picks
+        .iter()
+        .map(|pick| format!("{} \"{}\"", pick.letter, pick.text))
+        .collect();
+    match named.split_last() {
+        Some((last, rest)) if !rest.is_empty() => format!("{} and {last}", rest.join(", ")),
+        Some((only, _)) => only.clone(),
+        None => "no option".to_owned(),
     }
 }
 
@@ -355,6 +406,72 @@ mod tests {
                 "The label \"a\" appears twice in the tree. Give each node a label of its own.",
                 "An edge names \"c\", which is in none of the rows. Use the labels from \"rows\".",
                 "The edge from \"b\" to \"a\" must end in a lower row than it starts in.",
+            ],
+        );
+    }
+
+    #[test]
+    fn each_thing_the_student_did_is_one_line_for_the_model() {
+        let quiz = |id: &str| serde_json::from_value(json!(id)).expect("the text is a block id");
+        let pick = |letter: char, text: &str| Pick {
+            letter,
+            text: text.to_owned(),
+        };
+        let wrote =
+            |id: &str, attempt: usize, kind: ResponseKind, text: &str| StudentEvent::QuizAnswered {
+                quiz: quiz(id),
+                attempt,
+                answer: QuizAnswer::Text {
+                    kind,
+                    text: text.to_owned(),
+                },
+            };
+        let events = [
+            StudentEvent::UserMessage {
+                text: "Why five columns?".to_owned(),
+            },
+            StudentEvent::QuizAnswered {
+                quiz: quiz("b7"),
+                attempt: 1,
+                answer: QuizAnswer::Picks {
+                    picks: vec![pick('B', "Count the room")],
+                    correct: false,
+                },
+            },
+            StudentEvent::QuizAnswered {
+                quiz: quiz("b8"),
+                attempt: 2,
+                answer: QuizAnswer::Picks {
+                    picks: vec![
+                        pick('A', "Strongly favor"),
+                        pick('C', "Neutral"),
+                        pick('E', "Strongly against"),
+                    ],
+                    correct: true,
+                },
+            },
+            wrote("b9", 1, ResponseKind::ShortAnswer, "It casts to an rvalue."),
+            wrote("b10", 1, ResponseKind::ShortEssay, "Shared state."),
+            wrote("b11", 3, ResponseKind::TryIt, "co_return x * 2;"),
+            StudentEvent::ContinuePressed {
+                page: serde_json::from_value(json!(1)).expect("1 is a page number"),
+                label: "Continue to 3.3".to_owned(),
+            },
+            StudentEvent::RegeneratePressed,
+        ];
+        let lines: Vec<String> = events.iter().map(student_event).collect();
+        assert_eq!(
+            lines,
+            [
+                "Why five columns?",
+                "Quiz b7, attempt 1: chose B \"Count the room\". Incorrect.",
+                "Quiz b8, attempt 2: chose A \"Strongly favor\", C \"Neutral\" and E \"Strongly \
+                 against\". Correct.",
+                "Quiz b9 (short answer), attempt 1: the student wrote \"It casts to an rvalue.\"",
+                "Quiz b10 (short essay), attempt 1: the student wrote \"Shared state.\"",
+                "Quiz b11 (try it), attempt 3: the student wrote \"co_return x * 2;\"",
+                "The student pressed \"Continue to 3.3\" on page 1.",
+                "The student asked for the last reply again.",
             ],
         );
     }

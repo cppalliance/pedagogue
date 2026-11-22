@@ -10,8 +10,18 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 /// Ids run `b1`, `b2` and so on, in the order the blocks were added. The
 /// receipt of a command names the id of the block it added, and that id is
 /// how a later command or a student answer points at a quiz.
+///
+/// # Examples
+///
+/// ```
+/// use pedagogue_session::BlockId;
+///
+/// let id: BlockId = serde_json::from_str("\"b7\"")?;
+/// assert_eq!(id.to_string(), "b7");
+/// # Ok::<(), serde_json::Error>(())
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub(crate) struct BlockId(NonZeroU32);
+pub struct BlockId(NonZeroU32);
 
 impl BlockId {
     /// The id of the first block of a lesson.
@@ -57,9 +67,20 @@ impl<'de> Deserialize<'de> for BlockId {
 }
 
 /// The number of one page. Pages are numbered from 1.
+///
+/// # Examples
+///
+/// ```
+/// use pedagogue_session::PageNumber;
+///
+/// let page: PageNumber = serde_json::from_str("2")?;
+/// assert_eq!(page.to_string(), "2");
+/// assert!(serde_json::from_str::<PageNumber>("0").is_err());
+/// # Ok::<(), serde_json::Error>(())
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
-pub(crate) struct PageNumber(NonZeroU32);
+pub struct PageNumber(NonZeroU32);
 
 impl PageNumber {
     /// The number of the first page of a lesson.

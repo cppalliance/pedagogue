@@ -20,8 +20,11 @@ The session is the one place that holds state. A host changes it through a handl
 
 - `crates/pedagogue-session/` - the lesson model, the quiz rules, the chat transcript, the wire frames and the `Session` handle. It is the one crate a host depends on, and it stays free of Axum and Tauri.
   - `src/lesson.rs` holds the `Lesson`, its fold `Lesson::apply`, and the calls a student's actions go through. Its children are plain data and logic: `command.rs` (one argument struct per page command), `block.rs` (the blocks those arguments become), `quiz.rs` (quiz blocks and the part of them the UI receives), `quiz_rules.rs` (the quiz rules, as plain functions), `page.rs`, `id.rs` and `refusal.rs` (why a command or an action is refused).
+  - `src/session.rs` holds the `Session` handle: one lock around the lesson and the chat, a version that rises with every change, and `changes_since`, which returns the pages and the chat changed since a reader's cursor. A student action first waits for room on the event channel and then takes the lock, so events reach the host in the order of the changes they report.
+  - `src/chat.rs` holds the chat transcript, `src/frames.rs` the frames on the wire both ways, `src/changes.rs` the `Version` and what a reader gets back, and `src/error.rs` the two error types.
   - `src/event.rs` holds the events a host hears about the student.
-  - `src/wording.rs` writes the receipts and refusals a model reads.
+  - `src/wording.rs` writes everything a model reads: receipts, refusals, and the line that reports each student event.
+  - `fixtures/student-frames.json` holds one example of each frame the UI sends. The Rust tests and the UI tests both read it.
 - `crates/pedagogue-demo/` - a sample script player and a stand-in tutor. It uses the session crate exactly as a real host would.
 - `crates/pedagogue-server/` - the Axum router: the UI files, the socket and a command route. Its build script runs `ui/build.mjs`, and the bundle is embedded into the binary.
 - `crates/pedagogue-desktop/` - the Tauri app. It owns the session and the one async runtime, starts the server and the demo on it, and opens a window on the server's address.

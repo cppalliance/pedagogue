@@ -162,9 +162,21 @@ impl Serialize for ChoiceQuiz {
 }
 
 /// The kind of a free-text quiz.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+///
+/// # Examples
+///
+/// ```
+/// use pedagogue_session::{QuizAnswer, ResponseKind};
+///
+/// let answer = QuizAnswer::Text {
+///     kind: ResponseKind::TryIt,
+///     text: "co_return x * 2;".to_owned(),
+/// };
+/// assert!(matches!(answer, QuizAnswer::Text { kind: ResponseKind::TryIt, .. }));
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
 #[serde(rename_all = "snake_case")]
-pub(crate) enum ResponseKind {
+pub enum ResponseKind {
     /// A one-line answer.
     ShortAnswer,
     /// A few paragraphs.

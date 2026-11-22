@@ -16,9 +16,10 @@ use std::collections::BTreeMap;
 
 use self::block::{BarChart, Block, Body, TreeDiagram};
 pub(crate) use self::command::{Command, TOOLS};
-pub(crate) use self::id::{BlockId, PageNumber};
+pub use self::id::{BlockId, PageNumber};
 pub(crate) use self::page::Page;
-pub(crate) use self::quiz::{ResponseKind, Verdict};
+pub use self::quiz::ResponseKind;
+pub(crate) use self::quiz::Verdict;
 pub(crate) use self::refusal::{Flaw, Misstep, Refusal};
 use crate::event::{QuizAnswer, StudentEvent};
 

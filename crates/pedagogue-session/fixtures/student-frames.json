@@ -1,0 +1,8 @@
+{
+  "say": { "type": "say", "text": "Why five columns?" },
+  "answer_picks": { "type": "answer", "quiz": "b1", "picks": [1] },
+  "answer_select": { "type": "answer", "quiz": "b2", "picks": [0, 2] },
+  "answer_text": { "type": "answer", "quiz": "b3", "text": "It casts to an rvalue." },
+  "continue": { "type": "continue", "page": 1 },
+  "regenerate": { "type": "regenerate" }
+}
