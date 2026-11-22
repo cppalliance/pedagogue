@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Pre-commit hook: Fast formatting check before creating commits.
+set -e
+
+echo "==> Running cargo fmt --all --check..."
+cargo fmt --all --check
+
+# The UI check needs the packages that `npm ci` installs in ui/.
+if [ -d ui/node_modules ]; then
+    echo "==> Running Prettier on ui/..."
+    npm --prefix ui run --silent format:check
+fi

@@ -151,8 +151,9 @@ A sample script is a JSON list of steps: page commands, chat lines, scripted stu
 - `samples/` - sample scripts, as JSON. `straw-poll.json` is the lesson the app plays by default. `contact-sheet.json` draws every element of the two design files on one page, and `contact-sheet.frames.json` holds the frames the app sends for it.
 - `.github/workflows/` - `ci.yml` runs the checks on every pull request and on `master`. `release.yml` builds and checks the installers, and publishes them when a `vX.Y.Z` tag is pushed.
 - `.github/installers/` - the launch check of the release run: it starts an installed app and waits for the page in its window to connect.
+- `.githooks/` - the pre-commit and pre-push hooks. `CONTRIBUTING.md` says how to turn them on.
 
-`ARCHITECTURE.md` explains how the parts fit together, `AGENTS.md` holds the rules for working in this repository, and `CHANGELOG.md` lists the changes of each release.
+`ARCHITECTURE.md` explains how the parts fit together, `AGENTS.md` holds the rules for working in this repository, `CONTRIBUTING.md` says how to set up and what a pull request has to pass, and `CHANGELOG.md` lists the changes of each release.
 
 ## Toolchain
 

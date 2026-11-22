@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Pre-push hook: Comprehensive validation before pushing to remote.
+set -e
+
+echo "==> Running Clippy on workspace..."
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+if command -v cargo-deny >/dev/null 2>&1; then
+    echo "==> Running cargo deny check..."
+    # Errors only; CI prints the full warning report.
+    cargo deny --log-level error check
+fi
+
+echo "==> Pre-push checks passed successfully."

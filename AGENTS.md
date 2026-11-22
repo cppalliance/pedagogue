@@ -68,6 +68,7 @@ Departures: colors stay in hex, the form the palette was approved in. The app ha
 - HTML, in CI: the Nu HTML Checker reads the two design files, `ui/index.html` and the built `ui/dist/index.html`, and a warning fails it. It needs Java, so it runs in the `ui` job of CI. By hand, <https://validator.w3.org/nu/> gives the same answers.
 - Dependencies, from the repository root: `cargo deny check` and `cargo audit`. `deny.toml` holds the allowed licenses and sources, and an accepted advisory goes into its `ignore` list with the reason.
 - CI runs all of these on every pull request and on `master`, in `.github/workflows/ci.yml`. A job added there also goes into the `needs` list of `ci-green`, the one check to require.
+- Hooks: `.githooks/pre-commit` runs the two format checks, and `.githooks/pre-push` runs clippy and `cargo deny`. They run once `git config core.hooksPath .githooks` has been set in the clone.
 
 ## Releases
 
