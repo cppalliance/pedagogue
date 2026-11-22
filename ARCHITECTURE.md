@@ -53,6 +53,9 @@ The session is the one place that holds state. A host changes it through a handl
   - `src/chat/chat-view.ts` draws the chat. A chat only grows, so it draws the entries it has yet to draw. `src/chat/composer.ts` is the edit box with its four looks, and `src/chat/chips.ts` the suggestion chips.
   - `test/helpers/boot.mjs` runs the built bundle in jsdom with a scripted socket, and `test/helpers/skeleton.mjs` turns an element into the text that the markup tests compare with the design files.
 - `design/` - the two design reference files. They link the CSS files under `ui/src`, so the look has one home, and each keeps its icons in a sprite of its own.
+- `.github/workflows/` - the two workflows.
+  - `ci.yml` runs the checks of `AGENTS.md` on every pull request and on every push to `master`. Its last job, `ci-green`, succeeds only when every other job did.
+  - `release.yml` builds the installers of the four targets with `cargo installer` and checks each one on a fresh machine of its system: the Windows setup installs, each disk image holds the app for its processor with an ad hoc signature that verifies, the Debian package installs in a bare container, and the AppImage unpacks. Its `assemble` job gathers the five files with `SHA256SUMS` and the release notes, which are the section of `CHANGELOG.md` for the version. A `vX.Y.Z` tag publishes that set, and a pull request or a manual run ends after `assemble`.
 
 ## Invariants
 

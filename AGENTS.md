@@ -67,3 +67,9 @@ Departures: colors stay in hex, the form the palette was approved in. The app ha
 - UI, from `ui/`: `npm run check`, which runs the type check, oxlint, Stylelint, Prettier and the tests.
 - Dependencies, from the repository root: `cargo deny check` and `cargo audit`. `deny.toml` holds the allowed licenses and sources, and an accepted advisory goes into its `ignore` list with the reason.
 - CI runs all of these on every pull request and on `master`, in `.github/workflows/ci.yml`. A job added there also goes into the `needs` list of `ci-green`, the one check to require.
+
+## Releases
+
+- **One version.** The app has one version: `version` under `[workspace.package]` in `Cargo.toml`, the internal entries under `[workspace.dependencies]`, and `ui/package.json`. A release changes them together, adds a `## [<version>] - <date>` section to `CHANGELOG.md`, and puts the new file names into the README's Install section. The tests and the release workflow fail when one of these is left behind.
+- **A tag publishes.** A release is a `vX.Y.Z` tag on `master` that names that version. `.github/workflows/release.yml` builds the five installers with `cargo installer`, checks each one, and publishes them with `SHA256SUMS`. A pull request that touches the installer, the version or the changelog runs the same jobs up to the publish step.
+- **One home for the file names.** The release file names come from `Installer::file_name` in `crates/pedagogue-installer/src/platform.rs`. A change there also goes into the checks and the `assemble` job of `release.yml`.

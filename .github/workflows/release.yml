@@ -1,0 +1,399 @@
+name: Release
+run-name: Pedagogue installers (${{ github.event_name == 'push' && github.ref_name || github.event_name == 'pull_request' && 'pull request' || 'dispatched' }})
+
+# Builds the five installers (a setup for Windows, a disk image each for
+# Apple silicon and Intel Macs, a Debian package and an AppImage for Linux),
+# checks each one on a fresh machine of its system, and gathers them with
+# SHA256SUMS and the release notes. A vX.Y.Z tag then publishes that set as
+# a GitHub release. A job that fails means no release.
+#
+# What starts a run:
+# - A pushed vX.Y.Z tag that names the workspace version: build, check,
+#   assemble and publish.
+# - A pull request that touches the paths below, or a manual run on any
+#   ref: build, check and assemble. The files stay as workflow artifacts
+#   for 7 days, and the publish job is skipped.
+#
+# The installers are unsigned, so this workflow reads no secret. Each job
+# skips itself in a fork, as in ci.yml.
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - crates/pedagogue-installer/**
+      - crates/pedagogue-desktop/tauri.conf.json
+      - crates/pedagogue-desktop/icons/**
+      - .cargo/config.toml
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+      - ui/package.json
+      - ui/package-lock.json
+      - CHANGELOG.md
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  prepare:
+    if: ${{ !github.event.repository.fork }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # The installers take their version from the workspace, so a tag has
+      # to name the same one before anything is built.
+      - name: Read the version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(python3 - <<'PY'
+          import tomllib
+
+          with open("Cargo.toml", "rb") as manifest:
+              print(tomllib.load(manifest)["workspace"]["package"]["version"])
+          PY
+          )
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ||
+            { echo "the workspace version in Cargo.toml is '$version', which is not X.Y.Z"; exit 1; }
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            [ "$GITHUB_REF_NAME" = "v$version" ] ||
+              { echo "the tag $GITHUB_REF_NAME does not name the workspace version in Cargo.toml, which is $version"; exit 1; }
+            mode="release $GITHUB_REF_NAME"
+          else
+            mode="build only ($GITHUB_EVENT_NAME)"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          {
+            echo "Workspace version: $version"
+            echo "Mode: $mode"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # The release notes are the section of CHANGELOG.md for this version,
+      # without its heading. Every run cuts them, so a version without its
+      # section fails in the pull request and not on the tag.
+      - name: Cut the release notes
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          awk -v heading="## [$VERSION]" '
+            index($0, heading) == 1 { inside = 1; next }
+            inside && /^## / { inside = 0 }
+            inside { print }
+          ' CHANGELOG.md | sed -e '/./,$!d' > notes.md
+          grep -q '[^[:space:]]' notes.md ||
+            { echo "CHANGELOG.md has no section '## [$VERSION]' with text under it"; exit 1; }
+          cat notes.md
+
+      - name: Upload the release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: notes.md
+          if-no-files-found: error
+          retention-days: 7
+
+  build:
+    name: build (${{ matrix.platform }})
+    needs: prepare
+    if: ${{ !github.event.repository.fork }}
+    # A build from an empty cache takes about 15 minutes. A hung one should
+    # not hold the run for GitHub's 6-hour default.
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        # `arch` is how the file name of the target spells the processor,
+        # and `lipo` is how macOS names it.
+        include:
+          - platform: windows
+            runner: windows-latest
+            triple: x86_64-pc-windows-msvc
+            arch: x64
+          # Both Mac targets build on the Apple silicon runner.
+          - platform: macos-arm
+            runner: macos-latest
+            triple: aarch64-apple-darwin
+            arch: aarch64
+            lipo: arm64
+          - platform: macos-intel
+            runner: macos-latest
+            triple: x86_64-apple-darwin
+            arch: x64
+            lipo: x86_64
+          # ubuntu-22.04 keeps the package and the AppImage at the glibc
+          # 2.35 floor.
+          - platform: linux
+            runner: ubuntu-22.04
+            triple: x86_64-unknown-linux-gnu
+            arch: amd64
+    runs-on: ${{ matrix.runner }}
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      TRIPLE: ${{ matrix.triple }}
+      ARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # The first cargo call installs the toolchain that rust-toolchain.toml
+      # names, and the target then joins that toolchain.
+      - name: Install the Rust toolchain and the target
+        shell: bash
+        run: |
+          cargo --version
+          rustup target add "$TRIPLE"
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          key: ${{ matrix.triple }}
+
+      # The three packages the desktop crate links against, as in ci.yml,
+      # and two for the bundlers: patchelf for the AppImage's libraries and
+      # xdg-utils for the xdg-open it carries. A mirror that does not answer
+      # makes apt-get wait for a long time, so the step has a limit of its
+      # own.
+      - name: Install the Linux build packages
+        if: matrix.platform == 'linux'
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libwebkit2gtk-4.1-dev libssl-dev librsvg2-dev patchelf xdg-utils
+          # Tauri's linuxdeploy is an AppImage itself. Unpacked, it runs
+          # without FUSE.
+          echo "APPIMAGE_EXTRACT_AND_RUN=1" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      # The UI install brings the pinned Tauri CLI, which cargo installer
+      # runs, and the server's build script bundles the UI with it.
+      - name: Install UI dependencies
+        working-directory: ui
+        run: npm ci
+
+      - name: Build the installers
+        shell: bash
+        run: cargo installer --target "$TRIPLE"
+
+      # A silent install on the fresh runner. The setup installs for the
+      # current user, into %LOCALAPPDATA%\Pedagogue.
+      - name: Install the setup and check the app
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $setup = Join-Path $PWD "target\installer\$env:TRIPLE\Pedagogue_${env:VERSION}_${env:ARCH}-setup.exe"
+          if (-not (Test-Path -LiteralPath $setup)) { throw "the build left no $setup" }
+          # Not -Wait, which waits for every descendant too, so a process the
+          # setup leaves running would hang the job. Reading Handle at once
+          # keeps ExitCode readable after the exit.
+          $process = Start-Process -FilePath $setup -ArgumentList '/S' -PassThru
+          $null = $process.Handle
+          if (-not $process.WaitForExit(10 * 60 * 1000)) { throw 'the setup did not exit within 10 minutes' }
+          if ($process.ExitCode -ne 0) { throw "the setup exited with code $($process.ExitCode)" }
+          $app = Join-Path $env:LOCALAPPDATA 'Pedagogue\pedagogue.exe'
+          if (-not (Test-Path -LiteralPath $app)) { throw "the setup did not install $app" }
+          $installed = (Get-Item -LiteralPath $app).VersionInfo.ProductVersion
+          if ($installed -ne $env:VERSION) { throw "$app has version '$installed', expected $env:VERSION" }
+          Write-Host "installed $app, version $installed"
+
+      # The disk image holds the app for the target's processor, with a
+      # signature that verifies. It is an ad hoc one: see tauri.conf.json.
+      - name: Mount the disk image and check the app
+        if: startsWith(matrix.platform, 'macos')
+        shell: bash
+        env:
+          LIPO: ${{ matrix.lipo }}
+        run: |
+          set -euo pipefail
+          image="target/installer/$TRIPLE/Pedagogue_${VERSION}_${ARCH}.dmg"
+          [ -f "$image" ] || { echo "the build left no $image"; exit 1; }
+          mount=$(mktemp -d)
+          hdiutil attach -nobrowse -readonly -mountpoint "$mount" "$image"
+          trap 'hdiutil detach "$mount" -quiet || true' EXIT
+          ls -la "$mount"
+          app="$mount/Pedagogue.app"
+          binary="$app/Contents/MacOS/pedagogue"
+          [ -x "$binary" ] || { echo "the disk image holds no executable $binary"; exit 1; }
+          archs=$(lipo -archs "$binary")
+          [ "$archs" = "$LIPO" ] || { echo "$binary is built for '$archs', expected '$LIPO'"; exit 1; }
+          codesign --verify --deep --strict --verbose=2 "$app"
+          shown=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist")
+          [ "$shown" = "$VERSION" ] || { echo "$app has version '$shown', expected $VERSION"; exit 1; }
+          echo "checked $app: $archs, version $shown"
+
+      # The package installs on a bare Ubuntu 22.04 with the libraries it
+      # names, and the app then finds every library it loads.
+      - name: Install the package in a clean container
+        if: matrix.platform == 'linux'
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="Pedagogue_${VERSION}_${ARCH}.deb"
+          [ -f "target/installer/$TRIPLE/$package" ] || { echo "the build left no $package"; exit 1; }
+          docker run --rm \
+            --volume "$PWD/target/installer/$TRIPLE:/dist:ro" \
+            --env PACKAGE="$package" --env VERSION="$VERSION" \
+            ubuntu:22.04 bash -euo pipefail -c '
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update
+              apt-get install -y --no-install-recommends "/dist/$PACKAGE"
+              app=$(command -v pedagogue) || { echo "the package put no pedagogue on the PATH"; exit 1; }
+              packaged=$(dpkg-deb --field "/dist/$PACKAGE" Version)
+              [ "$packaged" = "$VERSION" ] || { echo "the package has version $packaged, expected $VERSION"; exit 1; }
+              if ldd "$app" | grep "not found"; then
+                echo "the package leaves these libraries of $app unresolved"
+                exit 1
+              fi
+              echo "installed $app, version $packaged"
+            '
+
+      # The AppImage unpacks without FUSE, and the tree holds the app.
+      - name: Unpack the AppImage and check the app
+        if: matrix.platform == 'linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          appimage="target/installer/$TRIPLE/Pedagogue_${VERSION}_${ARCH}.AppImage"
+          [ -f "$appimage" ] || { echo "the build left no $appimage"; exit 1; }
+          work="$RUNNER_TEMP/pedagogue-appimage"
+          mkdir -p "$work"
+          # A copy, so the file that is uploaded stays as the build left it.
+          cp "$appimage" "$work/Pedagogue.AppImage"
+          chmod +x "$work/Pedagogue.AppImage"
+          (cd "$work" && ./Pedagogue.AppImage --appimage-extract > extract.log)
+          app=$(find "$work/squashfs-root" -type f -name pedagogue -perm -u+x -print -quit)
+          [ -n "$app" ] || { echo "the AppImage holds no executable pedagogue"; cat "$work/extract.log"; exit 1; }
+          echo "unpacked $app"
+
+      # A build that writes into the repository is caught here.
+      - name: Clean tree
+        shell: bash
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "the installer build dirtied the repository:"
+            git status --porcelain
+            exit 1
+          fi
+
+      - name: Upload the installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.platform }}
+          path: target/installer/${{ matrix.triple }}/*
+          if-no-files-found: error
+          retention-days: 7
+
+  # Everything a release holds, in one folder: the five installers,
+  # SHA256SUMS and the notes. Every run gets this far, so a pull request
+  # proves each step before the one that publishes.
+  assemble:
+    needs: [prepare, build]
+    if: ${{ !github.event.repository.fork }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download the installers
+        uses: actions/download-artifact@v4
+        with:
+          pattern: installers-*
+          path: dist
+          merge-multiple: true
+
+      - name: Download the release notes
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: dist
+
+      - name: Write SHA256SUMS
+        shell: bash
+        working-directory: dist
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          installers=(
+            "Pedagogue_${VERSION}_x64-setup.exe"
+            "Pedagogue_${VERSION}_aarch64.dmg"
+            "Pedagogue_${VERSION}_x64.dmg"
+            "Pedagogue_${VERSION}_amd64.deb"
+            "Pedagogue_${VERSION}_amd64.AppImage"
+          )
+          for name in "${installers[@]}"; do
+            [ -s "$name" ] || { echo "the builds left no $name"; ls -la; exit 1; }
+          done
+          # Exactly these files: a sixth one would be published too.
+          found=$(find . -maxdepth 1 -name 'Pedagogue_*' | wc -l)
+          [ "$found" -eq "${#installers[@]}" ] ||
+            { echo "expected ${#installers[@]} installers, found $found"; ls -la; exit 1; }
+          [ -s notes.md ] || { echo "the release notes are missing"; exit 1; }
+          sha256sum "${installers[@]}" > SHA256SUMS
+          sha256sum --check SHA256SUMS
+          ls -la
+          {
+            echo "### Pedagogue $VERSION"
+            echo
+            echo '```text'
+            cat SHA256SUMS
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the release files
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [prepare, assemble]
+    if: ${{ !github.event.repository.fork && github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download the release files
+        uses: actions/download-artifact@v4
+        with:
+          name: release
+          path: dist
+
+      - name: Publish the release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Pedagogue ${{ github.ref_name }}
+          body_path: dist/notes.md
+          make_latest: true
+          fail_on_unmatched_files: true
+          files: |
+            dist/Pedagogue_*
+            dist/SHA256SUMS

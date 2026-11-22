@@ -114,6 +114,22 @@ What it needs:
 
 The installers are unsigned, and the macOS app has an ad hoc signature.
 
+## Release it
+
+A release is a `vX.Y.Z` tag on `master` that names the workspace version.
+
+1. Set the new version: `version` under `[workspace.package]` and the internal entries under `[workspace.dependencies]` in `Cargo.toml`, then `cargo check --workspace` for `Cargo.lock`, and `npm version <version> --no-git-tag-version` in `ui/`.
+2. Add a `## [<version>] - <date>` section to `CHANGELOG.md`, and put the new file names into the Install section of this file.
+3. Land the change on `master` through a pull request. The pull request builds and checks all five installers.
+4. Tag the landed commit and push the tag to `cppalliance/pedagogue`:
+
+```text
+git tag -a v0.2.0 -m "Pedagogue 0.2.0"
+git push <remote> v0.2.0
+```
+
+`.github/workflows/release.yml` then builds the installers again, checks each one on a fresh machine of its system, and publishes them with `SHA256SUMS`. The section of `CHANGELOG.md` becomes the release notes. A tag that names another version than the workspace stops the run before anything is built.
+
 ## Sample scripts
 
 A sample script is a JSON list of steps: page commands, chat lines, scripted student answers and a wait for Continue. The doc comment on `Script` in `crates/pedagogue-demo/src/script.rs` lists the shapes.
@@ -131,7 +147,7 @@ A sample script is a JSON list of steps: page commands, chat lines, scripted stu
 - `crates/pedagogue-installer/` - the build tool behind `cargo installer`. It makes the installers for Windows, macOS and Linux.
 - `ui/` - the TypeScript UI, bundled by esbuild.
 - `samples/` - sample scripts, as JSON. `straw-poll.json` is the lesson the app plays by default. `contact-sheet.json` draws every element of the two design files on one page, and `contact-sheet.frames.json` holds the frames the app sends for it.
-- `.github/workflows/` - `ci.yml` runs the checks on every pull request and on `master`.
+- `.github/workflows/` - `ci.yml` runs the checks on every pull request and on `master`. `release.yml` builds and checks the installers, and publishes them when a `vX.Y.Z` tag is pushed.
 
 `ARCHITECTURE.md` explains how the parts fit together, `AGENTS.md` holds the rules for working in this repository, and `CHANGELOG.md` lists the changes of each release.
 
