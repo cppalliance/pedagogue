@@ -52,7 +52,7 @@ cargo test --locked --workspace --all-features
 cargo doc --workspace --no-deps --all-features
 ```
 
-Set `RUSTDOCFLAGS` to `-D warnings` for the docs build. A plain `cargo test` covers the two crates that need only Rust.
+Set `RUSTDOCFLAGS` to `-D warnings` for the docs build. A plain `cargo test` covers the three crates that need only Rust.
 
 From `ui/`:
 
@@ -72,6 +72,30 @@ cargo audit
 
 `deny.toml` holds the allowed licenses and sources. CI runs all of these checks on every pull request and on `master`.
 
+## Build an installer
+
+From the repository root:
+
+```text
+cargo installer
+```
+
+It builds the installers for this machine with the Tauri bundler and prints the path of each one. The files land in `target/installer/<target>/`:
+
+- Windows (`x86_64-pc-windows-msvc`): `Pedagogue_<version>_x64-setup.exe`
+- macOS on Apple silicon (`aarch64-apple-darwin`): `Pedagogue_<version>_aarch64.dmg`
+- macOS on Intel (`x86_64-apple-darwin`): `Pedagogue_<version>_x64.dmg`
+- Linux (`x86_64-unknown-linux-gnu`): `Pedagogue_<version>_amd64.deb` and `Pedagogue_<version>_amd64.AppImage`
+
+`cargo installer --target <triple>` builds for another target of the same system. An Apple silicon Mac builds the Intel installer that way, after `rustup target add x86_64-apple-darwin`.
+
+What it needs:
+
+- Node on the `PATH`, and `npm ci` run once in `ui/`. That installs the Tauri CLI at the version pinned in `ui/package.json`.
+- On Linux, the packages `libwebkit2gtk-4.1-dev`, `libssl-dev`, `librsvg2-dev`, `patchelf` and `xdg-utils`.
+
+The installers are unsigned, and the macOS app has an ad hoc signature.
+
 ## Sample scripts
 
 A sample script is a JSON list of steps: page commands, chat lines, scripted student answers and a wait for Continue. The doc comment on `Script` in `crates/pedagogue-demo/src/script.rs` lists the shapes.
@@ -86,6 +110,7 @@ A sample script is a JSON list of steps: page commands, chat lines, scripted stu
 - `crates/pedagogue-demo/` - a sample script player and a stand-in tutor.
 - `crates/pedagogue-server/` - the loopback server that delivers the UI and its socket.
 - `crates/pedagogue-desktop/` - the Tauri app. Its binary is named `pedagogue`.
+- `crates/pedagogue-installer/` - the build tool behind `cargo installer`. It makes the installers for Windows, macOS and Linux.
 - `ui/` - the TypeScript UI, bundled by esbuild.
 - `samples/` - sample scripts, as JSON. `straw-poll.json` is the lesson the app plays by default. `contact-sheet.json` draws every element of the two design files on one page, and `contact-sheet.frames.json` holds the frames the app sends for it.
 - `.github/workflows/` - `ci.yml` runs the checks on every pull request and on `master`.

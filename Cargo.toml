@@ -1,11 +1,15 @@
 [workspace]
 resolver = "3"
 members = ["crates/*"]
-# Plain `cargo build` and `cargo test` cover the two crates that need only
+# Plain `cargo build` and `cargo test` cover the three crates that need only
 # Rust. The server needs Node for its UI bundle and the desktop app needs the
 # Tauri toolchain, so each is an explicit choice: `-p pedagogue-server`,
 # `-p pedagogue-desktop`, or `--workspace`.
-default-members = ["crates/pedagogue-session", "crates/pedagogue-demo"]
+default-members = [
+    "crates/pedagogue-session",
+    "crates/pedagogue-demo",
+    "crates/pedagogue-installer",
+]
 
 [workspace.package]
 version = "0.0.0"

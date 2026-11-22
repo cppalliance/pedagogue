@@ -2625,6 +2625,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "pedagogue-installer"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "pedagogue-server"
 version = "0.0.0"
 dependencies = [
