@@ -151,11 +151,23 @@
     }
   }
 
+  /* A wrong pick is dimmed and stays out of the next attempt. Its tag keeps
+     full strength. */
+  .opt.wrong > input,
+  .opt.wrong > .opt-text {
+    opacity: 0.5;
+  }
+
   .tag {
     margin-left: auto;
     font-family: var(--sans);
     font-size: 0.8rem;
     font-weight: 700;
+  }
+
+  .q-status .tag {
+    margin: 0 0.5em 0 0;
+    font-size: inherit;
   }
 
   .opt.correct .tag {
@@ -193,9 +205,28 @@
     font-size: 0.85rem;
   }
 
+  /* An answer that was sent is shown as text in a soft outline. */
+  .field:read-only {
+    background: none;
+    border-color: var(--quiz-rule);
+  }
+
   .field:focus {
     outline: 2px solid var(--quiz-bd);
     outline-offset: 1px;
+  }
+
+  /* A small line under a question or a field: a hint, or where the answer
+     went. */
+  .q-note {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+
+  /* The status area under a free-text field after Submit. */
+  .q-status {
+    margin-top: 8px;
   }
 
   .q-foot {
@@ -210,6 +241,11 @@
 
   /* Quiz action buttons sit on the right. */
   .q-foot .btn {
+    margin-left: auto;
+  }
+
+  .q-status .btn {
+    display: block;
     margin-left: auto;
   }
 

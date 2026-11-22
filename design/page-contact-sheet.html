@@ -75,7 +75,7 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
 <main>
 <article class="page">
   <header class="running-head" data-spec=".running-head">
-    <span class="rh-title">Chapter 3 &nbsp; Chairing a WG21 Room</span><span class="rh-page">47</span>
+    <span class="rh-title">Chapter 3 &nbsp; Chairing a WG21 Room</span><span class="rh-page">1</span>
   </header>
 
   <p class="chapter-num" data-spec=".chapter-num">Chapter 3</p>
@@ -121,7 +121,7 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
       <rect class="bar negative" x="282" y="156" width="56" height="14"/> <text class="chart-label" x="310" y="148">1</text> <text class="chart-label" x="310" y="192">A</text>
       <rect class="bar negative" x="362" y="170" width="56" height="0"/>  <text class="chart-label" x="390" y="162">0</text> <text class="chart-label" x="390" y="192">SA</text>
     </svg>
-    <figcaption><span class="fig-no">Figure 1.2</span><span class="fig-text">A poll with consensus in favor</span></figcaption>
+    <figcaption><span class="fig-no">Figure 3.1</span><span class="fig-text">A poll with consensus in favor</span></figcaption>
   </figure>
 
   <figure data-spec="figure + tree diagram">
@@ -136,7 +136,7 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
       <text class="tree-label leaf" x="260" y="162">xvalue</text>
       <text class="tree-label leaf" x="445" y="162">prvalue</text>
     </svg>
-    <figcaption><span class="fig-no">Figure 6.1</span><span class="fig-text">Value categories</span></figcaption>
+    <figcaption><span class="fig-no">Figure 3.2</span><span class="fig-text">Value categories</span></figcaption>
   </figure>
 
   <ol class="timeline" data-spec=".timeline">
@@ -219,18 +219,18 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
   </form>
   <p class="callout success" data-spec=".callout.success">Nice work. The next page goes deeper.</p>
 
-  <form class="callout quiz" data-spec=".callout.quiz (answered, wrong)">
+  <form class="callout quiz" data-spec=".callout.quiz (after a wrong pick)">
     <p class="callout-title">Pop Quiz</p>
     <fieldset class="choices">
       <legend class="q">When is the file closed?</legend>
       <div class="options">
-        <label class="opt wrong"><input type="radio" name="q3" checked disabled><span class="opt-text">A. When main returns</span><span class="tag">Not quite</span></label>
-        <label class="opt"><input type="radio" name="q3" disabled><span class="opt-text">B. When the object leaves scope</span></label>
-        <label class="opt"><input type="radio" name="q3" disabled><span class="opt-text">C. When you call close</span></label>
+        <label class="opt wrong"><input type="radio" name="q3" disabled><span class="opt-text">A. When main returns</span><span class="tag">Not quite</span></label>
+        <label class="opt"><input type="radio" name="q3"><span class="opt-text">B. When the object leaves scope</span></label>
+        <label class="opt"><input type="radio" name="q3"><span class="opt-text">C. When you call close</span></label>
       </div>
     </fieldset>
-    <p class="feedback">The destructor runs when the object leaves scope, not when main returns. Try again.</p>
-    <button class="btn quiz" type="button">Try again</button>
+    <p class="feedback">The program ending is one way out, but this object can be gone long before that. Look at where the object lives.</p>
+    <button class="btn quiz" type="submit">Check answer</button>
   </form>
 
   <form class="callout quiz" data-spec=".callout.quiz (two columns)">
@@ -247,6 +247,52 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
     <button class="btn quiz" type="submit">Check answer</button>
   </form>
 
+  <form class="callout quiz" data-spec=".callout.quiz (multiple select)">
+    <p class="callout-title">Pop Quiz</p>
+    <fieldset class="choices">
+      <legend class="q">Which of these are columns in a WG21 straw poll?</legend>
+      <p class="q-note">Select all that apply.</p>
+      <div class="options">
+        <label class="opt"><input type="checkbox" name="q5"><span class="opt-text">A. Strongly favor</span></label>
+        <label class="opt"><input type="checkbox" name="q5"><span class="opt-text">B. Neutral</span></label>
+        <label class="opt"><input type="checkbox" name="q5"><span class="opt-text">C. Abstain</span></label>
+        <label class="opt"><input type="checkbox" name="q5"><span class="opt-text">D. Strongly against</span></label>
+      </div>
+    </fieldset>
+    <button class="btn quiz" type="submit">Check answer</button>
+  </form>
+
+  <form class="callout quiz" data-spec=".callout.quiz (multiple select, after a wrong pick)">
+    <p class="callout-title">Pop Quiz</p>
+    <fieldset class="choices">
+      <legend class="q">Which of these are columns in a WG21 straw poll?</legend>
+      <p class="q-note">Select all that apply.</p>
+      <div class="options">
+        <label class="opt"><input type="checkbox" name="q6" checked><span class="opt-text">A. Strongly favor</span></label>
+        <label class="opt"><input type="checkbox" name="q6"><span class="opt-text">B. Neutral</span></label>
+        <label class="opt wrong"><input type="checkbox" name="q6" disabled><span class="opt-text">C. Abstain</span><span class="tag">Not quite</span></label>
+        <label class="opt"><input type="checkbox" name="q6"><span class="opt-text">D. Strongly against</span></label>
+      </div>
+    </fieldset>
+    <p class="feedback">A straw poll counts five kinds of raised hand. Staying out of the count is always possible, but it has no column of its own.</p>
+    <p class="feedback">There is more to select.</p>
+    <button class="btn quiz" type="submit">Check answer</button>
+  </form>
+
+  <form class="callout quiz" data-spec=".callout.quiz (multiple select, solved)">
+    <p class="callout-title">Pop Quiz</p>
+    <fieldset class="choices">
+      <legend class="q">Which of these are columns in a WG21 straw poll?</legend>
+      <p class="q-note">Select all that apply.</p>
+      <div class="options">
+        <label class="opt correct"><input type="checkbox" name="q7" checked disabled><span class="opt-text">A. Strongly favor</span><span class="tag">&#10003; Correct</span></label>
+        <label class="opt correct"><input type="checkbox" name="q7" checked disabled><span class="opt-text">B. Neutral</span><span class="tag">&#10003; Correct</span></label>
+        <label class="opt wrong"><input type="checkbox" name="q7" disabled><span class="opt-text">C. Abstain</span><span class="tag">Not quite</span></label>
+        <label class="opt correct"><input type="checkbox" name="q7" checked disabled><span class="opt-text">D. Strongly against</span><span class="tag">&#10003; Correct</span></label>
+      </div>
+    </fieldset>
+  </form>
+
   <form class="callout quiz" data-spec=".callout.quiz (free text)">
     <p class="callout-title">Short Essay</p>
     <label class="q" for="essay">In about 100 words, describe a problem in C++ you would like to solve and who it affects.</label>
@@ -259,6 +305,27 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
     <label class="q" for="sa">In your own words, what does <code>std::move</code> actually do?</label>
     <input class="field" id="sa" type="text" autocomplete="off" placeholder="One clear sentence is fine">
     <div class="q-foot"><button class="btn quiz" type="submit">Submit</button></div>
+  </form>
+
+  <form class="callout quiz" data-spec=".callout.quiz (short answer, sent)">
+    <p class="callout-title">Check Your Understanding</p>
+    <label class="q" for="sa-sent">In your own words, what does <code>std::move</code> actually do?</label>
+    <input class="field" id="sa-sent" type="text" autocomplete="off" placeholder="One clear sentence is fine" value="It moves the object into a new variable." readonly>
+    <div class="q-status"><p class="q-note">Sent to your tutor</p></div>
+  </form>
+
+  <form class="callout quiz" data-spec=".callout.quiz (short answer, right)">
+    <p class="callout-title">Check Your Understanding</p>
+    <label class="q" for="sa-right">In your own words, what does <code>std::move</code> actually do?</label>
+    <input class="field" id="sa-right" type="text" autocomplete="off" placeholder="One clear sentence is fine" value="It casts its argument to an rvalue reference, so a move can follow." readonly>
+    <div class="q-status"><p class="feedback good"><span class="tag">&#10003; Correct</span>Exactly. The cast only makes the move possible.</p></div>
+  </form>
+
+  <form class="callout quiz" data-spec=".callout.quiz (short answer, wrong)">
+    <p class="callout-title">Check Your Understanding</p>
+    <label class="q" for="sa-wrong">In your own words, what does <code>std::move</code> actually do?</label>
+    <input class="field" id="sa-wrong" type="text" autocomplete="off" placeholder="One clear sentence is fine" value="It moves the object into a new variable." readonly>
+    <div class="q-status"><p class="feedback"><span class="tag">Not quite</span>Nothing has moved yet when <code>std::move</code> returns. Think about what kind of expression it gives you.</p><button class="btn quiz" type="button">Try again</button></div>
   </form>
 
   <form class="callout quiz" data-spec=".callout.quiz (try it, code)">
@@ -303,9 +370,24 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
     <p><sup class="fn-ref">1</sup> Straw polls are non-binding. They measure the room and guide the chair.</p>
   </footer>
 
-  <nav class="page-end" aria-label="Pages" data-spec=".page-end buttons">
+  <nav class="page-end" aria-label="Pages" data-spec=".page-end (newest page)">
     <button class="btn neutral" type="button">Previous section</button>
     <button class="btn continue" type="button">Continue to 3.3</button>
+  </nav>
+
+  <div class="band inner" data-sheet>Page end, other states</div>
+
+  <nav class="page-end" aria-label="Pages" data-sheet data-spec=".page-end (first page)">
+    <button class="btn neutral" type="button" hidden>Previous section</button>
+    <button class="btn continue" type="button">Continue to 3.3</button>
+  </nav>
+  <nav class="page-end" aria-label="Pages" data-sheet data-spec=".page-end (after Continue)">
+    <button class="btn neutral" type="button">Previous section</button>
+    <button class="btn continue" type="button" disabled>Continue to 3.3</button>
+  </nav>
+  <nav class="page-end" aria-label="Pages" data-sheet data-spec=".page-end (earlier page)">
+    <button class="btn neutral" type="button">Previous section</button>
+    <button class="btn continue" type="button">Next section</button>
   </nav>
 
 </article>
