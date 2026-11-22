@@ -249,3 +249,34 @@ git push upstream v0.1.0
 - A startup error dialog for the installed app. A release build on Windows runs without a console, so a startup error such as an unreadable script path ends the app silently. The default launch plays the built-in lesson on a port the system picks, and both are reliable (confidence: medium on waiting - the fix needs the dialog plugin and a reshaped startup, which is its own piece of work).
 - The Nu HTML checker as a CI job (confidence: medium on waiting - its first run happens on a CI runner and may ask for design-file changes that deserve their own review).
 - `CONTRIBUTING.md` and git hooks, which wait for the first outside contributor.
+
+# What the build found
+
+The plan held in its result. Pedagogue 0.1.0 was published on 2026-11-22 at 14:27 UTC, from the tag `v0.1.0` on `8a32691`, with the five installers and `SHA256SUMS`. The eight commits of the plan run from `586062c` to `8a32691`. Every CI job passed on its first run in every round, and one installer run was replaced midway by the next push.
+
+This plan had no copy in the repository while it ran. Its commits name it by the path it had on the author's machine, `.cursor/plans/pedagogue_ci_and_release_9980d68c.plan.md`, as the plan itself tells them to.
+
+## What each installer was checked for
+
+These checks ran in the release run, on the files that were then published.
+
+- The Windows setup installed silently, and the installed `pedagogue.exe` reported version 0.1.0.
+- Each disk image mounted and held the app for its processor, `arm64` or `x86_64`, with an ad hoc signature that verified.
+- The Debian package installed in a bare `ubuntu:22.04` container, put `pedagogue` on the PATH, and left no library unresolved.
+- The AppImage unpacked to a tree that holds the app.
+- After the release, all five installers were downloaded from the release page, and each one matched `SHA256SUMS`.
+
+## Where the build differs from the plan
+
+- **Step 3, the pull request.** The plan expected upstream to run workflows for a pull request from the fork right away. Pull request #1 started no workflow run, most likely because the repository had never had a workflow. By the user's choice, the README and CI commits landed on upstream `master` directly, and the installer work went into a second pull request, #2.
+- **The CI jobs.** `clippy` and `docs` run on `ubuntu-22.04`, the image of the Linux installers, where the plan said `ubuntu-latest`. The step that installs the system packages has a limit of 15 minutes, and `ci-green` a limit of 5.
+- **`deny.toml`** keeps `ISC` in its license list.
+- **The installer tool** also refuses a target of another system before anything starts, such as a Mac target on Windows.
+- **Reviews.** Copilot and CodeRabbit reviewed pull request #2, and three fixes followed. The tool passes the target folder to the Tauri CLI on every build (`204c2d7`), the package check fails when `ldd` itself fails (`400e293`), and a test compares the internal dependency entries with the workspace version (`8a32691`).
+- **Step 7, the repositories became public.** Both repositories were made public while pull request #2 was open. GitHub then detached the fork and closed the pull request. The last round of checks, for `8a32691`, ran in `vinniefalco/pedagogue` itself: its CI on the push, and a manual run of the Release workflow.
+- **Step 8, the tag on origin.** Upstream `master` was fast-forwarded and tagged as planned. The tag stayed off origin at the release, because origin was no longer a fork, and a tag there would have published a second release. It went to origin later, while the Release workflow of origin was switched off.
+- **Beside the plan.** The vision document (`c7155dd`) joined pull request #2 at the user's request.
+
+## After the plan
+
+Later commits on `master` are outside this plan. Only `cppalliance/pedagogue` publishes a release, the workflows use the current action versions, the release run starts each installed app and waits for the page in its window to connect, CI runs the Nu HTML Checker, and the repository has a contributing guide and git hooks.
