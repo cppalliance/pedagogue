@@ -19,6 +19,8 @@ The session is the one place that holds state. A host changes it through a handl
 ## Code map
 
 - `crates/pedagogue-session/` - the lesson model, the quiz rules, the chat transcript, the wire frames and the `Session` handle. It is the one crate a host depends on, and it stays free of Axum and Tauri.
+  - `src/lesson.rs` holds the `Lesson` and its fold, `Lesson::apply`. Its children are plain data and logic: `command.rs` (one argument struct per page command), `block.rs` (the blocks those arguments become), `page.rs`, `id.rs` and `refusal.rs` (why a command is refused).
+  - `src/wording.rs` writes the receipts and refusals a model reads.
 - `crates/pedagogue-demo/` - a sample script player and a stand-in tutor. It uses the session crate exactly as a real host would.
 - `crates/pedagogue-server/` - the Axum router: the UI files, the socket and a command route. Its build script runs `ui/build.mjs`, and the bundle is embedded into the binary.
 - `crates/pedagogue-desktop/` - the Tauri app. It owns the session and the one async runtime, starts the server and the demo on it, and opens a window on the server's address.
