@@ -2,9 +2,9 @@
 
 use serde::Serialize;
 
-use super::block::{Block, optional_text};
+use super::block::{Block, Body, optional_text};
 use super::command;
-use super::id::PageNumber;
+use super::id::{BlockId, PageNumber};
 use super::refusal::Flaw;
 
 /// One page of a lesson.
@@ -88,5 +88,28 @@ impl Page {
     pub(crate) fn set_continue(&mut self, label: String) {
         self.continue_label = Some(label);
         self.continue_pressed = false;
+    }
+
+    /// Returns the label of the Continue button, when the page has one.
+    pub(crate) fn continue_label(&self) -> Option<&str> {
+        self.continue_label.as_deref()
+    }
+
+    /// Says whether the Continue button was pressed.
+    pub(crate) fn is_continue_pressed(&self) -> bool {
+        self.continue_pressed
+    }
+
+    /// Marks the Continue button as pressed.
+    pub(crate) fn press_continue(&mut self) {
+        self.continue_pressed = true;
+    }
+
+    /// Returns the content of the block with the given id, to change it.
+    pub(crate) fn body_mut(&mut self, id: BlockId) -> Option<&mut Body> {
+        self.blocks
+            .iter_mut()
+            .find(|block| block.id() == id)
+            .map(Block::body_mut)
     }
 }

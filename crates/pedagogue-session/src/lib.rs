@@ -9,6 +9,14 @@
     not(test),
     expect(
         dead_code,
+        reason = "the session handle that sends these events is yet to land"
+    )
+)]
+mod event;
+#[cfg_attr(
+    not(test),
+    expect(
+        dead_code,
         reason = "the session handle that applies commands to the lesson is yet to land"
     )
 )]

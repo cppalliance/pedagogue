@@ -9,6 +9,8 @@ use serde::de::DeserializeOwned;
 use serde_json::{Map, Value};
 
 use super::block::Tone;
+use super::id::BlockId;
+use super::quiz::Verdict;
 use super::refusal::Refusal;
 
 /// The name of every page command.
@@ -25,6 +27,11 @@ pub(crate) const TOOLS: &[&str] = &[
     "tailored_for_you",
     "hint",
     "milestone",
+    "pop_quiz",
+    "short_answer",
+    "short_essay",
+    "try_it",
+    "quiz_result",
     "progress",
     "section_complete",
     "success",
@@ -46,6 +53,11 @@ pub(crate) enum Command {
     TailoredForYou(TailoredForYou),
     Hint(Hint),
     Milestone(Milestone),
+    PopQuiz(PopQuiz),
+    ShortAnswer(ShortAnswer),
+    ShortEssay(ShortEssay),
+    TryIt(TryIt),
+    QuizResult(QuizResult),
     Progress(Progress),
     SectionComplete(SectionComplete),
     Success(Success),
@@ -68,6 +80,11 @@ impl Command {
             "tailored_for_you" => Self::TailoredForYou(read(tool, args)?),
             "hint" => Self::Hint(read(tool, args)?),
             "milestone" => Self::Milestone(read(tool, args)?),
+            "pop_quiz" => Self::PopQuiz(read(tool, args)?),
+            "short_answer" => Self::ShortAnswer(read(tool, args)?),
+            "short_essay" => Self::ShortEssay(read(tool, args)?),
+            "try_it" => Self::TryIt(read(tool, args)?),
+            "quiz_result" => Self::QuizResult(read(tool, args)?),
             "progress" => Self::Progress(read(tool, args)?),
             "section_complete" => Self::SectionComplete(read(tool, args)?),
             "success" => Self::Success(read(tool, args)?),
@@ -96,6 +113,11 @@ impl Command {
             Self::TailoredForYou(_) => "tailored_for_you",
             Self::Hint(_) => "hint",
             Self::Milestone(_) => "milestone",
+            Self::PopQuiz(_) => "pop_quiz",
+            Self::ShortAnswer(_) => "short_answer",
+            Self::ShortEssay(_) => "short_essay",
+            Self::TryIt(_) => "try_it",
+            Self::QuizResult(_) => "quiz_result",
             Self::Progress(_) => "progress",
             Self::SectionComplete(_) => "section_complete",
             Self::Success(_) => "success",
@@ -302,6 +324,99 @@ pub(crate) struct Milestone {
     pub(crate) markdown: String,
 }
 
+/// Adds a multiple-choice quiz that the page marks at once.
+///
+/// The student picks an option and presses Check answer. A wrong pick is
+/// disabled and shows its feedback, and the student picks again from the
+/// options that remain, so the right answer stays hidden until the student
+/// finds it. Every attempt, right or wrong, comes back to you as a student
+/// event.
+///
+/// Write the feedback of a wrong option so that it explains the mistake and
+/// keeps the right answer to itself.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct PopQuiz {
+    /// The question, in markdown: one or two lines.
+    pub(crate) question: String,
+    /// The options, in the order shown. A quiz holds 2 to 6 options.
+    pub(crate) options: Vec<QuizOption>,
+    /// Set this to true for a select-all-that-apply quiz with checkboxes.
+    /// Leave it out for a quiz with one right option.
+    pub(crate) multiple: Option<bool>,
+}
+
+/// One option of a multiple-choice quiz.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct QuizOption {
+    /// The text of the option, in markdown: a few words.
+    pub(crate) text: String,
+    /// Whether this option is right. A quiz with one right option marks
+    /// exactly one option, and a select-all quiz marks one or more.
+    pub(crate) correct: bool,
+    /// What the student reads after picking this option, in markdown. For a
+    /// wrong option, explain the mistake and keep the right answer back.
+    /// Leave it out for an option that needs no comment.
+    pub(crate) feedback: Option<String>,
+}
+
+/// Adds a one-line free-text question, titled "Check Your Understanding".
+///
+/// The student's answer comes back to you as a student event. Mark it with
+/// `quiz_result`.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct ShortAnswer {
+    /// The question, in markdown.
+    pub(crate) question: String,
+}
+
+/// Adds a free-text question with room for a few paragraphs.
+///
+/// The student's essay comes back to you as a student event. Mark it with
+/// `quiz_result`.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct ShortEssay {
+    /// The question, in markdown.
+    pub(crate) question: String,
+    /// The length to aim for, in words, such as 100.
+    pub(crate) words: u32,
+}
+
+/// Adds a one-line code exercise: the student edits a line of code and
+/// presses Run.
+///
+/// The edited line comes back to you as a student event. Mark it with
+/// `quiz_result`.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct TryIt {
+    /// What to change, in markdown.
+    pub(crate) task: String,
+    /// The line of code the student starts from.
+    pub(crate) code: String,
+    /// The language of the code, such as "cpp". Leave it out for plain
+    /// text.
+    pub(crate) language: Option<String>,
+}
+
+/// Marks a free-text answer and shows your feedback under it.
+///
+/// Use it after the student answered a `short_answer`, `short_essay` or
+/// `try_it` quiz. A verdict of `incorrect` lets the student try again.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct QuizResult {
+    /// The id of the quiz, from the receipt that added it, such as "b9".
+    pub(crate) quiz: BlockId,
+    /// Your verdict: `correct` or `incorrect`.
+    pub(crate) verdict: Verdict,
+    /// What the student reads under the answer, in markdown: a line or two.
+    pub(crate) feedback: String,
+}
+
 /// Adds a green progress box with a bar.
 ///
 /// Use it rarely: green marks real progress.
@@ -387,6 +502,23 @@ mod tests {
             (
                 "milestone",
                 json!({ "number": 2, "markdown": "Finish the essay." }),
+            ),
+            (
+                "pop_quiz",
+                json!({ "question": "Which?", "options": [
+                    { "text": "This", "correct": true, "feedback": "Yes." },
+                    { "text": "That", "correct": false },
+                ] }),
+            ),
+            ("short_answer", json!({ "question": "Why?" })),
+            ("short_essay", json!({ "question": "Why?", "words": 100 })),
+            (
+                "try_it",
+                json!({ "task": "Double it.", "code": "x + 1", "language": "cpp" }),
+            ),
+            (
+                "quiz_result",
+                json!({ "quiz": "b9", "verdict": "correct", "feedback": "Exactly." }),
             ),
             (
                 "progress",

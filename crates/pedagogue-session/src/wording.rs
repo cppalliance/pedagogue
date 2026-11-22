@@ -4,7 +4,7 @@
 //! Every sentence is short and stands on its own, and a refusal says what to
 //! fix. This file is the one home of that wording in this crate.
 
-use crate::lesson::{Flaw, Receipt, Refusal, TOOLS};
+use crate::lesson::{Flaw, Receipt, Refusal, TOOLS, Verdict};
 
 /// Writes the receipt a model reads after a command applied.
 ///
@@ -22,6 +22,16 @@ pub(crate) fn receipt(receipt: &Receipt) -> String {
         Receipt::SetContinue { label, page } => {
             format!("Set the Continue button of page {page} to \"{label}\".")
         }
+        Receipt::MarkedQuiz {
+            id,
+            verdict: Verdict::Correct,
+            ..
+        } => format!("Marked quiz {id} correct."),
+        Receipt::MarkedQuiz {
+            id,
+            verdict: Verdict::Incorrect,
+            ..
+        } => format!("Marked quiz {id} incorrect. The student can try again."),
     }
 }
 
@@ -33,6 +43,10 @@ fn noun(tool: &str) -> &str {
         "key_idea" => "key idea",
         "remember" => "remember box",
         "tailored_for_you" => "tailored-for-you box",
+        "pop_quiz" => "pop quiz",
+        "short_answer" => "short-answer quiz",
+        "short_essay" => "short-essay quiz",
+        "try_it" => "try-it quiz",
         "progress" => "progress box",
         "section_complete" => "section-complete box",
         "success" => "success strip",
@@ -63,6 +77,15 @@ pub(crate) fn refusal(refusal: &Refusal) -> String {
         } => format!("Invalid arguments for {tool}: {source}. Fix them and call {tool} again."),
         Refusal::NoPage { .. } => "No page yet. Call new_page first.".to_owned(),
         Refusal::Flawed { tool, flaw } => flaw_sentence(tool, flaw),
+        Refusal::UnknownQuiz { quiz } => format!(
+            "No quiz has the id \"{quiz}\". Use the id from the receipt that added the quiz."
+        ),
+        Refusal::MarksItself { quiz } => format!(
+            "Quiz {quiz} is a pop quiz, which the page marks itself. Use quiz_result on a short_answer, short_essay or try_it quiz."
+        ),
+        Refusal::NoAnswerYet { quiz } => {
+            format!("Quiz {quiz} has no answer yet. Call quiz_result after the student answers it.")
+        }
     }
 }
 
@@ -91,6 +114,15 @@ fn flaw_sentence(tool: &str, flaw: &Flaw) -> String {
         Flaw::DoneOverTotal { done, total } => format!(
             "\"done\" is {done} and \"total\" is {total}. Keep \"done\" at or under \"total\"."
         ),
+        Flaw::RightOptions {
+            multiple: false,
+            actual,
+        } => format!(
+            "{tool} needs exactly one option with \"correct\": true, and this call has {actual}. Set \"multiple\": true for a select-all quiz."
+        ),
+        Flaw::RightOptions { multiple: true, .. } => {
+            format!("A select-all {tool} needs one or more options with \"correct\": true.")
+        }
     }
 }
 
@@ -159,7 +191,110 @@ mod tests {
             [
                 "Unknown tool \"paragraph\". The page tools are: new_page, exposition, footnote, \
               bar_chart, tree_diagram, timeline, tip, key_idea, remember, tailored_for_you, hint, \
-              milestone, progress, section_complete, success, continue_button."
+              milestone, pop_quiz, short_answer, short_essay, try_it, quiz_result, progress, \
+              section_complete, success, continue_button."
+            ],
+        );
+    }
+
+    #[test]
+    fn a_quiz_receipt_names_the_id_that_quiz_result_takes() {
+        let said = replies(&[
+            ("new_page", json!({})),
+            (
+                "pop_quiz",
+                json!({ "question": "Which?", "options": [
+                    { "text": "This", "correct": true },
+                    { "text": "That", "correct": false },
+                ] }),
+            ),
+            ("short_answer", json!({ "question": "Why?" })),
+            ("short_essay", json!({ "question": "Why?", "words": 100 })),
+            ("try_it", json!({ "task": "Double it.", "code": "x + 1" })),
+        ]);
+        assert_eq!(
+            said[1..],
+            [
+                "Added pop quiz b1 to page 1.",
+                "Added short-answer quiz b2 to page 1.",
+                "Added short-essay quiz b3 to page 1.",
+                "Added try-it quiz b4 to page 1.",
+            ],
+        );
+    }
+
+    #[test]
+    fn a_verdict_is_confirmed_or_told_why_it_cannot_land() {
+        let mut lesson = Lesson::default();
+        let say = |lesson: &mut Lesson, tool: &str, args: Value| {
+            let outcome = Command::parse(tool, &args).and_then(|command| lesson.apply(command));
+            match outcome {
+                Ok(done) => receipt(&done),
+                Err(refused) => refusal(&refused),
+            }
+        };
+        let verdict = |quiz: &str, verdict: &str| json!({ "quiz": quiz, "verdict": verdict, "feedback": "A line." });
+        say(&mut lesson, "new_page", json!({}));
+        say(
+            &mut lesson,
+            "pop_quiz",
+            json!({ "question": "Which?", "options": [
+                { "text": "This", "correct": true },
+                { "text": "That", "correct": false },
+            ] }),
+        );
+        say(&mut lesson, "short_answer", json!({ "question": "Why?" }));
+
+        assert_eq!(
+            say(&mut lesson, "quiz_result", verdict("b1", "correct")),
+            "Quiz b1 is a pop quiz, which the page marks itself. Use quiz_result on a \
+             short_answer, short_essay or try_it quiz.",
+        );
+        assert_eq!(
+            say(&mut lesson, "quiz_result", verdict("b2", "correct")),
+            "Quiz b2 has no answer yet. Call quiz_result after the student answers it.",
+        );
+        assert_eq!(
+            say(&mut lesson, "quiz_result", verdict("b7", "correct")),
+            "No quiz has the id \"b7\". Use the id from the receipt that added the quiz.",
+        );
+
+        let quiz = serde_json::from_value(json!("b2")).expect("b2 is a block id");
+        lesson
+            .answer_text(quiz, "Because.")
+            .expect("the quiz is open");
+        assert_eq!(
+            say(&mut lesson, "quiz_result", verdict("b2", "incorrect")),
+            "Marked quiz b2 incorrect. The student can try again.",
+        );
+        assert_eq!(
+            say(&mut lesson, "quiz_result", verdict("b2", "correct")),
+            "Marked quiz b2 correct.",
+        );
+    }
+
+    #[test]
+    fn a_pop_quiz_is_told_how_many_options_to_mark_right() {
+        let quiz = |multiple: bool, right: [bool; 2]| {
+            (
+                "pop_quiz",
+                json!({ "question": "Which?", "multiple": multiple, "options": [
+                    { "text": "This", "correct": right[0] },
+                    { "text": "That", "correct": right[1] },
+                ] }),
+            )
+        };
+        let said = replies(&[
+            ("new_page", json!({})),
+            quiz(false, [true, true]),
+            quiz(true, [false, false]),
+        ]);
+        assert_eq!(
+            said[1..],
+            [
+                "pop_quiz needs exactly one option with \"correct\": true, and this call has 2. \
+                 Set \"multiple\": true for a select-all quiz.",
+                "A select-all pop_quiz needs one or more options with \"correct\": true.",
             ],
         );
     }

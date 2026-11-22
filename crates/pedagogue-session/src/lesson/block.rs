@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use super::command;
 use super::id::BlockId;
+use super::quiz::{ChoiceQuiz, ResponseQuiz};
 use super::refusal::Flaw;
 
 /// The most bars a bar chart holds.
@@ -34,14 +35,29 @@ impl Block {
     pub(crate) fn new(id: BlockId, body: Body) -> Self {
         Self { id, body }
     }
+
+    /// Returns the id of the block.
+    pub(crate) fn id(&self) -> BlockId {
+        self.id
+    }
+
+    /// Returns the content of the block, to change it.
+    pub(crate) fn body_mut(&mut self) -> &mut Body {
+        &mut self.body
+    }
 }
 
 /// The content of a block, by kind.
+///
+/// A quiz serializes as the part of it the UI receives, so its answer key
+/// stays behind.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub(crate) enum Body {
     Exposition(Exposition),
     Callout(Callout),
+    ChoiceQuiz(ChoiceQuiz),
+    ResponseQuiz(ResponseQuiz),
     BarChart(BarChart),
     TreeDiagram(TreeDiagram),
     Timeline(Timeline),
