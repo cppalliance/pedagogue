@@ -32,6 +32,10 @@ The session is the one place that holds state. A host changes it through a handl
   - `src/wording.rs` holds the stand-in's lines, and `src/pace.rs` the two speeds a script plays at.
 - `samples/` - the sample scripts. `contact-sheet.json` draws the two design files state for state, and `contact-sheet.frames.json` holds the frames the app sends for it. A Rust test keeps that file current, and the UI tests read it.
 - `crates/pedagogue-server/` - the Axum router: the UI files, the socket and a command route. Its build script runs `ui/build.mjs`, and the bundle is embedded into the binary.
+  - `src/serve.rs` holds `bind`, which opens the loopback listener, and `serve`, one future that its caller runs. It stops on the caller's signal and ends when every socket has closed.
+  - `src/app.rs` joins the routes of each feature and holds the state they share. `src/assets.rs` serves the three UI files by name, `src/socket.rs` runs one task per `/ws` connection with a cursor into the session, and `src/commands.rs` is `POST /commands`.
+  - `src/cross_site.rs` guards the socket and the command route against other sites, `src/csp.rs` stamps the content policy on every response, and `src/error.rs` holds the refusals sent over HTTP.
+  - `examples/serve.rs` runs the server and the demo together for a browser.
 - `crates/pedagogue-desktop/` - the Tauri app. It owns the session and the one async runtime, starts the server and the demo on it, and opens a window on the server's address.
 - `ui/` - the TypeScript UI. `ui/src/main.ts` is the entry point. `ui/src/tokens.css` holds the layer order, the reset and the two palettes. `ui/src/page/` is the textbook side and `ui/src/chat/` is the tutor side, and each component keeps its CSS file beside it. `ui/build.mjs` bundles them into three files and copies the icon sprites out of the design files.
 - `design/` - the two design reference files. They link the CSS files under `ui/src`, so the look has one home, and each keeps its icons in a sprite of its own.

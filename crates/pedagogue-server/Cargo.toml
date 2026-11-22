@@ -6,6 +6,30 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 publish.workspace = true
+build = "build.rs"
+
+[dependencies]
+pedagogue-session.workspace = true
+axum.workspace = true
+rust-embed.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+# `fs` reads the UI files from a folder for the styling loop. The caller
+# picks the runtime.
+tokio = { workspace = true, features = ["fs", "macros", "net", "sync"] }
+tracing.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+anyhow.workspace = true
+futures-util.workspace = true
+pedagogue-demo.workspace = true
+tempfile.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread", "signal", "time"] }
+tokio-tungstenite.workspace = true
+tower.workspace = true
+tracing-subscriber.workspace = true
 
 [lints]
 workspace = true

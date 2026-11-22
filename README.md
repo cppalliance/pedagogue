@@ -2,6 +2,27 @@
 
 Pedagogue is a "living textbook": a textbook page on the left and a tutor chat on the right. A model fills the page through a small set of page commands and talks with the student in the chat. The app is a Tauri 2 desktop window on an in-process Axum server, which delivers a TypeScript UI over loopback.
 
+## Run it
+
+In a browser, with the server and the demo in one process:
+
+```text
+cargo run -p pedagogue-server --example serve
+```
+
+It prints the address to open and plays the straw poll lesson. Its options:
+
+- `--script <file>` plays another sample, such as `samples/contact-sheet.json`.
+- `--fast` plays the script with no waits between steps.
+- `--port <number>` asks for a fixed port.
+- `--ui <folder>` serves the UI files from a folder. Run `npm run watch` in `ui/` and pass `--ui ui/dist`, and a style edit shows on refresh.
+
+A running app also takes one page command at a time, for trying a command by hand:
+
+```text
+curl -X POST http://127.0.0.1:<port>/commands -H "content-type: application/json" -d "{\"tool\": \"success\", \"args\": {\"text\": \"Nice work.\"}}"
+```
+
 ## Check it
 
 From the repository root:
