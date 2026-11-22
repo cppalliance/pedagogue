@@ -139,7 +139,7 @@ A sample script is a JSON list of steps: page commands, chat lines, scripted stu
 ## Layout
 
 - `design/` - the two design reference files. The app must match them.
-- `images/` - the two concept renders at the top of this file.
+- `images/` - the concept renders shown at the top of this file and in `vision.md`.
 - `crates/pedagogue-session/` - the lesson model, the chat transcript and the session handle that a host drives.
 - `crates/pedagogue-demo/` - a sample script player and a stand-in tutor.
 - `crates/pedagogue-server/` - the loopback server that delivers the UI and its socket.
