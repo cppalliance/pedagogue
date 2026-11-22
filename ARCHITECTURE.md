@@ -41,6 +41,10 @@ The session is the one place that holds state. A host changes it through a handl
   - `src/navigation.rs` is the navigation policy: the window loads only the app's own address, and any other link opens in the system browser. The page has no access to Tauri's API, so links are handled in Rust.
   - `src/main.rs` only calls `run` and returns its exit code. `app-icon.png` is the source of the files in `icons/`, made with `cargo tauri icon`.
 - `ui/` - the TypeScript UI. `ui/src/main.ts` is the entry point. `ui/src/tokens.css` holds the layer order, the reset and the two palettes. `ui/src/page/` is the textbook side and `ui/src/chat/` is the tutor side, and each component keeps its CSS file beside it. `ui/build.mjs` bundles them into three files and copies the icon sprites out of the design files.
+  - `src/main.ts` builds the two panes and then opens the socket. It is the one file that imports both sides.
+  - `src/protocol.ts` holds a Zod schema for each frame and block kind, and the types come from the schemas. `src/socket.ts` is the one socket: it drops a frame that fails its schema with a warning, and it reconnects on its own.
+  - `src/wording.ts` holds every fixed line the student reads, and `src/dom.ts` the helpers that build nodes.
+  - `test/helpers/boot.mjs` runs the built bundle in jsdom with a scripted socket, and `test/helpers/skeleton.mjs` turns an element into the text that the markup tests compare with the design files.
 - `design/` - the two design reference files. They link the CSS files under `ui/src`, so the look has one home, and each keeps its icons in a sprite of its own.
 
 ## Invariants

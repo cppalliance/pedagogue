@@ -1,12 +1,27 @@
+// The entry point: it builds the two panes, then opens the socket. This is
+// the one file that knows both sides.
 import "./tokens.css";
 import "./layout.css";
-import "./page/page.css";
-import "./page/blocks/exposition.css";
-import "./page/blocks/callout.css";
-import "./page/blocks/quiz.css";
-import "./page/blocks/figures.css";
-import "./page/blocks/progress.css";
-import "./page/scroll-cues.css";
-import "./chat/chat.css";
-import "./chat/composer.css";
-import "./chat/chips.css";
+import { ChatView } from "./chat/chat-view";
+import { PageView } from "./page/page-view";
+import { Socket, socketUrl } from "./socket";
+
+function start(): void {
+  const pagePane = document.querySelector<HTMLElement>("main.textbook");
+  const chatPane = document.querySelector<HTMLElement>("aside.tutor");
+  if (pagePane === null || chatPane === null) {
+    throw new Error("index.html is missing the page pane or the chat pane");
+  }
+  const page = new PageView(pagePane);
+  const chat = new ChatView(chatPane);
+  const socket = new Socket(socketUrl(), (frame) => {
+    if (frame.type === "page") {
+      page.show(frame);
+    } else {
+      chat.show(frame);
+    }
+  });
+  socket.connect();
+}
+
+start();

@@ -10,4 +10,14 @@
     height: 100dvh;
     margin: 0;
   }
+
+  /* Each pane fills its side and scrolls inside itself. */
+  .app .viewport {
+    height: 100%;
+  }
+
+  .app .textbook,
+  .app .tutor {
+    min-height: 0;
+  }
 }
