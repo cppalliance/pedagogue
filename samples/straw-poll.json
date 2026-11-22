@@ -1,0 +1,52 @@
+[
+  { "tool": "new_page", "args": {
+      "chapter_number": 3, "chapter_title": "Chairing a WG21 Room",
+      "section_number": "3.2", "section_title": "Taking a Straw Poll" } },
+  { "assistant": "Read this section, then try the quiz." },
+  { "suggestions": ["Take the quiz", "Explain this page", "Show an example"] },
+
+  { "tool": "exposition", "args": { "markdown": "The chair states the question clearly and makes sure the room understands what is being asked. If needed, the chair restates the question in neutral terms before calling for the poll.\n\nThe chair then counts the room, recording the number of hands in each column. WG21 uses five columns: *strongly favor* (SF), *favor* (F), *neutral* (N), *against* (A), and *strongly against* (SA). The results are reported back to the room as five numbers, for example `9 14 5 2 1`.[^1]" } },
+  { "tool": "exposition", "args": { "markdown": "| SF | F | N | A | SA |\n| --- | --- | --- | --- | --- |\n| 9 | 14 | 5 | 2 | 1 |" } },
+  { "tool": "bar_chart", "args": {
+      "caption": "The same poll as a chart",
+      "bars": [
+        { "label": "SF", "value": 9 },
+        { "label": "F", "value": 14 },
+        { "label": "N", "value": 5, "tone": "neutral" },
+        { "label": "A", "value": 2, "tone": "negative" },
+        { "label": "SA", "value": 1, "tone": "negative" }
+      ] } },
+  { "tool": "tip", "args": { "title": "Chair's Tip", "markdown": "Keep your eye on the timebox, not the clock. Name the time remaining, protect the queue, and gently close off repetition so the room can decide." } },
+  { "tool": "timeline", "args": { "stops": [
+      { "label": "Present", "note": "0 min" },
+      { "label": "Discuss", "note": "~ half time" },
+      { "label": "Poll", "note": "~ 5 min left" }
+    ] } },
+  { "tool": "pop_quiz", "args": {
+      "question": "What does the chair do right before calling the poll?",
+      "options": [
+        { "text": "Count the hands in each column", "correct": false, "feedback": "Counting is the poll itself. Something has to happen before the hands go up." },
+        { "text": "Restate the question in neutral terms", "correct": true, "feedback": "Right. The room has to know exactly what it is voting on." },
+        { "text": "Report the five numbers", "correct": false, "feedback": "The numbers exist only after the count. Think about what the room needs before it votes." },
+        { "text": "Open the queue to new speakers", "correct": false, "feedback": "New speakers would reopen the discussion. Look for the step that makes the question clear." }
+      ] } },
+  { "tool": "footnote", "args": { "markdown": "Straw polls are non-binding. They measure the room and guide the chair." } },
+  { "tool": "continue_button", "args": { "label": "Continue to 3.3" } },
+
+  { "wait": "continue" },
+
+  { "tool": "new_page", "args": { "section_number": "3.3", "section_title": "Reading the Result" } },
+  { "assistant": "Here is section 3.3. It shows how to read the five numbers." },
+  { "tool": "exposition", "args": { "markdown": "The count comes back as five numbers. The chair reads them as a shape, and the two strong columns weigh more than the two weak ones. Many hands in *strongly favor* and *favor*, with few in *against* and *strongly against*, is consensus in favor. A room split down the middle has no consensus, however large the favor side is.\n\nA large *neutral* column is a signal of its own. The room may not have understood the question, or it may not care about the outcome. The chair can ask what would move the neutral voters before deciding what to do next." } },
+  { "tool": "exposition", "args": { "markdown": "> Consensus is more than a majority. It asks whether the whole delegation can live with the outcome." } },
+  { "tool": "key_idea", "args": { "markdown": "*Read the shape of the row, not its sum.*" } },
+  { "tool": "pop_quiz", "args": {
+      "question": "Which result shows consensus in favor?",
+      "options": [
+        { "text": "6 - 5 - 4 - 5 - 6", "correct": false, "feedback": "Count both ends of the row. How does the against side compare with the favor side?" },
+        { "text": "10 - 8 - 2 - 1 - 0", "correct": true, "feedback": "Right. Strong support and almost no opposition." },
+        { "text": "3 - 2 - 12 - 2 - 3", "correct": false, "feedback": "Look at the middle column. What is most of the room saying?" }
+      ] } },
+  { "tool": "short_answer", "args": { "question": "In one sentence, what does a large *neutral* column tell the chair?" } },
+  { "tool": "progress", "args": { "done": 3, "total": 5, "label": "Section 3 of 5 in Chapter 3" } }
+]

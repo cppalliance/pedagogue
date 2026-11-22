@@ -1,0 +1,139 @@
+[
+  { "tool": "new_page", "args": {
+      "chapter_number": 3, "chapter_title": "Chairing a WG21 Room",
+      "section_number": "3.2", "section_title": "Taking a Straw Poll" } },
+  { "assistant": "Read this section, then try the quiz." },
+
+  { "tool": "exposition", "args": { "markdown": "The chair states the question clearly and makes sure the room understands what is being asked. If needed, the chair restates the question in neutral terms before calling for the poll.\n\nThe chair then counts the room, recording the number of hands in each column. WG21 uses five columns: *strongly favor* (SF), *favor* (F), *neutral* (N), *against* (A), and *strongly against* (SA). The results are reported back to the room as five numbers, for example `9 14 5 2 1`.[^1] Read the [full poll guidance](https://isocpp.org/std/meetings-and-participation) before your first meeting." } },
+  { "tool": "exposition", "args": { "markdown": "| SF | F | N | A | SA |\n| --- | --- | --- | --- | --- |\n| 9 | 14 | 5 | 2 | 1 |" } },
+  { "tool": "exposition", "args": { "markdown": "### Before you call the poll\n\nWork through these steps in order:\n\n1. Read the abstract\n2. Find the motivating example\n3. Check the proposed wording\n4. Write down one question\n\nA good proposal keeps four things in view:\n\n- *Problem:* What precisely is difficult, ambiguous, or missing?\n- *Motivation:* Who runs into this, and what does it cost them?\n- *Design:* What is the smallest language change that removes the problem?\n- *Wording:* How would you explain the change to a working C++ programmer?" } },
+  { "tool": "exposition", "args": { "markdown": "> Consensus is more than a majority. It asks whether the whole delegation can live with the outcome." } },
+
+  { "tool": "bar_chart", "args": {
+      "caption": "A poll with consensus in favor",
+      "bars": [
+        { "label": "SF", "value": 10 },
+        { "label": "F", "value": 8 },
+        { "label": "N", "value": 2, "tone": "neutral" },
+        { "label": "A", "value": 1, "tone": "negative" },
+        { "label": "SA", "value": 0, "tone": "negative" }
+      ] } },
+  { "tool": "tree_diagram", "args": {
+      "caption": "Value categories",
+      "rows": [["expression"], ["glvalue", "rvalue"], ["lvalue", "xvalue", "prvalue"]],
+      "edges": [
+        { "from": "expression", "to": "glvalue" },
+        { "from": "expression", "to": "rvalue" },
+        { "from": "glvalue", "to": "lvalue" },
+        { "from": "glvalue", "to": "xvalue" },
+        { "from": "rvalue", "to": "xvalue" },
+        { "from": "rvalue", "to": "prvalue" }
+      ] } },
+  { "tool": "timeline", "args": { "stops": [
+      { "label": "Present", "note": "0 min" },
+      { "label": "Discuss", "note": "~ half time" },
+      { "label": "Poll", "note": "~ 5 min left" }
+    ] } },
+
+  { "tool": "exposition", "args": { "markdown": "### Code\n\nThe destructor releases the resource when the object leaves scope, even if an exception unwinds the stack.\n\n```cpp\nclass file {\n  std::FILE* f_;\npublic:\n  explicit file(const char* path)\n    : f_(std::fopen(path, \"r\")) {}\n  ~file() { if (f_) std::fclose(f_); }\n};\n\n// a is valid but unspecified after the move\nstd::string a = \"hello\";\nstd::string b = std::move(a);\n```" } },
+
+  { "tool": "tip", "args": { "title": "Chair's Tip", "markdown": "Keep your eye on the timebox, not the clock. Name the time remaining, protect the queue, and gently close off repetition so the room can decide." } },
+  { "tool": "key_idea", "args": { "markdown": "*Arrive with a question, not a verdict.*" } },
+  { "tool": "remember", "args": { "markdown": "`std::move` is only a cast. The move happens in the move constructor." } },
+
+  { "tool": "tailored_for_you", "args": { "markdown": "You said you are new to library wording. Start with section 2 of the paper and skip the wording on a first pass." } },
+  { "tool": "hint", "args": { "markdown": "You did well on functions in Chapter 4. Think of `co_await` as a return that remembers where it left off." } },
+  { "tool": "milestone", "args": { "number": 2, "markdown": "Finish this essay to unlock Section 2.2." } },
+
+  { "tool": "pop_quiz", "args": {
+      "question": "What should the chair do before calling the poll?",
+      "options": [
+        { "text": "Restate the question", "correct": true, "feedback": "Right. The room has to know exactly what it is voting on." },
+        { "text": "Count the room", "correct": false, "feedback": "Counting is the poll itself. Something has to happen before the hands go up." },
+        { "text": "Close the queue", "correct": false, "feedback": "The queue does close first, but one more step comes right before the poll." },
+        { "text": "All of the above", "correct": false, "feedback": "One of these happens during the poll, not before it." }
+      ] } },
+
+  { "tool": "pop_quiz", "as": "consensus", "args": {
+      "question": "Which result shows consensus?",
+      "options": [
+        { "text": "10 - 8 - 2 - 1 - 0", "correct": true, "feedback": "A has strong support and almost no opposition." },
+        { "text": "6 - 5 - 4 - 5 - 6", "correct": false, "feedback": "Count both ends of the row. The room is split." },
+        { "text": "3 - 2 - 12 - 2 - 3", "correct": false, "feedback": "Look at the middle column. Most of the room has no view." }
+      ] } },
+  { "answer": { "quiz": "@consensus", "picks": [0] } },
+  { "tool": "success", "args": { "text": "Nice work. The next page goes deeper." } },
+
+  { "tool": "pop_quiz", "as": "closed", "args": {
+      "question": "When is the file closed?",
+      "options": [
+        { "text": "When main returns", "correct": false, "feedback": "The program ending is one way out, but this object can be gone long before that. Look at where the object lives." },
+        { "text": "When the object leaves scope", "correct": true, "feedback": "Right. The destructor runs at the end of the object's scope." },
+        { "text": "When you call close", "correct": false, "feedback": "This class has no close to call. Look at what runs on its own." }
+      ] } },
+  { "answer": { "quiz": "@closed", "picks": [0] } },
+
+  { "tool": "pop_quiz", "args": {
+      "question": "Which type satisfies `addable`?",
+      "options": [
+        { "text": "`int`", "correct": true, "feedback": "Right. Two `int` values add with `+`." },
+        { "text": "`std::mutex`", "correct": false, "feedback": "Try writing `a + b` for two of these. Does it compile?" },
+        { "text": "`void`", "correct": false, "feedback": "There are no values of this type to add." },
+        { "text": "`std::thread`", "correct": false, "feedback": "Try writing `a + b` for two of these. Does it compile?" }
+      ] } },
+
+  { "tool": "pop_quiz", "args": {
+      "question": "Which of these are columns in a WG21 straw poll?",
+      "multiple": true,
+      "options": [
+        { "text": "Strongly favor", "correct": true },
+        { "text": "Neutral", "correct": true },
+        { "text": "Abstain", "correct": false, "feedback": "A straw poll counts five kinds of raised hand. Staying out of the count is always possible, but it has no column of its own." },
+        { "text": "Strongly against", "correct": true }
+      ] } },
+  { "tool": "pop_quiz", "as": "columns-partly", "args": {
+      "question": "Which of these are columns in a WG21 straw poll?",
+      "multiple": true,
+      "options": [
+        { "text": "Strongly favor", "correct": true },
+        { "text": "Neutral", "correct": true },
+        { "text": "Abstain", "correct": false, "feedback": "A straw poll counts five kinds of raised hand. Staying out of the count is always possible, but it has no column of its own." },
+        { "text": "Strongly against", "correct": true }
+      ] } },
+  { "answer": { "quiz": "@columns-partly", "picks": [0, 2] } },
+  { "tool": "pop_quiz", "as": "columns-solved", "args": {
+      "question": "Which of these are columns in a WG21 straw poll?",
+      "multiple": true,
+      "options": [
+        { "text": "Strongly favor", "correct": true },
+        { "text": "Neutral", "correct": true },
+        { "text": "Abstain", "correct": false, "feedback": "A straw poll counts five kinds of raised hand. Staying out of the count is always possible, but it has no column of its own." },
+        { "text": "Strongly against", "correct": true }
+      ] } },
+  { "answer": { "quiz": "@columns-solved", "picks": [0, 2] } },
+  { "answer": { "quiz": "@columns-solved", "picks": [0, 1, 3] } },
+
+  { "tool": "short_essay", "args": { "question": "In about 100 words, describe a problem in C++ you would like to solve and who it affects.", "words": 100 } },
+
+  { "tool": "short_answer", "args": { "question": "In your own words, what does `std::move` actually do?" } },
+  { "tool": "short_answer", "as": "move-sent", "args": { "question": "In your own words, what does `std::move` actually do?" } },
+  { "answer": { "quiz": "@move-sent", "text": "It moves the object into a new variable." } },
+  { "tool": "short_answer", "as": "move-right", "args": { "question": "In your own words, what does `std::move` actually do?" } },
+  { "answer": { "quiz": "@move-right", "text": "It casts its argument to an rvalue reference, so a move can follow." } },
+  { "tool": "quiz_result", "args": { "quiz": "@move-right", "verdict": "correct", "feedback": "Exactly. The cast only makes the move possible." } },
+  { "tool": "short_answer", "as": "move-wrong", "args": { "question": "In your own words, what does `std::move` actually do?" } },
+  { "answer": { "quiz": "@move-wrong", "text": "It moves the object into a new variable." } },
+  { "tool": "quiz_result", "args": { "quiz": "@move-wrong", "verdict": "incorrect", "feedback": "Nothing has moved yet when `std::move` returns. Think about what kind of expression it gives you." } },
+
+  { "tool": "try_it", "args": { "task": "Change the code so it returns `x * 2`.", "code": "co_return x + 1;", "language": "cpp" } },
+
+  { "tool": "progress", "args": { "done": 8, "total": 12, "label": "Milestone 8 of 12 - 4 of 5 quizzes passed" } },
+  { "tool": "section_complete", "args": { "markdown": "Section 1.3 is done. 3 of 4 steps finished." } },
+
+  { "tool": "footnote", "args": { "markdown": "Straw polls are non-binding. They measure the room and guide the chair." } },
+  { "tool": "continue_button", "args": { "label": "Continue to 3.3" } },
+
+  { "student": "Do I restate the question before or after closing the queue?" },
+  { "assistant": "After. Close the queue, restate the question, then poll." },
+  { "suggestions": ["Take the quiz", "Explain this page", "Show an example"] }
+]
