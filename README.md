@@ -152,6 +152,7 @@ A sample script is a JSON list of steps: page commands, chat lines, scripted stu
 - `.github/workflows/` - `ci.yml` runs the checks on every pull request and on `master`. `release.yml` builds and checks the installers, and publishes them when a `vX.Y.Z` tag is pushed.
 - `.github/installers/` - the launch check of the release run: it starts an installed app and waits for the page in its window to connect.
 - `.githooks/` - the pre-commit and pre-push hooks. `CONTRIBUTING.md` says how to turn them on.
+- `plan/` - the plans that the repository was built from, each with a record of what its build found.
 
 `ARCHITECTURE.md` explains how the parts fit together, `AGENTS.md` holds the rules for working in this repository, `CONTRIBUTING.md` says how to set up and what a pull request has to pass, and `CHANGELOG.md` lists the changes of each release.
 

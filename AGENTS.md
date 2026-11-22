@@ -75,3 +75,10 @@ Departures: colors stay in hex, the form the palette was approved in. The app ha
 - **One version.** The app has one version: `version` under `[workspace.package]` in `Cargo.toml`, the internal entries under `[workspace.dependencies]`, and `ui/package.json`. A release changes them together, adds a `## [<version>] - <date>` section to `CHANGELOG.md`, and puts the new file names into the README's Install section. The tests and the release workflow fail when one of these is left behind.
 - **A tag publishes.** A release is a `vX.Y.Z` tag on `master` that names that version. `.github/workflows/release.yml` builds the five installers with `cargo installer`, checks each one, and publishes them with `SHA256SUMS`. A pull request that touches the installer, the version or the changelog runs the same jobs up to the publish step. The publish step names `cppalliance/pedagogue`, so a tag in any other copy of the repository publishes nothing.
 - **One home for the file names.** The release file names come from `Installer::file_name` in `crates/pedagogue-installer/src/platform.rs`. A change there also goes into the checks and the `assemble` job of `release.yml`.
+
+## Plans
+
+- **A plan runs from its copy in `plan/`.** Before the first step, copy the approved plan verbatim to `plan/YYYY-MM-DD-N-words.plan.md`: the date the run starts, `N` the next unused number for that date starting at 1, and one to four kebab-case words from the title. The copy is the first commit of the plan.
+- **Each commit of a plan names the copy.** The last line of the message is `Plan: /plan/` followed by the file name of the copy.
+- **The last commit of a plan records what the build found.** The copy gains a section with the result and with each point where the build differs from the plan.
+- **Two plans predate these rules.** Their copies entered `plan/` after the work, and their commits name them by the path each had on the author's machine. `.cursor/plans/pedagogue_tauri_app_2ed96ac8.plan.md` is `plan/2026-11-21-1-pedagogue-tauri-app.plan.md`, and `.cursor/plans/pedagogue_ci_and_release_9980d68c.plan.md` is `plan/2026-11-22-1-pedagogue-ci-and-release.plan.md`.
