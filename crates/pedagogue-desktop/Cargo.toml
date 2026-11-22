@@ -1,0 +1,15 @@
+[package]
+name = "pedagogue-desktop"
+description = "The Pedagogue desktop app: a Tauri window on the in-process server."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "pedagogue"
+path = "src/main.rs"
+
+[lints]
+workspace = true

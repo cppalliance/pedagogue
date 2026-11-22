@@ -1,0 +1,67 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["unicorn", "typescript", "oxc", "import"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "options": {
+    "typeAware": true
+  },
+  "rules": {
+    "eqeqeq": ["error", "smart"],
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-throw-literal": "error",
+    "no-undef": "error",
+    "import/no-cycle": "error",
+    "import/no-unassigned-import": ["error", { "allow": ["**/*.css"] }],
+    "no-restricted-properties": [
+      "error",
+      {
+        "property": "innerHTML",
+        "message": "Set text with textContent. HTML enters the page only in src/markdown.ts, after DOMPurify."
+      },
+      {
+        "property": "outerHTML",
+        "message": "Build nodes with DOM calls. HTML enters the page only in src/markdown.ts, after DOMPurify."
+      },
+      {
+        "property": "insertAdjacentHTML",
+        "message": "Build nodes with DOM calls. HTML enters the page only in src/markdown.ts, after DOMPurify."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.ts"],
+      "env": { "browser": true },
+      "rules": {
+        "typescript/no-floating-promises": "error",
+        "typescript/no-misused-promises": "error",
+        "typescript/await-thenable": "error",
+        "typescript/no-explicit-any": "error",
+        "typescript/no-unsafe-argument": "error",
+        "typescript/no-unsafe-assignment": "error",
+        "typescript/no-unsafe-call": "error",
+        "typescript/no-unsafe-member-access": "error",
+        "typescript/no-unsafe-return": "error",
+        "typescript/consistent-type-imports": "error",
+        "typescript/restrict-template-expressions": "error",
+        "typescript/switch-exhaustiveness-check": "error",
+        "typescript/explicit-module-boundary-types": "error",
+        "typescript/no-non-null-assertion": "error",
+        "typescript/only-throw-error": "error"
+      }
+    },
+    {
+      "files": ["**/*.mjs", "*.js"],
+      "env": { "node": true }
+    },
+    {
+      "files": ["src/markdown.ts"],
+      "rules": { "no-restricted-properties": "off" }
+    }
+  ],
+  "ignorePatterns": ["dist/"]
+}

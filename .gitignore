@@ -1,0 +1,8 @@
+/target
+# UI build pipeline: the npm install target and the esbuild output. The server
+# crate's build script writes the bundle to OUT_DIR; `npm run build` and
+# `npm test` write dist/ in place for the jsdom tests.
+/ui/node_modules/
+/ui/dist/
+# tauri-build's generated ACL schemas, regenerated on every desktop build.
+/crates/pedagogue-desktop/gen/

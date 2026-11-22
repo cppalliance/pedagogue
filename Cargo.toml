@@ -1,0 +1,89 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+# Plain `cargo build` and `cargo test` cover the two crates that need only
+# Rust. The server needs Node for its UI bundle and the desktop app needs the
+# Tauri toolchain, so each is an explicit choice: `-p pedagogue-server`,
+# `-p pedagogue-desktop`, or `--workspace`.
+default-members = ["crates/pedagogue-session", "crates/pedagogue-demo"]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.99"
+license = "BSL-1.0"
+publish = false
+
+[workspace.dependencies]
+pedagogue-session = { path = "crates/pedagogue-session", version = "0.0.0" }
+pedagogue-demo = { path = "crates/pedagogue-demo", version = "0.0.0" }
+pedagogue-server = { path = "crates/pedagogue-server", version = "0.0.0" }
+pedagogue-desktop = { path = "crates/pedagogue-desktop", version = "0.0.0" }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+anyhow = "1"
+# tokio has no default features; each crate names the ones it uses.
+tokio = "1"
+# default-features off: the app serves three files, one socket and one JSON
+# route, so the form, query and matched-path extractors stay out.
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "tokio", "ws"] }
+# Serves the UI: reads $OUT_DIR/ui-dist from disk in debug builds and embeds
+# it into the binary in release builds. interpolate-folder-path resolves the
+# $OUT_DIR prefix in the `folder` attribute.
+rust-embed = { version = "8", features = ["interpolate-folder-path"] }
+url = "2"
+# default-features off drops the `#[instrument]` proc macro, which no crate
+# here uses.
+tracing = { version = "0.1", default-features = false, features = ["std"] }
+# A plain stderr subscriber for the two binaries: no colors, no log bridge.
+tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std"] }
+# Tauri v2 desktop framework, pinned as Runvil Workshop pins it.
+tauri = "~2.11"
+tauri-build = "2.6.3"
+tauri-plugin-opener = "2.5.5"
+
+# Test-only.
+tower = { version = "0.5", features = ["util"] }
+# 0.29 so the resolver unifies with the copy axum's `ws` feature pulls in.
+tokio-tungstenite = "0.29"
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+tempfile = "3"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+missing_debug_implementations = "warn"
+unreachable_pub = "warn"
+unsafe_op_in_unsafe_fn = "deny"
+future_incompatible = { level = "warn", priority = -1 }
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[workspace.lints.rustdoc]
+broken_intra_doc_links = "deny"
+private_intra_doc_links = "deny"
+unescaped_backticks = "deny"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"
+dbg_macro = "warn"
+todo = "deny"
+undocumented_unsafe_blocks = "deny"
+missing_safety_doc = "deny"
+allow_attributes = "deny"
+allow_attributes_without_reason = "deny"
+exit = "deny"
+disallowed_methods = "deny"
+disallowed_types = "deny"
+disallowed_macros = "deny"
+# Cherry-picked out of pedantic: it flags product names (Runvil, Pedagogue) in
+# prose, which reads worse backticked than the lint is worth.
+doc_markdown = "allow"
+# Cherry-picked out of pedantic: its suggested rewrite for a collection is
+# `assert_eq!(x, [] as [T; 0])`, which has to spell out the element type and
+# needs `T: PartialEq + Debug`, so it cannot be applied to most call sites.
+assert_is_empty = "allow"

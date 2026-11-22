@@ -1,0 +1,17 @@
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+
+# Size limits sit on functions. A file has no length limit.
+too-many-lines-threshold = 100
+too-many-arguments-threshold = 7
+
+# Process-global installers. Only a binary entry point may call one, under
+# `#[expect(clippy::disallowed_methods, reason = ...)]`. No entry names a
+# `replacement`, because no alternative takes the same arguments and returns
+# the same value.
+disallowed-methods = [
+    { path = "std::panic::set_hook", reason = "use a returned error instead, because the panic hook is process-global state that only a binary entry point may install" },
+    { path = "tracing::subscriber::set_global_default", reason = "use `tracing::subscriber::with_default` instead, because the global default subscriber is process-global state that only a binary entry point may install" },
+    { path = "tracing_subscriber::util::SubscriberInitExt::init", reason = "use `tracing::subscriber::with_default` instead, because `init` installs the global default subscriber, process-global state that only a binary entry point may install" },
+    { path = "tracing_subscriber::util::SubscriberInitExt::try_init", reason = "use `tracing::subscriber::with_default` instead, because `try_init` installs the global default subscriber, process-global state that only a binary entry point may install" },
+]

@@ -1,0 +1,11 @@
+[package]
+name = "pedagogue-demo"
+description = "A sample script player and a stand-in tutor that drive a Pedagogue session."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true

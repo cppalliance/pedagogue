@@ -1,0 +1,13 @@
+@layer reset, base, components, utilities;
+
+@layer components {
+  /* The page and the chat sit side by side at every window size. The chat
+     takes half the window up to 520px, and the page takes the rest. */
+  .app {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, min(50%, 520px));
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+  }
+}
