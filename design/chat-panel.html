@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Living Textbook - Chat Panel</title>
+<style>
+/* ===== Tokens ===== */
+:root{
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","Source Sans 3","Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono","Cascadia Mono","SF Mono",Consolas,"Liberation Mono",monospace;
+  --bg:#141416;            /* panel background, also the tail mask color */
+  --surface:#1f1f22;       /* header, composer field */
+  --line:#2c2c30;
+  --in:#2b2b2f;            /* assistant bubble */
+  --out:#0b7bf0;           /* user bubble */
+  --text:#f2f2f4; --text-soft:#a4a4ab; --muted:#7c7c84;
+  --accent:#4da3ff; --rec:#ff453a; --ok:#32d583;
+  --desk:#0b0b0c;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--desk);color:var(--text);font-family:var(--sans);padding:32px 16px 80px}
+
+/* ===== Sheet chrome ===== */
+.sheet-head{max-width:760px;margin:0 auto 22px}
+.sheet-head h1{font-size:1.5rem;margin:0 0 4px}
+.sheet-head p{margin:0;color:var(--text-soft);font-size:.95rem;line-height:1.4}
+.band{max-width:760px;margin:34px auto 12px;font:700 .72rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--text-soft);border-bottom:1px solid #2a2a2e;padding-bottom:6px}
+.cols{max-width:760px;margin:0 auto;display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;justify-content:center}
+.spec{display:flex;flex-direction:column;gap:8px}
+.spec>.label{font:500 11px/1.3 var(--mono);color:var(--muted)}
+.stage{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px;width:410px}
+.stage.tight{padding:12px}
+
+/* ===== Panel shell ===== */
+.panel{display:flex;flex-direction:column;width:440px;height:720px;background:var(--bg);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--line)}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3a6fd8,#7a4fd0);display:grid;place-items:center;font-weight:700;font-size:.95rem}
+.panel-head .who{display:flex;flex-direction:column;line-height:1.25}
+.panel-head .who b{font-size:.98rem}
+.panel-head .who span{font-size:.78rem;color:var(--text-soft)}
+.messages{flex:1;overflow-y:auto;padding:18px 18px 8px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:#3a3a40 transparent}
+.messages::-webkit-scrollbar{width:6px}
+.messages::-webkit-scrollbar-thumb{background:#3a3a40;border-radius:3px}
+
+/* ===== Message rows and bubbles (iMessage pattern) ===== */
+.msg{display:flex;flex-direction:column;max-width:100%}
+.msg.in{align-items:flex-start}
+.msg.out{align-items:flex-end}
+.bubble{position:relative;max-width:78%;padding:9px 15px;border-radius:19px;font-size:1rem;line-height:1.35;overflow-wrap:anywhere}
+.bubble p{margin:0}
+.bubble p+p{margin-top:.5em}
+.bubble code{font-family:var(--mono);font-size:.86em;background:rgba(255,255,255,.1);padding:.05em .34em;border-radius:4px}
+.bubble.in{background:var(--in);color:var(--text)}
+.bubble.out{background:var(--out);color:#fff}
+/* tails: only on the last bubble of a run */
+.bubble.in.tail::before,.bubble.out.tail::before{content:"";position:absolute;bottom:0;width:20px;height:20px;z-index:0}
+.bubble.in.tail::after,.bubble.out.tail::after{content:"";position:absolute;bottom:0;width:10px;height:20px;z-index:1;background:var(--bg)}
+.bubble.in.tail::before{left:-8px;background:var(--in);border-bottom-right-radius:15px}
+.bubble.in.tail::after{left:-10px;border-bottom-right-radius:10px}
+.bubble.out.tail::before{right:-8px;background:var(--out);border-bottom-left-radius:15px}
+.bubble.out.tail::after{right:-10px;border-bottom-left-radius:10px}
+.stamp{align-self:center;font-size:.72rem;color:var(--muted);margin:4px 0}
+.notice{align-self:center;font-size:.78rem;color:var(--text-soft);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.notice b{color:var(--ok);font-weight:600}
+
+/* Typing indicator */
+.typing{display:inline-flex;gap:4px;align-items:center;padding:13px 16px}
+.typing i{width:7px;height:7px;border-radius:50%;background:#9a9aa3;animation:blink 1.2s infinite ease-in-out}
+.typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}
+
+/* ===== Icon row under the last assistant bubble only ===== */
+.actions{display:flex;align-items:center;gap:2px;margin:3px 0 0 -6px;min-height:30px}
+.actions button{width:30px;height:30px;display:grid;place-items:center;border:0;border-radius:8px;background:none;color:var(--muted);cursor:pointer;padding:0}
+.actions button:hover{color:var(--text);background:rgba(255,255,255,.07)}
+.actions button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.actions svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.actions button[aria-pressed="true"]{color:var(--accent)}
+.actions button.done{color:var(--ok)}
+.actions .meta{font-size:.72rem;color:var(--muted);margin-left:8px}
+.wave{display:none;gap:2px;align-items:flex-end;height:12px;margin-left:2px}
+.actions button[aria-pressed="true"]~.wave{display:inline-flex}
+.wave i{width:2px;background:var(--accent);border-radius:1px;animation:wv .9s infinite ease-in-out}
+.wave i:nth-child(1){height:5px}.wave i:nth-child(2){height:11px;animation-delay:.15s}.wave i:nth-child(3){height:7px;animation-delay:.3s}
+@keyframes wv{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.1)}}
+
+/* ===== Suggestion chips ===== */
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 10px}
+.chip{border:1px solid #34343a;background:transparent;color:var(--text);font:inherit;font-size:.85rem;border-radius:999px;padding:6px 13px;cursor:pointer}
+.chip:hover{background:rgba(255,255,255,.06)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* ===== Composer: edit box, mic, send ===== */
+.composer{display:flex;align-items:center;gap:6px;margin:6px 14px 14px;background:var(--surface);border:1px solid #38383e;border-radius:24px;padding:5px 6px 5px 16px;min-height:50px}
+.composer:focus-within{border-color:#5a5a63}
+.composer input{flex:1;min-width:0;border:0;outline:0;background:none;color:var(--text);font:inherit;font-size:1rem;padding:8px 0}
+.composer input::placeholder{color:#8b8b93}
+.composer button{width:38px;height:38px;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0;flex:none}
+.composer svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.composer .mic{background:none;color:var(--text-soft)}
+.composer .mic:hover{color:var(--text);background:rgba(255,255,255,.07)}
+.composer .send{background:var(--out);color:#fff}
+.composer .send:hover{background:#2a8cf5}
+.composer .send[disabled]{opacity:.4;cursor:default}
+.composer button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* recording state */
+.composer.recording{padding-left:12px}
+.composer.recording .field-area{display:none}
+.composer .rec-area{display:none;flex:1;align-items:center;gap:10px;min-width:0}
+.composer.recording .rec-area{display:flex}
+.rec-dot{width:10px;height:10px;border-radius:50%;background:var(--rec);animation:pulse 1.1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.rec-time{font-variant-numeric:tabular-nums;font-size:.95rem;color:var(--text)}
+.rec-bars{flex:1;display:flex;align-items:center;gap:3px;height:24px;overflow:hidden}
+.rec-bars i{width:3px;border-radius:2px;background:#6d6d76;flex:none}
+.composer.recording .mic{background:var(--rec);color:#fff}
+.composer.recording .mic:hover{background:#ff5e54}
+.composer.recording .send{display:none}
+.composer.disabled{opacity:.5;pointer-events:none}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a8 8 0 0 1 0 11"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+</svg>
+
+<template id="tpl-actions">
+  <div class="actions" role="group" aria-label="Message actions">
+    <button type="button" data-act="copy" aria-label="Copy"><svg><use href="#i-copy"/></svg></button>
+    <button type="button" data-act="speak" aria-label="Read aloud" title="Read aloud" aria-pressed="false"><svg><use href="#i-speaker"/></svg></button>
+    <span class="wave" aria-hidden="true"><i></i><i></i><i></i></span>
+    <button type="button" data-act="regen" aria-label="Regenerate"><svg><use href="#i-refresh"/></svg></button>
+  </div>
+</template>
+
+<header class="sheet-head">
+  <h1>Living Textbook - Chat Panel</h1>
+  <p>The tutor side of the app, dark mode so it contrasts with the white page. iMessage-style bubbles, one small icon row under the last assistant bubble only, and a composer with a clear edit box, a record button and a send button. The live panel works: type and send, tap the mic, tap the speaker.</p>
+</header>
+
+<div class="band">Live panel</div>
+<div class="cols">
+  <section class="panel" aria-label="Tutor chat">
+    <div class="panel-head">
+      <div class="avatar" aria-hidden="true">R</div>
+      <div class="who"><b>Tutor</b><span>Chapter 3 - Section 3.2</span></div>
+    </div>
+    <div class="messages" id="messages" aria-live="polite">
+      <div class="stamp">Today 9:41 AM</div>
+      <div class="msg in"><div class="bubble in tail"><p>Read this section, then try the quiz.</p></div></div>
+      <div class="msg out"><div class="bubble out tail"><p>Do I restate the question before or after closing the queue?</p></div></div>
+      <div class="msg in" id="last-in"><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div><div data-actions></div></div>
+    </div>
+    <div class="chips" aria-label="Suggestions">
+      <button class="chip" type="button">Take the quiz</button>
+      <button class="chip" type="button">Explain this page</button>
+      <button class="chip" type="button">Show an example</button>
+    </div>
+    <form class="composer" id="composer" autocomplete="off">
+      <input class="field-area" id="draft" type="text" placeholder="Message the tutor" aria-label="Message the tutor">
+      <div class="rec-area" aria-live="polite"><span class="rec-dot"></span><span class="rec-time" id="rectime">0:00</span><span class="rec-bars" id="recbars" aria-hidden="true"></span></div>
+      <button class="mic" id="mic" type="button" aria-label="Record" aria-pressed="false"><svg><use href="#i-mic"/></svg></button>
+      <button class="send" id="send" type="submit" aria-label="Send" disabled><svg><use href="#i-send"/></svg></button>
+    </form>
+  </section>
+</div>
+
+<div class="band">Messages</div>
+<div class="cols">
+  <div class="spec"><div class="label">.bubble.in (run of two, tail on last)</div>
+    <div class="stage">
+      <div class="msg in" style="gap:4px">
+        <div class="bubble in"><p>Nice work on the quiz.</p></div>
+        <div class="bubble in tail"><p>Ready for section 3.3 when you are.</p></div>
+      </div>
+    </div></div>
+  <div class="spec"><div class="label">.bubble.out</div>
+    <div class="stage">
+      <div class="msg out"><div class="bubble out tail"><p>Can I combine restating and polling in one step?</p></div></div>
+    </div></div>
+  <div class="spec"><div class="label">.bubble.in (paragraphs and inline code)</div>
+    <div class="stage">
+      <div class="msg in"><div class="bubble in tail"><p><code>std::move</code> only casts to an rvalue reference.</p><p>The move happens when a move constructor or move assignment runs.</p></div></div>
+    </div></div>
+  <div class="spec"><div class="label">.typing</div>
+    <div class="stage">
+      <div class="msg in"><div class="bubble in tail typing" aria-label="Tutor is typing"><i></i><i></i><i></i></div></div>
+    </div></div>
+  <div class="spec"><div class="label">.stamp and .notice</div>
+    <div class="stage" style="display:flex;flex-direction:column;gap:10px">
+      <div class="stamp">Today 9:41 AM</div>
+      <div class="notice"><b>Milestone 2 unlocked</b> - Section 2.2 is ready</div>
+    </div></div>
+</div>
+
+<div class="band">Icon row under the last assistant bubble</div>
+<div class="cols">
+  <div class="spec"><div class="label">.actions (default)</div>
+    <div class="stage tight"><div class="msg in"><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div><div data-actions></div></div></div></div>
+  <div class="spec"><div class="label">.actions (speaking)</div>
+    <div class="stage tight"><div class="msg in"><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div><div data-actions data-state="speaking"></div></div></div></div>
+  <div class="spec"><div class="label">.actions (copied)</div>
+    <div class="stage tight"><div class="msg in"><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div><div data-actions data-state="copied"></div></div></div></div>
+</div>
+
+<div class="band">Composer</div>
+<div class="cols">
+  <div class="spec"><div class="label">.composer (empty, send dimmed)</div>
+    <div class="stage tight"><form class="composer" style="margin:0" onsubmit="return false">
+      <input class="field-area" type="text" placeholder="Message the tutor" aria-label="Message the tutor">
+      <button class="mic" type="button" aria-label="Record"><svg><use href="#i-mic"/></svg></button>
+      <button class="send" type="button" aria-label="Send" disabled><svg><use href="#i-send"/></svg></button></form></div></div>
+  <div class="spec"><div class="label">.composer (typing, send ready)</div>
+    <div class="stage tight"><form class="composer" style="margin:0" onsubmit="return false">
+      <input class="field-area" type="text" value="Why close the queue first?" aria-label="Message the tutor">
+      <button class="mic" type="button" aria-label="Record"><svg><use href="#i-mic"/></svg></button>
+      <button class="send" type="button" aria-label="Send"><svg><use href="#i-send"/></svg></button></form></div></div>
+  <div class="spec"><div class="label">.composer.recording</div>
+    <div class="stage tight"><form class="composer recording" style="margin:0" onsubmit="return false">
+      <input class="field-area" type="text" aria-label="Message the tutor">
+      <div class="rec-area"><span class="rec-dot"></span><span class="rec-time">0:07</span><span class="rec-bars" data-bars></span></div>
+      <button class="mic" type="button" aria-label="Stop recording"><svg><use href="#i-stop"/></svg></button></form></div></div>
+  <div class="spec"><div class="label">.composer.disabled (tutor is replying)</div>
+    <div class="stage tight"><form class="composer disabled" style="margin:0" onsubmit="return false">
+      <input class="field-area" type="text" placeholder="Message the tutor" aria-label="Message the tutor" disabled>
+      <button class="mic" type="button" aria-label="Record" disabled><svg><use href="#i-mic"/></svg></button>
+      <button class="send" type="button" aria-label="Send" disabled><svg><use href="#i-send"/></svg></button></form></div></div>
+</div>
+
+<div class="band">Suggestion chips</div>
+<div class="cols">
+  <div class="spec"><div class="label">.chip</div>
+    <div class="stage tight"><div class="chips" style="padding:0">
+      <button class="chip" type="button">Take the quiz</button>
+      <button class="chip" type="button">Explain this page</button>
+      <button class="chip" type="button">Show an example</button></div></div></div>
+</div>
+
+<script>
+(function () {
+  var tpl = document.getElementById('tpl-actions');
+  var messages = document.getElementById('messages');
+
+  // Build an action row into every placeholder.
+  function mountActions(slot) {
+    var node = tpl.content.firstElementChild.cloneNode(true);
+    slot.replaceWith(node);
+    return node;
+  }
+  document.querySelectorAll('[data-actions]').forEach(function (slot) {
+    var state = slot.dataset.state;
+    var row = mountActions(slot);
+    if (state === 'speaking') row.querySelector('[data-act="speak"]').setAttribute('aria-pressed', 'true');
+    if (state === 'copied') row.querySelector('[data-act="copy"]').classList.add('done');
+  });
+
+  // Row behavior (event delegation).
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.actions button'); if (!b) return;
+    var act = b.dataset.act;
+    if (act === 'copy') { b.classList.add('done'); setTimeout(function () { b.classList.remove('done'); }, 1200); }
+    if (act === 'speak') {
+      var on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (on) setTimeout(function () { b.setAttribute('aria-pressed', 'false'); }, 3000);
+    }
+  });
+
+  // Recording bars (decorative).
+  function fillBars(el) {
+    var h = '';
+    for (var i = 0; i < 40; i++) h += '<i style="height:' + (4 + Math.round(Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.23)) * 18)) + 'px"></i>';
+    el.innerHTML = h;
+  }
+  document.querySelectorAll('[data-bars]').forEach(fillBars);
+  fillBars(document.getElementById('recbars'));
+
+  // Live composer.
+  var form = document.getElementById('composer'), draft = document.getElementById('draft');
+  var send = document.getElementById('send'), mic = document.getElementById('mic');
+  var rectime = document.getElementById('rectime'), timer = null, secs = 0;
+
+  draft.addEventListener('input', function () { send.disabled = !draft.value.trim(); });
+
+  mic.addEventListener('click', function () {
+    var on = !form.classList.contains('recording');
+    form.classList.toggle('recording', on);
+    mic.setAttribute('aria-pressed', on ? 'true' : 'false');
+    mic.setAttribute('aria-label', on ? 'Stop recording' : 'Record');
+    mic.querySelector('use').setAttribute('href', on ? '#i-stop' : '#i-mic');
+    if (on) {
+      secs = 0; rectime.textContent = '0:00';
+      timer = setInterval(function () { secs++; rectime.textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'); }, 1000);
+    } else {
+      clearInterval(timer);
+      draft.value = 'Why do I close the queue first?'; send.disabled = false; draft.focus();
+    }
+  });
+
+  function addMessage(kind, text) {
+    var msg = document.createElement('div'); msg.className = 'msg ' + kind;
+    var b = document.createElement('div'); b.className = 'bubble ' + kind + ' tail';
+    var p = document.createElement('p'); p.textContent = text; b.appendChild(p); msg.appendChild(b);
+    messages.appendChild(msg); messages.scrollTop = messages.scrollHeight; return msg;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var text = draft.value.trim(); if (!text) return;
+    messages.querySelectorAll('.msg.in > .actions').forEach(function (a) { a.remove(); }); // row only on the last assistant message
+    addMessage('out', text);
+    draft.value = ''; send.disabled = true;
+    var typing = document.createElement('div'); typing.className = 'msg in';
+    typing.innerHTML = '<div class="bubble in tail typing" aria-label="Tutor is typing"><i></i><i></i><i></i></div>';
+    messages.appendChild(typing); messages.scrollTop = messages.scrollHeight;
+    setTimeout(function () {
+      typing.remove();
+      var m = addMessage('in', 'Good question. The queue closes first so the room knows the list of speakers is final.');
+      var slot = document.createElement('div'); slot.setAttribute('data-actions', ''); m.appendChild(slot); mountActions(slot);
+      messages.scrollTop = messages.scrollHeight;
+    }, 900);
+  });
+})();
+</script>
+
+</body>
+</html>
