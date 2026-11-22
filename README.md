@@ -1,6 +1,16 @@
+[![CI](https://github.com/cppalliance/pedagogue/actions/workflows/ci.yml/badge.svg)](https://github.com/cppalliance/pedagogue/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-BSL--1.0-blue.svg)](LICENSE)
+[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/cppalliance/pedagogue/releases/latest)
+
 # Pedagogue
 
 Pedagogue is a "living textbook": a textbook page on the left and a tutor chat on the right. A model fills the page through a small set of page commands and talks with the student in the chat. The app is a Tauri 2 desktop window on an in-process Axum server, which delivers a TypeScript UI over loopback.
+
+![Design concept: a pop quiz on the textbook page, and the tutor confirming the answer in the chat](images/ui7-18-concepts-bottom-quiz-v2.jpg)
+
+![Design concept: a code sample and a progress box on the page, with the tutor chat beside it](images/ui7-19-errors-top-progress-v2.jpg)
+
+Concept renders from the design phase. The app follows the reference files in `design/`.
 
 ## Run it
 
@@ -62,6 +72,7 @@ A sample script is a JSON list of steps: page commands, chat lines, scripted stu
 ## Layout
 
 - `design/` - the two design reference files. The app must match them.
+- `images/` - the two concept renders at the top of this file.
 - `crates/pedagogue-session/` - the lesson model, the chat transcript and the session handle that a host drives.
 - `crates/pedagogue-demo/` - a sample script player and a stand-in tutor.
 - `crates/pedagogue-server/` - the loopback server that delivers the UI and its socket.
