@@ -130,7 +130,7 @@ git tag -a v0.2.0 -m "Pedagogue 0.2.0"
 git push <remote> v0.2.0
 ```
 
-`.github/workflows/release.yml` then builds the installers again, checks each one on a fresh machine of its system, and publishes them with `SHA256SUMS`. The section of `CHANGELOG.md` becomes the release notes. A tag that names another version than the workspace stops the run before anything is built.
+`.github/workflows/release.yml` then builds the installers again, checks each one on the runner that built it, and publishes them with `SHA256SUMS`. The section of `CHANGELOG.md` becomes the release notes. A tag that names another version than the workspace stops the run before anything is built.
 
 ## Sample scripts
 

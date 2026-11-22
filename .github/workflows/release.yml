@@ -3,9 +3,15 @@ run-name: Pedagogue installers (${{ github.event_name == 'push' && github.ref_na
 
 # Builds the five installers (a setup for Windows, a disk image each for
 # Apple silicon and Intel Macs, a Debian package and an AppImage for Linux),
-# checks each one on a fresh machine of its system, and gathers them with
-# SHA256SUMS and the release notes. A vX.Y.Z tag then publishes that set as
-# a GitHub release. A job that fails means no release.
+# checks each one, and gathers them with SHA256SUMS and the release notes.
+# A vX.Y.Z tag then publishes that set as a GitHub release. A job that
+# fails means no release.
+#
+# Each check runs in the build job, on the runner that built the installer:
+# the setup installs, each disk image holds the app for its processor with
+# a signature that verifies, the package installs in a bare Ubuntu
+# container, and the AppImage unpacks. The checks stop short of starting
+# the app.
 #
 # What starts a run:
 # - A pushed vX.Y.Z tag that names the workspace version: build, check,
@@ -199,8 +205,8 @@ jobs:
         shell: bash
         run: cargo installer --target "$TRIPLE"
 
-      # A silent install on the fresh runner. The setup installs for the
-      # current user, into %LOCALAPPDATA%\Pedagogue.
+      # A silent install, the first one on this runner. The setup installs
+      # for the current user, into %LOCALAPPDATA%\Pedagogue.
       - name: Install the setup and check the app
         if: matrix.platform == 'windows'
         shell: pwsh
@@ -266,7 +272,10 @@ jobs:
               app=$(command -v pedagogue) || { echo "the package put no pedagogue on the PATH"; exit 1; }
               packaged=$(dpkg-deb --field "/dist/$PACKAGE" Version)
               [ "$packaged" = "$VERSION" ] || { echo "the package has version $packaged, expected $VERSION"; exit 1; }
-              if ldd "$app" | grep "not found"; then
+              # Two commands: inside the condition of an `if`, a failed ldd
+              # would read as "nothing is missing".
+              libraries=$(ldd "$app") || { echo "ldd cannot inspect $app"; exit 1; }
+              if grep "not found" <<< "$libraries"; then
                 echo "the package leaves these libraries of $app unresolved"
                 exit 1
               fi
