@@ -88,7 +88,7 @@ cargo deny check
 cargo audit
 ```
 
-`deny.toml` holds the allowed licenses and sources. CI runs all of these checks on every pull request and on `master`.
+`deny.toml` holds the allowed licenses and sources. CI runs all of these checks on every pull request and on `master`. It also runs the Nu HTML Checker on the two design files and on the app's page.
 
 ## Build an installer
 

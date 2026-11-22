@@ -154,7 +154,7 @@ jobs:
         run: cargo doc --workspace --no-deps --all-features
 
   # The UI's own checks: the type check, oxlint, Stylelint, Prettier and the
-  # tests, which load the built bundle into jsdom.
+  # tests, which load the built bundle into jsdom. Then the HTML checker.
   ui:
     if: ${{ !github.event.repository.fork }}
     runs-on: ubuntu-latest
@@ -175,6 +175,30 @@ jobs:
       - name: Check
         working-directory: ui
         run: npm run check
+
+      # The Nu HTML Checker, on the two design files and on the app's page
+      # as written and as built. The jar comes out of the npm package at a
+      # fixed version, is checked against a fixed hash, and runs on the Java
+      # of the runner. The package is fetched as a file, so its install
+      # script, which downloads a Java runtime, never runs.
+      - name: Check the HTML
+        shell: bash
+        env:
+          VNU_VERSION: 26.11.20
+          VNU_SHA256: ebd60284d4c918754d4e21204db6ac46fb59108313ea69d6cbf93e009e616e45
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/vnu-jar.tgz"
+          curl --fail --location --retry 3 -o "$archive" "https://registry.npmjs.org/vnu-jar/-/vnu-jar-$VNU_VERSION.tgz"
+          echo "$VNU_SHA256  $archive" | sha256sum --check
+          tar -xzf "$archive" -C "$RUNNER_TEMP" package/build/dist/vnu.jar
+          java -version
+          # --Werror makes a warning fail the step. The one message that is
+          # filtered out is a note on the "/>" that Prettier writes at the
+          # end of a void element.
+          java -jar "$RUNNER_TEMP/package/build/dist/vnu.jar" --Werror \
+            --filterpattern '.*Trailing slash on void elements.*' \
+            design/page-contact-sheet.html design/chat-panel.html ui/index.html ui/dist/index.html
 
   supply-chain:
     if: ${{ !github.event.repository.fork }}
