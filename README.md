@@ -12,9 +12,27 @@ Pedagogue is a "living textbook": a textbook page on the left and a tutor chat o
 
 Concept renders from the design phase. The app follows the reference files in `design/`.
 
+## Install
+
+Download the file for your system from the [latest release](https://github.com/cppalliance/pedagogue/releases/latest):
+
+- Windows: `Pedagogue_0.1.0_x64-setup.exe`
+- macOS on Apple silicon: `Pedagogue_0.1.0_aarch64.dmg`
+- macOS on Intel: `Pedagogue_0.1.0_x64.dmg`
+- Debian 12, Ubuntu 22.04 and newer: `Pedagogue_0.1.0_amd64.deb`
+- Other Linux distributions: `Pedagogue_0.1.0_amd64.AppImage`
+
+`SHA256SUMS` on the same page holds the SHA-256 hash of each file.
+
+The installers are unsigned, so each system asks before it opens one:
+
+- **Windows.** Windows shows "Windows protected your PC". Choose More info, then Run anyway. The setup installs for the current user.
+- **macOS.** Open the disk image and drag Pedagogue into Applications. macOS blocks the first launch. Open System Settings, then Privacy & Security, and choose Open Anyway beside the line about Pedagogue. If macOS reports the app as damaged, run `xattr -dr com.apple.quarantine /Applications/Pedagogue.app` and open it again.
+- **Linux.** Install the package with `sudo apt install ./Pedagogue_0.1.0_amd64.deb`. For the AppImage, make the file executable with `chmod +x Pedagogue_0.1.0_amd64.AppImage` and run it.
+
 ## Run it
 
-The desktop app:
+The desktop app, from the source:
 
 ```text
 cargo run -p pedagogue-desktop
@@ -115,7 +133,7 @@ A sample script is a JSON list of steps: page commands, chat lines, scripted stu
 - `samples/` - sample scripts, as JSON. `straw-poll.json` is the lesson the app plays by default. `contact-sheet.json` draws every element of the two design files on one page, and `contact-sheet.frames.json` holds the frames the app sends for it.
 - `.github/workflows/` - `ci.yml` runs the checks on every pull request and on `master`.
 
-`ARCHITECTURE.md` explains how the parts fit together, and `AGENTS.md` holds the rules for working in this repository.
+`ARCHITECTURE.md` explains how the parts fit together, `AGENTS.md` holds the rules for working in this repository, and `CHANGELOG.md` lists the changes of each release.
 
 ## Toolchain
 

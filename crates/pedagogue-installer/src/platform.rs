@@ -343,6 +343,24 @@ mod tests {
     }
 
     #[test]
+    fn the_readme_names_every_release_file() {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("..")
+            .join("README.md");
+        let readme = std::fs::read_to_string(&path)
+            .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
+        for platform in PLATFORMS {
+            for installer in platform.installers {
+                let name = installer.file_name();
+                // The Install section names each file of the current
+                // release, so a new version changes it too.
+                assert!(readme.contains(&format!("`{name}`")), "{name}");
+            }
+        }
+    }
+
+    #[test]
     fn the_desktop_crate_shares_the_version_of_this_crate() {
         let shares = |manifest: &str| {
             manifest

@@ -1,6 +1,6 @@
 {
   "name": "pedagogue-ui",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "Pedagogue UI: TypeScript sources bundled by esbuild into dist/ and served by pedagogue-server.",

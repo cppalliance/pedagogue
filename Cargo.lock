@@ -2597,7 +2597,7 @@ dependencies = [
 
 [[package]]
 name = "pedagogue-demo"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "pedagogue-session",
  "serde",
@@ -2608,7 +2608,7 @@ dependencies = [
 
 [[package]]
 name = "pedagogue-desktop"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "pedagogue-demo",
@@ -2626,7 +2626,7 @@ dependencies = [
 
 [[package]]
 name = "pedagogue-installer"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "serde_json",
@@ -2635,7 +2635,7 @@ dependencies = [
 
 [[package]]
 name = "pedagogue-server"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "axum",
@@ -2657,7 +2657,7 @@ dependencies = [
 
 [[package]]
 name = "pedagogue-session"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
