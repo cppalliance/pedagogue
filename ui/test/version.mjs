@@ -1,6 +1,6 @@
 // One version for the whole app. The Rust workspace states it, the
 // installers are named by it, and the UI package states the same one, so a
-// release bumps both in one change.
+// release bumps them in one change.
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -8,16 +8,38 @@ import { describe, it } from "node:test";
 
 const uiDir = path.join(import.meta.dirname, "..");
 
+/** Returns the lines of one table of a manifest, without its heading. */
+function tableOf(manifest, name) {
+  return manifest.split(/^\[/m).find((part) => part.startsWith(`${name}]`));
+}
+
 /** Reads the `version` key of the `[workspace.package]` table. */
 function workspaceVersion(manifest) {
-  const table = manifest
-    .split(/^\[/m)
-    .find((part) => part.startsWith("workspace.package]"));
-  const version = table?.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
+  const version = tableOf(manifest, "workspace.package")?.match(
+    /^version\s*=\s*"([^"]+)"/m,
+  )?.[1];
   if (version == null) {
     throw new Error("Cargo.toml states no version under [workspace.package]");
   }
   return version;
+}
+
+/**
+ * Lists the crates of this workspace that `[workspace.dependencies]` names,
+ * each with the version its entry asks for, if it states one.
+ */
+function internalEntries(manifest) {
+  const entries = tableOf(manifest, "workspace.dependencies") ?? "";
+  return [...entries.matchAll(/^(pedagogue-[\w-]+)\s*=\s*\{(.*)\}\s*$/gm)].map(
+    ([, name, fields]) => ({
+      name,
+      version: fields.match(/\bversion\s*=\s*"([^"]+)"/)?.[1],
+    }),
+  );
+}
+
+async function readManifest() {
+  return readFile(path.join(uiDir, "..", "Cargo.toml"), "utf8");
 }
 
 async function readJson(name) {
@@ -26,12 +48,8 @@ async function readJson(name) {
 
 describe("the version", () => {
   it("is the same in the UI package as in the Rust workspace", async () => {
-    const manifest = await readFile(
-      path.join(uiDir, "..", "Cargo.toml"),
-      "utf8",
-    );
     const { version } = await readJson("package.json");
-    assert.equal(version, workspaceVersion(manifest));
+    assert.equal(version, workspaceVersion(await readManifest()));
   });
 
   it("is the same in the lockfile as in the UI package", async () => {
@@ -39,6 +57,19 @@ describe("the version", () => {
     const lock = await readJson("package-lock.json");
     assert.equal(lock.version, version);
     assert.equal(lock.packages[""].version, version);
+  });
+
+  // Cargo accepts 0.1.0 as a requirement for 0.1.1, so an entry that a
+  // release left behind still builds. This test is what catches it.
+  it("is the one each internal dependency entry asks for", async () => {
+    const manifest = await readManifest();
+    const entries = internalEntries(manifest);
+    assert.ok(entries.length > 0, "Cargo.toml names no crate of the workspace");
+    for (const { name, version } of entries) {
+      if (version != null) {
+        assert.equal(version, workspaceVersion(manifest), name);
+      }
+    }
   });
 
   it("is read from the workspace table alone", () => {
@@ -58,5 +89,24 @@ describe("the version", () => {
       () => workspaceVersion('[package]\nversion = "9.9.9"\n'),
       /states no version under \[workspace\.package\]/,
     );
+  });
+
+  it("is read from each internal entry, whatever the order of its keys", () => {
+    const manifest = [
+      "[workspace.dependencies]",
+      'pedagogue-session = { path = "crates/pedagogue-session", version = "1.2.3" }',
+      'pedagogue-demo = { version = "1.2.0", path = "crates/pedagogue-demo" }',
+      'pedagogue-bare = { path = "crates/pedagogue-bare" }',
+      'serde = { version = "1", features = ["derive"] }',
+      "",
+      "[workspace.lints.rust]",
+      'pedagogue-late = { path = "elsewhere", version = "9.9.9" }',
+    ].join("\n");
+    assert.deepEqual(internalEntries(manifest), [
+      { name: "pedagogue-session", version: "1.2.3" },
+      { name: "pedagogue-demo", version: "1.2.0" },
+      { name: "pedagogue-bare", version: undefined },
+    ]);
+    assert.deepEqual(internalEntries('[package]\nname = "x"\n'), []);
   });
 });
