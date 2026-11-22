@@ -137,3 +137,32 @@ flowchart TD
 3. **Write `pedagogue/vision.md` in five chunks:** sections 1 to 3, sections 4 and 5, sections 6 to 8, sections 9 and 10, section 11.
 4. **Check it, three passes in parallel.** A style pass covers dashes, mermaid label length, the wording rules and links. A fact pass has a subagent compare every number, quote and rule against the workspace sources. A citation pass has a subagent confirm each named paper on the web.
 5. **Hand it to you for review.** The commit waits for your word. `master` is the head of the release pull request, so a commit pushed while that pull request is open becomes part of it. You choose then whether the report rides in that pull request or waits until it lands.
+
+# What the build found
+
+The plan held. `vision.md` is written with the 11 sections of the outline, three pictures and two figures. It entered the repository in `c7155dd`, together with the third picture and the one README line, on the user's word as step 5 says, and it rode in the release pull request.
+
+This plan had no copy in the repository while it ran. On the author's machine it was `.cursor/plans/pedagogue_vision_document_1bd35f3d.plan.md`. The session that ran the plan handed the document over untracked, and another session made the commit, which has no `Plan:` line. This record comes from the hand-over that the first session gave at the end of the build.
+
+## Where the build differs from the plan
+
+- **Length.** The document runs to about 4,570 words, where the plan said 3,000 to 3,500. The 18 entries of the research agenda take about 1,560 of them, and the build kept the agenda whole.
+- **One sentence of the settled summary changed.** The plan has "In Benjamin Bloom's 1984 studies, the average student tutored one-on-one scored above 98 percent of a conventional class." The document has "In studies Benjamin Bloom reported in 1984, the average tutored student scored above 98 percent of a conventional class." Reason: the studies were by two of Bloom's doctoral students, and a tutor taught one, two or three students.
+- **Five sentences of the summary describe the product ahead of the prototype.** They stayed as settled, and the body of the document states today's position for each. A lucky guess earns a second question at practice gates only. The prototype saves its place in each lesson and keeps no record for each student. The app is not connected to the run record of Runvil yet. Today's tutors are built from web research. The tutor prompt has not been ported to Runvil.
+
+## What the three checks changed
+
+- **Sources.** All 65 sources that the document names exist with the authors and years given, and every link resolves. The DOIs were matched through Crossref, and each one redirects to its publisher. The pages behind them were not each opened. The link for Renkl and Atkinson, taken from the tutor prototype, opened a different paper and now points at the right one. Rivers is cited as 2021, and Nickow points at the journal version of 2024.
+- **Rules.** The fact pass checked about 130 statements, and about a dozen were reworded because they said more than the prototype does. The gate table, the section on Runvil, and the rules H2, H6, H8, H9, H14, H16 and H18 changed the most.
+- **Sources that say less than the prototype credits them for.** The Knewton page says 10 minutes for each objective, where the prototype says 5 to 15. The ASCD article holds no help ladder, so H7 is marked as our own design.
+
+## Left open for the research
+
+- H2, H12 and H18 say "Source to find", H10 has a loose lead only, and H5 is the first guess of the app.
+- The tutor prototype forbids praise, and the app has a green success strip that praises. H18 says so.
+- The tutor prototype contradicted itself on mastery at a practice gate: one rule read as two right answers, another as two pairs. The document uses two right answers.
+
+## After the plan
+
+- The test counts in the document were brought up to date in `7993777`.
+- A reviewer of the release pull request raised the same contradiction in the tutor prototype. The prototype was corrected in `cppalliance/tools-public`, commit `d786285`: each of the two right answers adds one to the counter, which is what the document says.
