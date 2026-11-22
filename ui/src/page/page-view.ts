@@ -4,7 +4,6 @@
 // new and the changed ones, and leaves the rest alone, which keeps the
 // scroll position and whatever the student is typing.
 import "./page.css";
-import "./blocks/quiz.css";
 import { button, el } from "../dom";
 import { renderInline } from "../markdown";
 import type {
@@ -23,6 +22,7 @@ import {
   renderTimeline,
   renderTreeDiagram,
 } from "./blocks/figures";
+import { type Quiz, renderChoiceQuiz, renderResponseQuiz } from "./blocks/quiz";
 import { ScrollCues } from "./scroll-cues";
 
 /** Tells the other side which chapter and section are on screen. */
@@ -59,6 +59,8 @@ export class PageView {
   readonly #showPlace: ShowPlace;
   readonly #cues: ScrollCues;
   readonly #pages = new Map<PageNumber, DrawnPage>();
+  // Each quiz form on a page, with what to do when the student acts on it.
+  readonly #quizzes = new WeakMap<Element, Quiz>();
   #pageCount = 0;
   #shown: PageNumber | null = null;
 
@@ -129,7 +131,7 @@ export class PageView {
     end.append(previous, forward);
     article.append(head, chapterNumber, title, section, footnotes, end);
 
-    // One listener for the page finds which of its buttons was pressed.
+    // One listener of each kind for the page finds what the student used.
     article.addEventListener("click", (event) => {
       const pressed =
         event.target instanceof Element ? event.target.closest("button") : null;
@@ -137,7 +139,17 @@ export class PageView {
         this.#turnBy(page.number, -1);
       } else if (pressed === forward) {
         this.#goForward(page.number);
+      } else if (pressed !== null) {
+        this.#quizOf(pressed)?.press(pressed);
       }
+    });
+    // A quiz is a form, so its button and the Enter key do the same thing.
+    article.addEventListener("submit", (event) => {
+      event.preventDefault();
+      this.#quizOf(event.target)?.submit();
+    });
+    article.addEventListener("input", (event) => {
+      this.#quizOf(event.target)?.type();
     });
 
     // The first page takes the place of the heading the shell shows alone.
@@ -167,7 +179,7 @@ export class PageView {
       const data = JSON.stringify(block);
       const before = drawn.blocks.get(block.id);
       if (before?.data !== data) {
-        const elements = renderBlock(block, hasHeadingAbove);
+        const elements = this.#render(block, hasHeadingAbove);
         if (before === undefined) {
           // Pages only grow, so a new block goes last, above the foot.
           drawn.footnotes.before(...elements);
@@ -182,6 +194,44 @@ export class PageView {
           element.tagName === "H2" || element.querySelector("h2") !== null,
       );
     }
+  }
+
+  #render(block: Block, hasHeadingAbove: boolean): Element[] {
+    switch (block.kind) {
+      case "exposition":
+        return renderExposition(block, hasHeadingAbove);
+      case "callout":
+        return renderCallout(block);
+      case "bar_chart":
+        return renderBarChart(block);
+      case "tree_diagram":
+        return renderTreeDiagram(block);
+      case "timeline":
+        return renderTimeline(block);
+      case "progress":
+        return renderProgress(block);
+      case "success":
+        return renderSuccess(block);
+      case "choice_quiz":
+        return this.#keep(renderChoiceQuiz(block, this.#send));
+      case "response_quiz":
+        return this.#keep(renderResponseQuiz(block, this.#send));
+      default: {
+        // Every kind has a case above, and the compiler checks that here.
+        const unknown: never = block;
+        return unknown;
+      }
+    }
+  }
+
+  #keep(quiz: Quiz): Element[] {
+    this.#quizzes.set(quiz.form, quiz);
+    return [quiz.form];
+  }
+
+  #quizOf(target: EventTarget | null): Quiz | undefined {
+    const form = target instanceof Element ? target.closest("form") : null;
+    return form === null ? undefined : this.#quizzes.get(form);
   }
 
   /**
@@ -276,29 +326,6 @@ function drawFootnotes(drawn: DrawnPage): void {
   });
   drawn.footnotes.replaceChildren(...notes);
   drawn.footnotes.hidden = notes.length === 0;
-}
-
-function renderBlock(block: Block, hasHeadingAbove: boolean): Element[] {
-  switch (block.kind) {
-    case "exposition":
-      return renderExposition(block, hasHeadingAbove);
-    case "callout":
-      return renderCallout(block);
-    case "bar_chart":
-      return renderBarChart(block);
-    case "tree_diagram":
-      return renderTreeDiagram(block);
-    case "timeline":
-      return renderTimeline(block);
-    case "progress":
-      return renderProgress(block);
-    case "success":
-      return renderSuccess(block);
-    case "choice_quiz":
-    case "response_quiz":
-      break;
-  }
-  return [];
 }
 
 /** Puts new elements where old ones stand, or above `fallback`. */

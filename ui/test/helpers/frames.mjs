@@ -26,6 +26,35 @@ export function exposition(id, markdown) {
   return { id, kind: "exposition", markdown };
 }
 
+/** Makes an open choice quiz whose options are the given texts. */
+export function choiceQuiz(id, texts, quiz = {}) {
+  return {
+    id,
+    kind: "choice_quiz",
+    question: "Which?",
+    multiple: false,
+    status: "open",
+    attempts: 0,
+    missing: false,
+    options: texts.map((text) => ({ text, state: "open", checked: false })),
+    feedback: [],
+    ...quiz,
+  };
+}
+
+/** Makes an open free-text quiz of the given variant. */
+export function responseQuiz(id, variant, quiz = {}) {
+  return {
+    id,
+    kind: "response_quiz",
+    variant,
+    question: "Why?",
+    status: "open",
+    attempts: 0,
+    ...quiz,
+  };
+}
+
 /** Makes a chat frame. */
 export function chatFrame(chat = {}) {
   return {
