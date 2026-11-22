@@ -1,0 +1,216 @@
+name: CI
+
+# The checks of AGENTS.md, on every pull request and on every push to
+# master. Each job skips itself in a fork: a pull request runs these checks
+# in the repository that receives it, so a run in the fork would only repeat
+# them.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # A CI build starts from a cache of dependencies or from nothing, so
+  # incremental data and debug info only cost time and cache space.
+  CARGO_INCREMENTAL: 0
+  CARGO_PROFILE_DEV_DEBUG: 0
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    if: ${{ !github.event.repository.fork }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Format
+        run: cargo fmt --all --check
+
+  # The jobs that compile the workspace need two things beside Rust. The
+  # server's build script bundles the UI with Node, so each job runs `npm ci`
+  # in ui/ first. The desktop crate links the system WebView, which on Linux
+  # is three development packages. Those jobs run on ubuntu-22.04, the image
+  # the Linux installers are built on, so the checks and the release compile
+  # against the same system libraries.
+  clippy:
+    if: ${{ !github.event.repository.fork }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+
+      # A mirror that does not answer makes apt-get wait for a long time, so
+      # the step has a limit of its own.
+      - name: Install the Tauri system packages
+        timeout-minutes: 15
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libssl-dev librsvg2-dev
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install UI dependencies
+        working-directory: ui
+        run: npm ci
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  test:
+    if: ${{ !github.event.repository.fork }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+
+      - name: Install the Tauri system packages
+        if: runner.os == 'Linux'
+        timeout-minutes: 15
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libssl-dev librsvg2-dev
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install UI dependencies
+        working-directory: ui
+        run: npm ci
+
+      # The build and the run are two steps, so a failure says which of the
+      # two it is, and the log shows how long each takes.
+      - name: Build the tests
+        run: cargo test --locked --workspace --all-features --no-run
+
+      - name: Test
+        run: cargo test --locked --workspace --all-features
+
+      # A build or a test that writes into the repository is caught here
+      # rather than in a later diff.
+      - name: Clean tree
+        shell: bash
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "the build or the tests dirtied the repository:"
+            git status --porcelain
+            exit 1
+          fi
+
+  docs:
+    if: ${{ !github.event.repository.fork }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      RUSTDOCFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+
+      - name: Install the Tauri system packages
+        timeout-minutes: 15
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libssl-dev librsvg2-dev
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install UI dependencies
+        working-directory: ui
+        run: npm ci
+
+      - name: Docs
+        run: cargo doc --workspace --no-deps --all-features
+
+  # The UI's own checks: the type check, oxlint, Stylelint, Prettier and the
+  # tests, which load the built bundle into jsdom.
+  ui:
+    if: ${{ !github.event.repository.fork }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install UI dependencies
+        working-directory: ui
+        run: npm ci
+
+      - name: Check
+        working-directory: ui
+        run: npm run check
+
+  supply-chain:
+    if: ${{ !github.event.repository.fork }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: taiki-e/install-action@3f74d7c16a4242f1c95561e98edc25d36adb4375 # v2
+        with:
+          tool: cargo-deny, cargo-audit
+
+      - name: cargo deny
+        run: cargo deny check
+
+      - name: cargo audit
+        run: cargo audit
+
+  # Single required status check for branch protection: it fails when any
+  # job fails or is cancelled, so a cancelled job cannot read as green.
+  # needs: is a static list, so every newly added job must be added to it
+  # or that job bypasses this gate.
+  ci-green:
+    if: ${{ always() && !github.event.repository.fork }}
+    needs: [fmt, clippy, test, docs, ui, supply-chain]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify every job succeeded
+        shell: bash
+        run: |
+          status=0
+          for result in ${{ join(needs.*.result, ' ') }}; do
+            if [ "$result" != "success" ]; then
+              echo "a required job did not succeed: $result"
+              status=1
+            fi
+          done
+          exit $status

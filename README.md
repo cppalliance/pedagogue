@@ -63,6 +63,15 @@ npm run check
 
 `npm run check` runs the type check, oxlint, Stylelint, Prettier and the tests. `npm test` builds the bundle first.
 
+The dependencies, from the repository root, with `cargo-deny` and `cargo-audit` installed:
+
+```text
+cargo deny check
+cargo audit
+```
+
+`deny.toml` holds the allowed licenses and sources. CI runs all of these checks on every pull request and on `master`.
+
 ## Sample scripts
 
 A sample script is a JSON list of steps: page commands, chat lines, scripted student answers and a wait for Continue. The doc comment on `Script` in `crates/pedagogue-demo/src/script.rs` lists the shapes.
@@ -79,6 +88,7 @@ A sample script is a JSON list of steps: page commands, chat lines, scripted stu
 - `crates/pedagogue-desktop/` - the Tauri app. Its binary is named `pedagogue`.
 - `ui/` - the TypeScript UI, bundled by esbuild.
 - `samples/` - sample scripts, as JSON. `straw-poll.json` is the lesson the app plays by default. `contact-sheet.json` draws every element of the two design files on one page, and `contact-sheet.frames.json` holds the frames the app sends for it.
+- `.github/workflows/` - `ci.yml` runs the checks on every pull request and on `master`.
 
 `ARCHITECTURE.md` explains how the parts fit together, and `AGENTS.md` holds the rules for working in this repository.
 
