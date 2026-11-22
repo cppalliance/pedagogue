@@ -36,11 +36,13 @@
     line-height: 1.25;
   }
 
-  .who b {
+  .who-name {
+    margin: 0;
     font-size: 0.98rem;
+    font-weight: 700;
   }
 
-  .who span {
+  .who-place {
     font-size: 0.78rem;
     color: var(--text-soft);
   }
@@ -164,6 +166,7 @@
 
   .notice {
     align-self: center;
+    margin: 0;
     font-size: 0.78rem;
     color: var(--text-soft);
     background: var(--surface);
@@ -265,12 +268,6 @@
     stroke-width: 1.8;
     stroke-linecap: round;
     stroke-linejoin: round;
-  }
-
-  .actions .meta {
-    font-size: 0.72rem;
-    color: var(--muted);
-    margin-left: 8px;
   }
 
   .wave {

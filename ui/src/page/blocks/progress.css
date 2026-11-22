@@ -1,17 +1,29 @@
 @layer reset, base, components, utilities;
 
 @layer components {
+  /* A native progress element, restyled as a rounded bar. */
   .progress-bar {
+    appearance: none;
+    display: block;
+    width: 100%;
     height: 10px;
+    border: 0;
     border-radius: 6px;
     background: var(--progress-track);
     overflow: hidden;
     margin: 6px 0 8px;
   }
 
-  .progress-bar span {
-    display: block;
-    height: 100%;
+  .progress-bar::-webkit-progress-bar {
+    background: var(--progress-track);
+  }
+
+  .progress-bar::-webkit-progress-value {
+    background: var(--progress-fill);
+    border-radius: 6px;
+  }
+
+  .progress-bar::-moz-progress-bar {
     background: var(--progress-fill);
     border-radius: 6px;
   }

@@ -25,28 +25,42 @@
     font-size: 1.05rem;
   }
 
-  /* Quiz action buttons sit on the right. */
-  .callout.quiz > .btn {
-    display: block;
-    margin-left: auto;
-  }
-
+  /* The question is the legend of a choice quiz and the label of a
+     free-text quiz. */
   .q {
+    display: block;
     font-family: var(--serif);
     margin: 0 0 0.5em;
+    padding: 0;
+  }
+
+  /* A fieldset keeps its margins to itself, so the options start right
+     below the question. */
+  .choices {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
   }
 
   .options {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin: 0.3em 0 0.4em;
+    margin: 0 0 0.4em;
   }
 
+  /* Short options sit in two columns and read down each column. */
   .options.grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    grid-template-rows: repeat(2, auto);
     column-gap: 16px;
+  }
+
+  .options.grid:has(.opt:nth-child(5)) {
+    grid-template-rows: repeat(3, auto);
   }
 
   .opt {
@@ -59,20 +73,82 @@
     border-radius: 6px;
   }
 
-  .opt:has([tabindex="-1"]) {
-    pointer-events: none;
+  .opt:has(:disabled) {
+    cursor: default;
   }
 
   .opt.correct {
     font-weight: 600;
   }
 
+  /* Radios and checkboxes are drawn here, so a disabled right answer stays
+     crisp and every webview draws the same control. */
   .opt input {
+    appearance: none;
+    display: grid;
+    place-content: center;
+    flex: none;
     width: 19px;
     height: 19px;
     margin: 0;
-    accent-color: var(--quiz-bd);
-    flex: none;
+    border: 1.5px solid var(--field-bd);
+    background: var(--paper);
+    cursor: inherit;
+  }
+
+  .opt input::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    scale: 0;
+  }
+
+  .opt input:checked {
+    border-color: var(--quiz-bd);
+  }
+
+  .opt input:checked::before {
+    scale: 1;
+  }
+
+  .opt input:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .opt [type="radio"] {
+    border-radius: 50%;
+  }
+
+  .opt [type="radio"]::before {
+    border-radius: 50%;
+    background: var(--quiz-bd);
+  }
+
+  .opt [type="checkbox"] {
+    border-radius: 4px;
+  }
+
+  .opt [type="checkbox"]::before {
+    width: 11px;
+    height: 11px;
+    background: var(--on-accent);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
+  }
+
+  .opt [type="checkbox"]:checked {
+    background: var(--quiz-bd);
+  }
+
+  /* Forced colors repaint backgrounds, so the native controls come back. */
+  @media (forced-colors: active) {
+    .opt input {
+      appearance: auto;
+    }
+
+    .opt input::before {
+      display: none;
+    }
   }
 
   .tag {
@@ -130,6 +206,16 @@
     font-family: var(--sans);
     font-size: 0.78rem;
     color: var(--ink-soft);
+  }
+
+  /* Quiz action buttons sit on the right. */
+  .q-foot .btn {
+    margin-left: auto;
+  }
+
+  .callout.quiz > .btn {
+    display: block;
+    margin-left: auto;
   }
 
   .row {

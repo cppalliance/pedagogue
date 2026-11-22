@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Living Textbook - Chat Panel</title>
+<meta name="description" content="Design reference for the Pedagogue tutor chat: the live panel and every state of its parts.">
 <link rel="stylesheet" href="../ui/src/tokens.css">
 <link rel="stylesheet" href="../ui/src/chat/chat.css">
 <link rel="stylesheet" href="../ui/src/chat/composer.css">
@@ -21,12 +22,15 @@ body{background:var(--desk);color:var(--text);font-family:var(--sans);padding:32
 .spec>.label{font:500 11px/1.3 var(--mono);color:var(--muted)}
 .stage{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px;width:410px}
 .stage.tight{padding:12px}
+.stage.stack{display:flex;flex-direction:column;gap:10px}
+.stage .composer{margin:0}
+.stage .chips{padding:0}
 /* The card around the live panel. */
 .panel{width:440px;height:720px;border:1px solid var(--line);border-radius:18px}
 </style>
 </head>
 <body class="tutor">
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<svg class="sprite" width="0" height="0" aria-hidden="true">
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
   <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a8 8 0 0 1 0 11"/></symbol>
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></symbol>
@@ -35,204 +39,264 @@ body{background:var(--desk);color:var(--text);font-family:var(--sans);padding:32
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
 </svg>
 
-<template id="tpl-actions">
-  <div class="actions" role="group" aria-label="Message actions">
-    <button type="button" data-act="copy" aria-label="Copy"><svg><use href="#i-copy"/></svg></button>
-    <button type="button" data-act="speak" aria-label="Read aloud" title="Read aloud" aria-pressed="false"><svg><use href="#i-speaker"/></svg></button>
-    <span class="wave" aria-hidden="true"><span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span></span>
-    <button type="button" data-act="regen" aria-label="Regenerate"><svg><use href="#i-refresh"/></svg></button>
-  </div>
-</template>
-
 <header class="sheet-head">
   <h1>Living Textbook - Chat Panel</h1>
   <p>The tutor side of the app, dark mode so it contrasts with the white page. iMessage-style bubbles, one small icon row under the last assistant bubble only, and a composer with a clear edit box, a record button and a send button. The live panel works: type and send, tap the mic, tap the speaker.</p>
 </header>
 
+<main>
 <div class="band">Live panel</div>
 <div class="cols">
-  <section class="panel" aria-label="Tutor chat">
-    <div class="panel-head">
+  <aside class="panel" aria-label="Tutor chat">
+    <header class="panel-head">
       <div class="avatar" aria-hidden="true">R</div>
-      <div class="who"><b>Tutor</b><span>Chapter 3 - Section 3.2</span></div>
+      <div class="who"><h2 class="who-name">Tutor</h2><span class="who-place">Chapter 3 - Section 3.2</span></div>
+    </header>
+    <div class="messages" id="messages" role="log" aria-live="polite" aria-label="Conversation">
+      <time class="stamp" datetime="2026-11-21T09:41">Today 9:41 AM</time>
+      <div class="msg in"><span class="visually-hidden">Tutor</span><div class="bubble in tail"><p>Read this section, then try the quiz.</p></div></div>
+      <div class="msg out"><span class="visually-hidden">You</span><div class="bubble out tail"><p>Do I restate the question before or after closing the queue?</p></div></div>
+      <div class="msg in"><span class="visually-hidden">Tutor</span><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div>
+        <div class="actions" role="group" aria-label="Message actions">
+          <button type="button" data-act="copy" aria-label="Copy" title="Copy"><svg aria-hidden="true"><use href="#i-copy"/></svg></button>
+          <button type="button" data-act="speak" aria-label="Read aloud" title="Read aloud" aria-pressed="false"><svg aria-hidden="true"><use href="#i-speaker"/></svg></button>
+          <span class="wave" aria-hidden="true"><span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span></span>
+          <button type="button" data-act="regen" aria-label="Regenerate" title="Regenerate"><svg aria-hidden="true"><use href="#i-refresh"/></svg></button>
+        </div>
+      </div>
     </div>
-    <div class="messages" id="messages" aria-live="polite">
-      <div class="stamp">Today 9:41 AM</div>
-      <div class="msg in"><div class="bubble in tail"><p>Read this section, then try the quiz.</p></div></div>
-      <div class="msg out"><div class="bubble out tail"><p>Do I restate the question before or after closing the queue?</p></div></div>
-      <div class="msg in" id="last-in"><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div><div data-actions></div></div>
-    </div>
-    <div class="chips" aria-label="Suggestions">
+    <div class="chips" role="group" aria-label="Suggestions">
       <button class="chip" type="button">Take the quiz</button>
       <button class="chip" type="button">Explain this page</button>
       <button class="chip" type="button">Show an example</button>
     </div>
     <form class="composer" id="composer" autocomplete="off">
-      <input class="field-area" id="draft" type="text" placeholder="Message the tutor" aria-label="Message the tutor">
-      <div class="rec-area" aria-live="polite"><span class="rec-dot"></span><span class="rec-time" id="rectime">0:00</span><span class="rec-bars" id="recbars" aria-hidden="true"></span></div>
-      <button class="mic" id="mic" type="button" aria-label="Record" aria-pressed="false"><svg><use href="#i-mic"/></svg></button>
-      <button class="send" id="send" type="submit" aria-label="Send" disabled><svg><use href="#i-send"/></svg></button>
+      <label class="visually-hidden" for="draft">Message the tutor</label>
+      <input class="field-area" id="draft" type="text" placeholder="Message the tutor">
+      <div class="rec-area"><span class="rec-dot"></span><span class="rec-time" id="rectime">0:00</span><span class="rec-bars" aria-hidden="true"></span></div>
+      <button class="mic" id="mic" type="button" aria-label="Record" title="Record"><svg aria-hidden="true"><use href="#i-mic"/></svg></button>
+      <button class="send" id="send" type="submit" aria-label="Send" title="Send" disabled><svg aria-hidden="true"><use href="#i-send"/></svg></button>
     </form>
-  </section>
+  </aside>
 </div>
 
 <div class="band">Messages</div>
 <div class="cols">
   <div class="spec"><div class="label">.bubble.in (run of two, tail on last)</div>
     <div class="stage">
-      <div class="msg in">
+      <div class="msg in"><span class="visually-hidden">Tutor</span>
         <div class="bubble in"><p>Nice work on the quiz.</p></div>
         <div class="bubble in tail"><p>Ready for section 3.3 when you are.</p></div>
       </div>
     </div></div>
   <div class="spec"><div class="label">.bubble.out</div>
     <div class="stage">
-      <div class="msg out"><div class="bubble out tail"><p>Can I combine restating and polling in one step?</p></div></div>
+      <div class="msg out"><span class="visually-hidden">You</span><div class="bubble out tail"><p>Can I combine restating and polling in one step?</p></div></div>
     </div></div>
   <div class="spec"><div class="label">.bubble.in (paragraphs and inline code)</div>
     <div class="stage">
-      <div class="msg in"><div class="bubble in tail"><p><code>std::move</code> only casts to an rvalue reference.</p><p>The move happens when a move constructor or move assignment runs.</p></div></div>
+      <div class="msg in"><span class="visually-hidden">Tutor</span><div class="bubble in tail"><p><code>std::move</code> only casts to an rvalue reference.</p><p>The move happens when a move constructor or move assignment runs.</p></div></div>
     </div></div>
   <div class="spec"><div class="label">.typing</div>
     <div class="stage">
-      <div class="msg in"><div class="bubble in tail typing" aria-label="Tutor is typing"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div>
+      <div class="msg in"><span class="visually-hidden">Tutor</span><div class="bubble in tail typing"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span><span class="visually-hidden">is typing</span></div></div>
     </div></div>
   <div class="spec"><div class="label">.stamp and .notice</div>
-    <div class="stage" style="display:flex;flex-direction:column;gap:10px">
-      <div class="stamp">Today 9:41 AM</div>
-      <div class="notice"><b>Milestone 2 unlocked</b> - Section 2.2 is ready</div>
+    <div class="stage stack">
+      <time class="stamp" datetime="2026-11-21T09:41">Today 9:41 AM</time>
+      <p class="notice"><b>Milestone 2 unlocked</b> - Section 2.2 is ready</p>
     </div></div>
 </div>
 
 <div class="band">Icon row under the last assistant bubble</div>
 <div class="cols">
   <div class="spec"><div class="label">.actions (default)</div>
-    <div class="stage tight"><div class="msg in"><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div><div data-actions></div></div></div></div>
+    <div class="stage tight"><div class="msg in"><span class="visually-hidden">Tutor</span><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div>
+      <div class="actions" role="group" aria-label="Message actions">
+        <button type="button" data-act="copy" aria-label="Copy" title="Copy"><svg aria-hidden="true"><use href="#i-copy"/></svg></button>
+        <button type="button" data-act="speak" aria-label="Read aloud" title="Read aloud" aria-pressed="false"><svg aria-hidden="true"><use href="#i-speaker"/></svg></button>
+        <span class="wave" aria-hidden="true"><span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span></span>
+        <button type="button" data-act="regen" aria-label="Regenerate" title="Regenerate"><svg aria-hidden="true"><use href="#i-refresh"/></svg></button>
+      </div>
+    </div></div></div>
   <div class="spec"><div class="label">.actions (speaking)</div>
-    <div class="stage tight"><div class="msg in"><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div><div data-actions data-state="speaking"></div></div></div></div>
+    <div class="stage tight"><div class="msg in"><span class="visually-hidden">Tutor</span><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div>
+      <div class="actions" role="group" aria-label="Message actions">
+        <button type="button" data-act="copy" aria-label="Copy" title="Copy"><svg aria-hidden="true"><use href="#i-copy"/></svg></button>
+        <button type="button" data-act="speak" aria-label="Read aloud" title="Read aloud" aria-pressed="true"><svg aria-hidden="true"><use href="#i-speaker"/></svg></button>
+        <span class="wave" aria-hidden="true"><span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span></span>
+        <button type="button" data-act="regen" aria-label="Regenerate" title="Regenerate"><svg aria-hidden="true"><use href="#i-refresh"/></svg></button>
+      </div>
+    </div></div></div>
   <div class="spec"><div class="label">.actions (copied)</div>
-    <div class="stage tight"><div class="msg in"><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div><div data-actions data-state="copied"></div></div></div></div>
+    <div class="stage tight"><div class="msg in"><span class="visually-hidden">Tutor</span><div class="bubble in tail"><p>After. Close the queue, restate the question, then poll.</p></div>
+      <div class="actions" role="group" aria-label="Message actions">
+        <button class="done" type="button" data-act="copy" aria-label="Copy" title="Copy"><svg aria-hidden="true"><use href="#i-copy"/></svg></button>
+        <button type="button" data-act="speak" aria-label="Read aloud" title="Read aloud" aria-pressed="false"><svg aria-hidden="true"><use href="#i-speaker"/></svg></button>
+        <span class="wave" aria-hidden="true"><span class="wave-bar"></span><span class="wave-bar"></span><span class="wave-bar"></span></span>
+        <button type="button" data-act="regen" aria-label="Regenerate" title="Regenerate"><svg aria-hidden="true"><use href="#i-refresh"/></svg></button>
+      </div>
+    </div></div></div>
 </div>
 
 <div class="band">Composer</div>
 <div class="cols">
   <div class="spec"><div class="label">.composer (empty, send dimmed)</div>
-    <div class="stage tight"><form class="composer" style="margin:0" onsubmit="return false">
-      <input class="field-area" type="text" placeholder="Message the tutor" aria-label="Message the tutor">
-      <button class="mic" type="button" aria-label="Record"><svg><use href="#i-mic"/></svg></button>
-      <button class="send" type="button" aria-label="Send" disabled><svg><use href="#i-send"/></svg></button></form></div></div>
+    <div class="stage tight"><form class="composer" autocomplete="off">
+      <label class="visually-hidden" for="draft-empty">Message the tutor</label>
+      <input class="field-area" id="draft-empty" type="text" placeholder="Message the tutor">
+      <div class="rec-area"><span class="rec-dot"></span><span class="rec-time">0:00</span><span class="rec-bars" aria-hidden="true"></span></div>
+      <button class="mic" type="button" aria-label="Record" title="Record"><svg aria-hidden="true"><use href="#i-mic"/></svg></button>
+      <button class="send" type="submit" aria-label="Send" title="Send" disabled><svg aria-hidden="true"><use href="#i-send"/></svg></button></form></div></div>
   <div class="spec"><div class="label">.composer (typing, send ready)</div>
-    <div class="stage tight"><form class="composer" style="margin:0" onsubmit="return false">
-      <input class="field-area" type="text" value="Why close the queue first?" aria-label="Message the tutor">
-      <button class="mic" type="button" aria-label="Record"><svg><use href="#i-mic"/></svg></button>
-      <button class="send" type="button" aria-label="Send"><svg><use href="#i-send"/></svg></button></form></div></div>
+    <div class="stage tight"><form class="composer" autocomplete="off">
+      <label class="visually-hidden" for="draft-typing">Message the tutor</label>
+      <input class="field-area" id="draft-typing" type="text" placeholder="Message the tutor" value="Why close the queue first?">
+      <div class="rec-area"><span class="rec-dot"></span><span class="rec-time">0:00</span><span class="rec-bars" aria-hidden="true"></span></div>
+      <button class="mic" type="button" aria-label="Record" title="Record"><svg aria-hidden="true"><use href="#i-mic"/></svg></button>
+      <button class="send" type="submit" aria-label="Send" title="Send"><svg aria-hidden="true"><use href="#i-send"/></svg></button></form></div></div>
   <div class="spec"><div class="label">.composer.recording</div>
-    <div class="stage tight"><form class="composer recording" style="margin:0" onsubmit="return false">
-      <input class="field-area" type="text" aria-label="Message the tutor">
-      <div class="rec-area"><span class="rec-dot"></span><span class="rec-time">0:07</span><span class="rec-bars" data-bars></span></div>
-      <button class="mic" type="button" aria-label="Stop recording"><svg><use href="#i-stop"/></svg></button></form></div></div>
+    <div class="stage tight"><form class="composer recording" autocomplete="off">
+      <label class="visually-hidden" for="draft-recording">Message the tutor</label>
+      <input class="field-area" id="draft-recording" type="text" placeholder="Message the tutor">
+      <div class="rec-area"><span class="rec-dot"></span><span class="rec-time">0:07</span><span class="rec-bars" aria-hidden="true"></span></div>
+      <button class="mic" type="button" aria-label="Stop recording" title="Stop recording"><svg aria-hidden="true"><use href="#i-stop"/></svg></button>
+      <button class="send" type="submit" aria-label="Send" title="Send" disabled><svg aria-hidden="true"><use href="#i-send"/></svg></button></form></div></div>
   <div class="spec"><div class="label">.composer.disabled (tutor is replying)</div>
-    <div class="stage tight"><form class="composer disabled" style="margin:0" onsubmit="return false">
-      <input class="field-area" type="text" placeholder="Message the tutor" aria-label="Message the tutor" disabled>
-      <button class="mic" type="button" aria-label="Record" disabled><svg><use href="#i-mic"/></svg></button>
-      <button class="send" type="button" aria-label="Send" disabled><svg><use href="#i-send"/></svg></button></form></div></div>
+    <div class="stage tight"><form class="composer disabled" autocomplete="off">
+      <label class="visually-hidden" for="draft-disabled">Message the tutor</label>
+      <input class="field-area" id="draft-disabled" type="text" placeholder="Message the tutor" disabled>
+      <div class="rec-area"><span class="rec-dot"></span><span class="rec-time">0:00</span><span class="rec-bars" aria-hidden="true"></span></div>
+      <button class="mic" type="button" aria-label="Record" title="Record" disabled><svg aria-hidden="true"><use href="#i-mic"/></svg></button>
+      <button class="send" type="submit" aria-label="Send" title="Send" disabled><svg aria-hidden="true"><use href="#i-send"/></svg></button></form></div></div>
 </div>
 
 <div class="band">Suggestion chips</div>
 <div class="cols">
   <div class="spec"><div class="label">.chip</div>
-    <div class="stage tight"><div class="chips" style="padding:0">
+    <div class="stage tight"><div class="chips" role="group" aria-label="Suggestions">
       <button class="chip" type="button">Take the quiz</button>
       <button class="chip" type="button">Explain this page</button>
       <button class="chip" type="button">Show an example</button></div></div></div>
 </div>
+</main>
 
-<script>
-(function () {
-  var tpl = document.getElementById('tpl-actions');
-  var messages = document.getElementById('messages');
+<script type="module">
+const messages = document.querySelector("#messages");
+const form = document.querySelector("#composer");
+const draft = document.querySelector("#draft");
+const send = document.querySelector("#send");
+const mic = document.querySelector("#mic");
+const recTime = document.querySelector("#rectime");
 
-  // Build an action row into every placeholder.
-  function mountActions(slot) {
-    var node = tpl.content.firstElementChild.cloneNode(true);
-    slot.replaceWith(node);
-    return node;
+function element(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className !== "") {
+    node.className = className;
   }
-  document.querySelectorAll('[data-actions]').forEach(function (slot) {
-    var state = slot.dataset.state;
-    var row = mountActions(slot);
-    if (state === 'speaking') row.querySelector('[data-act="speak"]').setAttribute('aria-pressed', 'true');
-    if (state === 'copied') row.querySelector('[data-act="copy"]').classList.add('done');
-  });
-
-  // Row behavior (event delegation).
-  document.addEventListener('click', function (e) {
-    var b = e.target.closest('.actions button'); if (!b) return;
-    var act = b.dataset.act;
-    if (act === 'copy') { b.classList.add('done'); setTimeout(function () { b.classList.remove('done'); }, 1200); }
-    if (act === 'speak') {
-      var on = b.getAttribute('aria-pressed') !== 'true';
-      b.setAttribute('aria-pressed', on ? 'true' : 'false');
-      if (on) setTimeout(function () { b.setAttribute('aria-pressed', 'false'); }, 3000);
-    }
-  });
-
-  // Recording bars (decorative).
-  function fillBars(el) {
-    var h = '';
-    for (var i = 0; i < 40; i++) h += '<i style="height:' + (4 + Math.round(Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.23)) * 18)) + 'px"></i>';
-    el.innerHTML = h;
+  if (text !== undefined) {
+    node.textContent = text;
   }
-  document.querySelectorAll('[data-bars]').forEach(fillBars);
-  fillBars(document.getElementById('recbars'));
+  return node;
+}
 
-  // Live composer.
-  var form = document.getElementById('composer'), draft = document.getElementById('draft');
-  var send = document.getElementById('send'), mic = document.getElementById('mic');
-  var rectime = document.getElementById('rectime'), timer = null, secs = 0;
+function addMessage(kind, speaker) {
+  const message = element("div", `msg ${kind}`);
+  message.append(element("span", "visually-hidden", speaker));
+  messages.append(message);
+  return message;
+}
 
-  draft.addEventListener('input', function () { send.disabled = !draft.value.trim(); });
+function addBubble(message, kind, text) {
+  const bubble = element("div", `bubble ${kind} tail`);
+  bubble.append(element("p", "", text));
+  message.append(bubble);
+  messages.scrollTop = messages.scrollHeight;
+}
 
-  mic.addEventListener('click', function () {
-    var on = !form.classList.contains('recording');
-    form.classList.toggle('recording', on);
-    mic.setAttribute('aria-pressed', on ? 'true' : 'false');
-    mic.setAttribute('aria-label', on ? 'Stop recording' : 'Record');
-    mic.querySelector('use').setAttribute('href', on ? '#i-stop' : '#i-mic');
+function addTyping() {
+  const message = addMessage("in", "Tutor");
+  const bubble = element("div", "bubble in tail typing");
+  for (let dot = 0; dot < 3; dot += 1) {
+    bubble.append(element("span", "typing-dot"));
+  }
+  bubble.append(element("span", "visually-hidden", "is typing"));
+  message.append(bubble);
+  messages.scrollTop = messages.scrollHeight;
+  return message;
+}
+
+// Icon rows, on every sample: copy flashes green and read aloud toggles.
+document.addEventListener("click", (event) => {
+  const button = event.target.closest(".actions button");
+  if (button === null) {
+    return;
+  }
+  if (button.dataset.act === "copy") {
+    button.classList.add("done");
+    setTimeout(() => button.classList.remove("done"), 1200);
+  }
+  if (button.dataset.act === "speak") {
+    const on = button.getAttribute("aria-pressed") !== "true";
+    button.setAttribute("aria-pressed", String(on));
     if (on) {
-      secs = 0; rectime.textContent = '0:00';
-      timer = setInterval(function () { secs++; rectime.textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0'); }, 1000);
-    } else {
-      clearInterval(timer);
-      draft.value = 'Why do I close the queue first?'; send.disabled = false; draft.focus();
+      setTimeout(() => button.setAttribute("aria-pressed", "false"), 3000);
     }
-  });
-
-  function addMessage(kind, text) {
-    var msg = document.createElement('div'); msg.className = 'msg ' + kind;
-    var b = document.createElement('div'); b.className = 'bubble ' + kind + ' tail';
-    var p = document.createElement('p'); p.textContent = text; b.appendChild(p); msg.appendChild(b);
-    messages.appendChild(msg); messages.scrollTop = messages.scrollHeight; return msg;
   }
+});
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var text = draft.value.trim(); if (!text) return;
-    messages.querySelectorAll('.msg.in > .actions').forEach(function (a) { a.remove(); }); // row only on the last assistant message
-    addMessage('out', text);
-    draft.value = ''; send.disabled = true;
-    var typing = document.createElement('div'); typing.className = 'msg in';
-    typing.innerHTML = '<div class="bubble in tail typing" aria-label="Tutor is typing"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
-    messages.appendChild(typing); messages.scrollTop = messages.scrollHeight;
-    setTimeout(function () {
-      typing.remove();
-      var m = addMessage('in', 'Good question. The queue closes first so the room knows the list of speakers is final.');
-      var slot = document.createElement('div'); slot.setAttribute('data-actions', ''); m.appendChild(slot); mountActions(slot);
-      messages.scrollTop = messages.scrollHeight;
-    }, 900);
-  });
-})();
+// Live composer: the send button wakes when there is text to send.
+draft.addEventListener("input", () => {
+  send.disabled = draft.value.trim() === "";
+});
+
+let seconds = 0;
+let timer;
+mic.addEventListener("click", () => {
+  const on = !form.classList.contains("recording");
+  const name = on ? "Stop recording" : "Record";
+  form.classList.toggle("recording", on);
+  mic.setAttribute("aria-label", name);
+  mic.title = name;
+  mic.querySelector("use").setAttribute("href", on ? "#i-stop" : "#i-mic");
+  if (on) {
+    seconds = 0;
+    recTime.textContent = "0:00";
+    timer = setInterval(() => {
+      seconds += 1;
+      recTime.textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+    }, 1000);
+  } else {
+    clearInterval(timer);
+    draft.value = "Why do I close the queue first?";
+    send.disabled = false;
+    draft.focus();
+  }
+});
+
+// Every composer on this sheet is a sample, so a submit stays on the page.
+// The live one adds the message, shows the dots, then a fixed reply. The
+// icon row moves to the newest tutor message.
+document.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const text = draft.value.trim();
+  if (event.target !== form || text === "") {
+    return;
+  }
+  const row = messages.querySelector(".actions");
+  row.remove();
+  addBubble(addMessage("out", "You"), "out", text);
+  draft.value = "";
+  send.disabled = true;
+  const typing = addTyping();
+  setTimeout(() => {
+    typing.remove();
+    const reply = addMessage("in", "Tutor");
+    addBubble(reply, "in", "Good question. The queue closes first so the room knows the list of speakers is final.");
+    reply.append(row);
+    messages.scrollTop = messages.scrollHeight;
+  }, 900);
+});
 </script>
-
 </body>
 </html>

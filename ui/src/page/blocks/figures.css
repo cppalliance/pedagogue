@@ -16,19 +16,18 @@
     color: var(--ink-soft);
     margin-top: 0.4em;
   }
-
-  :where(.page) figcaption em {
-    font-style: italic;
-  }
 }
 
 @layer components {
   .fig-no {
     font-family: var(--sans);
     font-weight: 700;
-    font-style: normal;
     color: var(--ink);
     margin-right: 0.4em;
+  }
+
+  .fig-text {
+    font-style: italic;
   }
 
   /* Bar chart. */
@@ -85,6 +84,8 @@
     display: flex;
     justify-content: space-between;
     margin: 1.6em 8px 1.2em;
+    padding: 0;
+    list-style: none;
     font-family: var(--sans);
     font-size: 0.82rem;
     isolation: isolate;
@@ -93,6 +94,7 @@
   .stop {
     position: relative;
     flex: 1;
+    margin: 0;
     text-align: center;
   }
 
@@ -107,22 +109,25 @@
     background: var(--teal);
   }
 
-  .stop b {
+  .stop-label {
     display: block;
     font-weight: 600;
     margin-bottom: 8px;
   }
 
-  .stop i {
+  .stop-note {
+    display: block;
+    color: var(--teal);
+  }
+
+  /* The dot of a stop, between its label and its note. */
+  .stop-note::before {
+    content: "";
     display: block;
     width: 12px;
     height: 12px;
     border-radius: 50%;
     background: var(--teal);
     margin: 0 auto 8px;
-  }
-
-  .stop span {
-    color: var(--teal);
   }
 }

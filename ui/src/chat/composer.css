@@ -14,8 +14,10 @@
     min-height: 50px;
   }
 
-  .composer:focus-within {
-    border-color: var(--composer-bd-focus);
+  /* The pill shows the focus of the field inside it. */
+  .composer:has(.field-area:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
   }
 
   .composer.disabled {
@@ -27,7 +29,7 @@
     flex: 1;
     min-width: 0;
     border: 0;
-    outline: 0;
+    outline: none;
     background: none;
     color: var(--text);
     font: inherit;
@@ -136,20 +138,14 @@
     color: var(--text);
   }
 
+  /* The level bars are one element: a flat color cut to shape by a mask of
+     forty rounded strokes. */
   .rec-bars {
     flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 3px;
     height: 24px;
-    overflow: hidden;
-  }
-
-  .rec-bars i {
-    width: 3px;
-    border-radius: 2px;
     background: var(--rec-bar);
-    flex: none;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='237' height='24'%3E%3Cpath d='M1.5 11.5v1M7.5 6.5v12M13.5 3.5v17M19.5 5.5v13M25.5 9.5v5M31.5 10.5v4M37.5 10.5v4M43.5 11.5v2M49.5 10.5v4M55.5 11.5v1M61.5 7.5v9M67.5 4.5v16M73.5 4.5v15M79.5 8.5v7M85.5 8.5v8M91.5 4.5v16M97.5 4.5v16M103.5 7.5v9M109.5 11.5v1M115.5 9.5v5M121.5 10.5v3M127.5 10.5v3M133.5 10.5v3M139.5 9.5v5M145.5 5.5v13M151.5 4.5v16M157.5 6.5v11M163.5 11.5v2M169.5 5.5v13M175.5 3.5v18M181.5 5.5v13M187.5 10.5v4M193.5 10.5v4M199.5 9.5v5M205.5 11.5v2M211.5 10.5v3M217.5 11.5v1M223.5 7.5v9M229.5 4.5v15M235.5 5.5v14' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E")
+      left center / auto 24px no-repeat;
   }
 
   .composer.recording .mic {

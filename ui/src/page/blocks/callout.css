@@ -19,7 +19,7 @@
     margin-bottom: 0;
   }
 
-  .callout-title {
+  .callout .callout-title {
     font-family: var(--sans);
     font-weight: 700;
     font-size: 1rem;

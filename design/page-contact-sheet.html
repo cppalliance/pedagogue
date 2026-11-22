@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Living Textbook - Page Contact Sheet</title>
+<meta name="description" content="Design reference for the Pedagogue textbook page: every element of the page column on one sheet.">
 <link rel="stylesheet" href="../ui/src/tokens.css">
 <link rel="stylesheet" href="../ui/src/page/page.css">
 <link rel="stylesheet" href="../ui/src/page/blocks/exposition.css">
@@ -17,8 +18,8 @@
    which the app bundles too, so the look has one home. */
 body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32px 16px 80px}
 .sheet-head{max-width:var(--page-w);margin:0 auto 20px}
-.sheet-head h1{font-size:1.5rem;margin:0 0 4px}
-.sheet-head p{margin:0;color:var(--ink-soft);font-size:.95rem;line-height:1.4;text-align:justify}
+.sheet-title{font-size:1.5rem;font-weight:700;margin:0 0 4px}
+.sheet-note{margin:0;color:var(--ink-soft);font-size:.95rem;line-height:1.4;text-align:justify}
 .swatches{max-width:var(--page-w);margin:0 auto 28px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .swatch{border-radius:8px;padding:10px 12px;font-size:.78rem;line-height:1.3;border:1px solid}
 .swatch b{display:block;font-size:.85rem;margin-bottom:2px}
@@ -28,21 +29,24 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
 .swatch.ok{background:var(--ok-bg);border-color:var(--ok-bd);color:var(--ok-ink)}
 [data-spec]{position:relative}
 [data-spec]::before{content:attr(data-spec);position:absolute;right:calc(100% + 56px);top:2px;width:170px;text-align:right;
-  font:500 11px/1.3 var(--mono);color:var(--muted);pointer-events:none;
+  font:500 11px/1.3 var(--mono);color:var(--ink-soft);pointer-events:none;
   text-transform:none;font-variant:normal;letter-spacing:0;font-style:normal;text-decoration:none;hyphens:none;text-align:right}
 @media (max-width:1000px){[data-spec]::before{display:none}}
 .band{max-width:var(--page-w);margin:34px auto 10px;font:700 .72rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);
   border-bottom:1px solid #b9b5ab;padding-bottom:6px}
+.band.inner{margin:1.6em 0 .2em;max-width:none}
+.band.inner.roomy{margin-bottom:.6em}
 /* The card around the page, and the box around the scroll-cue sample. */
 .page{box-shadow:0 1px 2px rgba(0,0,0,.12),0 8px 30px rgba(0,0,0,.10)}
 .viewport{height:250px;border:1px solid var(--rule);border-radius:8px;margin:1.2em 0}
 .viewport .scroller{padding:20px 24px}
 .viewport .scroller p{text-align:left}
+.sample-head{margin-top:0}
 .cue-note{font-family:var(--sans);font-size:.8rem;color:var(--ink-soft);margin:-.4em 0 1em;text-align:left}
 </style>
 </head>
 <body class="textbook">
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<svg class="sprite" width="0" height="0" aria-hidden="true">
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 3 14.8 9 21 9.7 16.4 14 17.7 20.5 12 17.3 6.3 20.5 7.6 14 3 9.7 9.2 9"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
@@ -55,8 +59,8 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
 </svg>
 
 <header class="sheet-head">
-  <h1>Living Textbook - Page Contact Sheet</h1>
-  <p>Every element of the page column in one long page. Class names appear in the left gutter on wide screens. This sheet is the approval reference: the app and its sample renders build from these classes.</p>
+  <p class="sheet-title">Living Textbook - Page Contact Sheet</p>
+  <p class="sheet-note">Every element of the page column in one long page. Class names appear in the left gutter on wide screens. This sheet is the approval reference: the app and its sample renders build from these classes.</p>
 </header>
 
 <section class="swatches" aria-label="Box color code">
@@ -68,10 +72,11 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
 
 <div class="band">Type and structure</div>
 
-<main class="page" aria-label="Sample textbook page">
-  <div class="running-head" data-spec=".running-head">
+<main>
+<article class="page">
+  <header class="running-head" data-spec=".running-head">
     <span class="rh-title">Chapter 3 &nbsp; Chairing a WG21 Room</span><span class="rh-page">47</span>
-  </div>
+  </header>
 
   <p class="chapter-num" data-spec=".chapter-num">Chapter 3</p>
   <h1 class="chapter-title" data-spec=".chapter-title">Chairing a WG21 Room</h1>
@@ -82,7 +87,7 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
 
   <div data-spec=".data" data-sheet-wrap>
   <table class="data">
-    <thead><tr><th>SF</th><th>F</th><th>N</th><th>A</th><th>SA</th></tr></thead>
+    <thead><tr><th scope="col">SF</th><th scope="col">F</th><th scope="col">N</th><th scope="col">A</th><th scope="col">SA</th></tr></thead>
     <tbody><tr><td>9</td><td>14</td><td>5</td><td>2</td><td>1</td></tr></tbody>
   </table>
   </div>
@@ -105,7 +110,7 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
 
   <blockquote data-spec="blockquote"><p>Consensus is more than a majority. It asks whether the whole delegation can live with the outcome.</p></blockquote>
 
-  <div class="band" data-sheet style="margin:1.6em 0 .6em;max-width:none">Figures</div>
+  <div class="band inner roomy" data-sheet>Figures</div>
 
   <figure data-spec="figure + bar chart">
     <svg viewBox="0 0 460 215" role="img" aria-label="Bar chart of a poll with consensus in favor: SF 10, F 8, N 2, A 1, SA 0">
@@ -116,7 +121,7 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
       <rect class="bar negative" x="282" y="156" width="56" height="14"/> <text class="chart-label" x="310" y="148">1</text> <text class="chart-label" x="310" y="192">A</text>
       <rect class="bar negative" x="362" y="170" width="56" height="0"/>  <text class="chart-label" x="390" y="162">0</text> <text class="chart-label" x="390" y="192">SA</text>
     </svg>
-    <figcaption><span class="fig-no">Figure 1.2</span><em>A poll with consensus in favor</em></figcaption>
+    <figcaption><span class="fig-no">Figure 1.2</span><span class="fig-text">A poll with consensus in favor</span></figcaption>
   </figure>
 
   <figure data-spec="figure + tree diagram">
@@ -131,14 +136,14 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
       <text class="tree-label leaf" x="260" y="162">xvalue</text>
       <text class="tree-label leaf" x="445" y="162">prvalue</text>
     </svg>
-    <figcaption><span class="fig-no">Figure 6.1</span><em>Value categories</em></figcaption>
+    <figcaption><span class="fig-no">Figure 6.1</span><span class="fig-text">Value categories</span></figcaption>
   </figure>
 
-  <div class="timeline" data-spec=".timeline">
-    <div class="stop"><b>Present</b><i></i><span>0 min</span></div>
-    <div class="stop"><b>Discuss</b><i></i><span>~ half time</span></div>
-    <div class="stop"><b>Poll</b><i></i><span>~ 5 min left</span></div>
-  </div>
+  <ol class="timeline" data-spec=".timeline">
+    <li class="stop"><span class="stop-label">Present</span><span class="stop-note">0 min</span></li>
+    <li class="stop"><span class="stop-label">Discuss</span><span class="stop-note">~ half time</span></li>
+    <li class="stop"><span class="stop-label">Poll</span><span class="stop-note">~ 5 min left</span></li>
+  </ol>
 
   <h3 data-spec=".code">Code</h3>
   <p>The destructor releases the resource when the object leaves scope, even if an exception unwinds the stack.</p>
@@ -154,171 +159,194 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
 <span class="ty">std::string</span> a = <span class="st">"hello"</span>;
 <span class="ty">std::string</span> b = <span class="ty">std::</span><span class="fn">move</span>(a);</pre>
 
-  <div class="band" data-sheet style="margin:1.6em 0 .2em;max-width:none">Blue: information</div>
+  <div class="band inner" data-sheet>Blue: information</div>
 
   <aside class="callout info" data-spec=".callout.info">
-    <div class="callout-title"><svg><use href="#i-info"/></svg>Chair's Tip</div>
+    <p class="callout-title"><svg aria-hidden="true"><use href="#i-info"/></svg>Chair's Tip</p>
     <p>Keep your eye on the timebox, not the clock. Name the time remaining, protect the queue, and gently close off repetition so the room can decide.</p>
   </aside>
   <aside class="callout info" data-spec=".callout.info (short)">
-    <div class="callout-title"><svg><use href="#i-info"/></svg>Key Idea</div>
+    <p class="callout-title"><svg aria-hidden="true"><use href="#i-info"/></svg>Key Idea</p>
     <p><em>Arrive with a question, not a verdict.</em></p>
   </aside>
   <aside class="callout info" data-spec=".callout.info (code ref)">
-    <div class="callout-title"><svg><use href="#i-info"/></svg>Remember</div>
+    <p class="callout-title"><svg aria-hidden="true"><use href="#i-info"/></svg>Remember</p>
     <p><code>std::move</code> is only a cast. The move happens in the move constructor.</p>
   </aside>
 
-  <div class="band" data-sheet style="margin:1.6em 0 .2em;max-width:none">Yellow: personal note</div>
+  <div class="band inner" data-sheet>Yellow: personal note</div>
 
   <aside class="callout note" data-spec=".callout.note">
-    <div class="callout-title"><svg><use href="#i-star"/></svg>Tailored for you</div>
+    <p class="callout-title"><svg aria-hidden="true"><use href="#i-star"/></svg>Tailored for you</p>
     <p>You said you are new to library wording. Start with section 2 of the paper and skip the wording on a first pass.</p>
   </aside>
   <aside class="callout note" data-spec=".callout.note (hint)">
-    <div class="callout-title"><svg><use href="#i-star"/></svg>Hint for you</div>
+    <p class="callout-title"><svg aria-hidden="true"><use href="#i-star"/></svg>Hint for you</p>
     <p>You did well on functions in Chapter 4. Think of <code>co_await</code> as a return that remembers where it left off.</p>
   </aside>
   <aside class="callout note" data-spec=".callout.note (milestone)">
-    <div class="callout-title"><svg><use href="#i-clock"/></svg>Milestone 2</div>
+    <p class="callout-title"><svg aria-hidden="true"><use href="#i-clock"/></svg>Milestone 2</p>
     <p>Finish this essay to unlock Section 2.2.</p>
   </aside>
 
-  <div class="band" data-sheet style="margin:1.6em 0 .2em;max-width:none">Red: quiz or test (thick left bar)</div>
+  <div class="band inner" data-sheet>Red: quiz or test (thick left bar)</div>
 
-  <section class="callout quiz" data-spec=".callout.quiz (multiple choice)" aria-labelledby="q1">
-    <div class="callout-title" id="q1">Pop Quiz</div>
-    <p class="q">What should the chair do before calling the poll?</p>
-    <div class="options" role="radiogroup" aria-labelledby="q1">
-      <label class="opt"><input type="radio" name="q1"> A. Restate the question</label>
-      <label class="opt"><input type="radio" name="q1"> B. Count the room</label>
-      <label class="opt"><input type="radio" name="q1"> C. Close the queue</label>
-      <label class="opt"><input type="radio" name="q1"> D. All of the above</label>
-    </div>
-    <button class="btn quiz" type="button">Check answer</button>
-  </section>
+  <form class="callout quiz" data-spec=".callout.quiz (multiple choice)">
+    <p class="callout-title">Pop Quiz</p>
+    <fieldset class="choices">
+      <legend class="q">What should the chair do before calling the poll?</legend>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q1"><span class="opt-text">A. Restate the question</span></label>
+        <label class="opt"><input type="radio" name="q1"><span class="opt-text">B. Count the room</span></label>
+        <label class="opt"><input type="radio" name="q1"><span class="opt-text">C. Close the queue</span></label>
+        <label class="opt"><input type="radio" name="q1"><span class="opt-text">D. All of the above</span></label>
+      </div>
+    </fieldset>
+    <button class="btn quiz" type="submit">Check answer</button>
+  </form>
 
-  <section class="callout quiz" data-spec=".callout.quiz (answered, correct)" aria-labelledby="q2">
-    <div class="callout-title" id="q2">Pop Quiz</div>
-    <p class="q">Which result shows consensus?</p>
-    <div class="options">
-      <label class="opt correct"><input type="radio" name="q2" checked tabindex="-1"> A. 10 - 8 - 2 - 1 - 0 <span class="tag">&#10003; Correct</span></label>
-      <label class="opt"><input type="radio" name="q2" tabindex="-1"> B. 6 - 5 - 4 - 5 - 6</label>
-      <label class="opt"><input type="radio" name="q2" tabindex="-1"> C. 3 - 2 - 12 - 2 - 3</label>
-    </div>
+  <form class="callout quiz" data-spec=".callout.quiz (answered, correct)">
+    <p class="callout-title">Pop Quiz</p>
+    <fieldset class="choices">
+      <legend class="q">Which result shows consensus?</legend>
+      <div class="options">
+        <label class="opt correct"><input type="radio" name="q2" checked disabled><span class="opt-text">A. 10 - 8 - 2 - 1 - 0</span><span class="tag">&#10003; Correct</span></label>
+        <label class="opt"><input type="radio" name="q2" disabled><span class="opt-text">B. 6 - 5 - 4 - 5 - 6</span></label>
+        <label class="opt"><input type="radio" name="q2" disabled><span class="opt-text">C. 3 - 2 - 12 - 2 - 3</span></label>
+      </div>
+    </fieldset>
     <p class="feedback good">A has strong support and almost no opposition.</p>
-  </section>
-  <aside class="callout success" data-spec=".callout.success">Nice work. The next page goes deeper.</aside>
+  </form>
+  <p class="callout success" data-spec=".callout.success">Nice work. The next page goes deeper.</p>
 
-  <section class="callout quiz" data-spec=".callout.quiz (answered, wrong)" aria-labelledby="q3">
-    <div class="callout-title" id="q3">Pop Quiz</div>
-    <p class="q">When is the file closed?</p>
-    <div class="options">
-      <label class="opt wrong"><input type="radio" name="q3" checked tabindex="-1"> A. When main returns <span class="tag">Not quite</span></label>
-      <label class="opt"><input type="radio" name="q3" tabindex="-1"> B. When the object leaves scope</label>
-      <label class="opt"><input type="radio" name="q3" tabindex="-1"> C. When you call close</label>
-    </div>
+  <form class="callout quiz" data-spec=".callout.quiz (answered, wrong)">
+    <p class="callout-title">Pop Quiz</p>
+    <fieldset class="choices">
+      <legend class="q">When is the file closed?</legend>
+      <div class="options">
+        <label class="opt wrong"><input type="radio" name="q3" checked disabled><span class="opt-text">A. When main returns</span><span class="tag">Not quite</span></label>
+        <label class="opt"><input type="radio" name="q3" disabled><span class="opt-text">B. When the object leaves scope</span></label>
+        <label class="opt"><input type="radio" name="q3" disabled><span class="opt-text">C. When you call close</span></label>
+      </div>
+    </fieldset>
     <p class="feedback">The destructor runs when the object leaves scope, not when main returns. Try again.</p>
     <button class="btn quiz" type="button">Try again</button>
-  </section>
+  </form>
 
-  <section class="callout quiz" data-spec=".callout.quiz (two columns)" aria-labelledby="q4">
-    <div class="callout-title" id="q4">Pop Quiz</div>
-    <p class="q">Which type satisfies <code>addable</code>?</p>
-    <div class="options grid">
-      <label class="opt"><input type="radio" name="q4"> A. <code>int</code></label>
-      <label class="opt"><input type="radio" name="q4"> C. <code>void</code></label>
-      <label class="opt"><input type="radio" name="q4"> B. <code>std::mutex</code></label>
-      <label class="opt"><input type="radio" name="q4"> D. <code>std::thread</code></label>
-    </div>
-    <button class="btn quiz" type="button">Check answer</button>
-  </section>
+  <form class="callout quiz" data-spec=".callout.quiz (two columns)">
+    <p class="callout-title">Pop Quiz</p>
+    <fieldset class="choices">
+      <legend class="q">Which type satisfies <code>addable</code>?</legend>
+      <div class="options grid">
+        <label class="opt"><input type="radio" name="q4"><span class="opt-text">A. <code>int</code></span></label>
+        <label class="opt"><input type="radio" name="q4"><span class="opt-text">B. <code>std::mutex</code></span></label>
+        <label class="opt"><input type="radio" name="q4"><span class="opt-text">C. <code>void</code></span></label>
+        <label class="opt"><input type="radio" name="q4"><span class="opt-text">D. <code>std::thread</code></span></label>
+      </div>
+    </fieldset>
+    <button class="btn quiz" type="submit">Check answer</button>
+  </form>
 
-  <section class="callout quiz" data-spec=".callout.quiz (free text)" aria-labelledby="q5">
-    <div class="callout-title" id="q5">Short Essay</div>
-    <p class="q">In about 100 words, describe a problem in C++ you would like to solve and who it affects.</p>
-    <textarea class="field" id="essay" aria-labelledby="q5" placeholder="Write your answer here"></textarea>
-    <div class="q-foot"><span id="wc">0 / 100 words</span><button class="btn quiz" type="button">Submit</button></div>
-  </section>
+  <form class="callout quiz" data-spec=".callout.quiz (free text)">
+    <p class="callout-title">Short Essay</p>
+    <label class="q" for="essay">In about 100 words, describe a problem in C++ you would like to solve and who it affects.</label>
+    <textarea class="field" id="essay" placeholder="Write your answer here"></textarea>
+    <div class="q-foot"><span class="word-count" id="wc">0 / 100 words</span><button class="btn quiz" type="submit">Submit</button></div>
+  </form>
 
-  <section class="callout quiz" data-spec=".callout.quiz (short answer)" aria-labelledby="q6">
-    <div class="callout-title" id="q6">Check Your Understanding</div>
-    <p class="q">In your own words, what does <code>std::move</code> actually do?</p>
-    <input class="field" type="text" aria-labelledby="q6" placeholder="One clear sentence is fine">
-    <div class="q-foot"><span></span><button class="btn quiz" type="button">Submit</button></div>
-  </section>
+  <form class="callout quiz" data-spec=".callout.quiz (short answer)">
+    <p class="callout-title">Check Your Understanding</p>
+    <label class="q" for="sa">In your own words, what does <code>std::move</code> actually do?</label>
+    <input class="field" id="sa" type="text" autocomplete="off" placeholder="One clear sentence is fine">
+    <div class="q-foot"><button class="btn quiz" type="submit">Submit</button></div>
+  </form>
 
-  <section class="callout quiz" data-spec=".callout.quiz (try it, code)" aria-labelledby="q7">
-    <div class="callout-title" id="q7">Try It</div>
-    <p class="q">Change the code so it returns <code>x * 2</code>.</p>
+  <form class="callout quiz" data-spec=".callout.quiz (try it, code)">
+    <p class="callout-title">Try It</p>
+    <label class="q" for="try">Change the code so it returns <code>x * 2</code>.</label>
     <div class="row">
-      <input class="field mono" type="text" value="co_return x + 1;" aria-labelledby="q7" spellcheck="false">
-      <button class="btn quiz" type="button">Run</button>
+      <input class="field mono" id="try" type="text" value="co_return x + 1;" autocomplete="off" spellcheck="false">
+      <button class="btn quiz" type="submit">Run</button>
     </div>
-  </section>
+  </form>
 
-  <div class="band" data-sheet style="margin:1.6em 0 .2em;max-width:none">Green: progress (rare)</div>
+  <div class="band inner" data-sheet>Green: progress (rare)</div>
 
   <aside class="callout ok" data-spec=".callout.ok (progress)">
-    <div class="callout-title"><svg><use href="#i-book"/></svg>Your Progress</div>
-    <div class="progress-bar" role="progressbar" aria-valuenow="8" aria-valuemin="0" aria-valuemax="12"><span style="width:66.7%"></span></div>
+    <p class="callout-title"><svg aria-hidden="true"><use href="#i-book"/></svg>Your Progress</p>
+    <progress class="progress-bar" max="12" value="8" aria-label="Your progress">8 of 12</progress>
     <p>Milestone 8 of 12 - 4 of 5 quizzes passed</p>
   </aside>
   <aside class="callout ok" data-spec=".callout.ok (section done)">
-    <div class="callout-title"><svg><use href="#i-check"/></svg>Section complete</div>
+    <p class="callout-title"><svg aria-hidden="true"><use href="#i-check"/></svg>Section complete</p>
     <p>Section 1.3 is done. 3 of 4 steps finished.</p>
   </aside>
 
-  <div class="band" data-sheet style="margin:1.6em 0 .2em;max-width:none">Scroll cues and controls</div>
-  <p class="cue-note" data-sheet style="font-family:var(--sans)">The page itself scrolls vertically. A faded edge and a small chevron appear only when more content is above or below. The scrollbar is thin. Scroll the sample below.</p>
+  <div class="band inner" data-sheet>Scroll cues and controls</div>
+  <p class="cue-note" data-sheet>The page itself scrolls vertically. A faded edge and a small chevron appear only when more content is above or below. The scrollbar is thin. Scroll the sample below.</p>
 
   <div class="viewport" id="vp" data-sheet data-top="" data-bottom="more" data-spec=".viewport (scroll cues)">
-    <div class="cue top"><button type="button" aria-label="Scroll up" data-dir="-1"><svg><use href="#i-up"/></svg></button></div>
-    <div class="scroller" id="sc">
-      <h3 style="margin-top:0">3.4 Managing the Queue and the Timebox</h3>
+    <div class="cue top"><button type="button" aria-label="Scroll up" data-dir="-1"><svg aria-hidden="true"><use href="#i-up"/></svg></button></div>
+    <div class="scroller">
+      <div class="edge" data-edge="top"></div>
+      <h3 class="sample-head">3.4 Managing the Queue and the Timebox</h3>
       <p>A good chair keeps the discussion moving by holding a clear speaker queue and letting the room know where it stands in the timebox. Announce the time remaining at natural breakpoints: at the start, when half the time has gone, and again when only a few minutes remain.</p>
       <p>If the queue is long, politely remind speakers to be concise and to address the question before the room.</p>
       <p>Your goal is not to let every person speak as long as they wish, but to give everyone a fair opportunity while moving the room toward a decision.</p>
       <p>If the discussion drifts or repeats, summarize the common positions you are hearing and invite the room to confirm or correct your summary.</p>
+      <div class="edge" data-edge="bottom"></div>
     </div>
-    <div class="cue bottom"><button type="button" aria-label="Scroll down" data-dir="1"><svg><use href="#i-down"/></svg></button></div>
+    <div class="cue bottom"><button type="button" aria-label="Scroll down" data-dir="1"><svg aria-hidden="true"><use href="#i-down"/></svg></button></div>
   </div>
 
-  <div class="footnotes" data-spec=".footnotes">
+  <footer class="footnotes" data-spec=".footnotes">
     <p><sup class="fn-ref">1</sup> Straw polls are non-binding. They measure the room and guide the chair.</p>
-  </div>
+  </footer>
 
-  <div class="page-end" data-spec=".page-end buttons">
+  <nav class="page-end" aria-label="Pages" data-spec=".page-end buttons">
     <button class="btn neutral" type="button">Previous section</button>
     <button class="btn continue" type="button">Continue to 3.3</button>
-  </div>
+  </nav>
 
+</article>
 </main>
 
-
-<script>
-(function () {
-  // Scroll cues: show a fade and chevron only when there is more content in that direction.
-  var vp = document.getElementById('vp'), sc = document.getElementById('sc');
-  function update() {
-    vp.dataset.top = sc.scrollTop > 2 ? 'more' : '';
-    vp.dataset.bottom = (sc.scrollTop + sc.clientHeight < sc.scrollHeight - 2) ? 'more' : '';
+<script type="module">
+// Scroll cues: a fade and a chevron show only while more content lies that
+// way. A marker at each end of the scroller says whether that end is in view.
+const viewport = document.querySelector("#vp");
+const scroller = viewport.querySelector(".scroller");
+const edges = new IntersectionObserver(
+  (entries) => {
+    for (const entry of entries) {
+      viewport.dataset[entry.target.dataset.edge] = entry.isIntersecting ? "" : "more";
+    }
+  },
+  { root: scroller },
+);
+for (const edge of scroller.querySelectorAll(".edge")) {
+  edges.observe(edge);
+}
+viewport.addEventListener("click", (event) => {
+  const button = event.target.closest(".cue button");
+  if (button === null) {
+    return;
   }
-  sc.addEventListener('scroll', update, { passive: true });
-  vp.querySelectorAll('.cue button').forEach(function (b) {
-    b.addEventListener('click', function () {
-      sc.scrollBy({ top: Number(b.dataset.dir) * sc.clientHeight * 0.8, behavior: 'smooth' });
-    });
-  });
-  update();
+  scroller.scrollBy({ top: Number(button.dataset.dir) * scroller.clientHeight * 0.8 });
+});
 
-  // Word counter for the essay box.
-  var essay = document.getElementById('essay'), wc = document.getElementById('wc');
-  essay.addEventListener('input', function () {
-    var n = essay.value.trim() ? essay.value.trim().split(/\s+/).length : 0;
-    wc.textContent = n + ' / 100 words';
-  });
-})();
+// Word counter for the essay box.
+const essay = document.querySelector("#essay");
+const wordCount = document.querySelector("#wc");
+essay.addEventListener("input", () => {
+  const words = essay.value.split(/\s+/).filter((word) => word !== "");
+  wordCount.textContent = `${words.length} / 100 words`;
+});
+
+// The quizzes on this sheet are samples, so a submit stays on the page.
+document.addEventListener("submit", (event) => {
+  event.preventDefault();
+});
 </script>
 </body>
 </html>
