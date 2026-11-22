@@ -107,6 +107,8 @@ It builds the installers for this machine with the Tauri bundler and prints the 
 
 `cargo installer --target <triple>` builds for another target of the same system. An Apple silicon Mac builds the Intel installer that way, after `rustup target add x86_64-apple-darwin`.
 
+The build writes into `target/` at the repository root, or into the folder that `CARGO_TARGET_DIR` names.
+
 What it needs:
 
 - Node on the `PATH`, and `npm ci` run once in `ui/`. That installs the Tauri CLI at the version pinned in `ui/package.json`.

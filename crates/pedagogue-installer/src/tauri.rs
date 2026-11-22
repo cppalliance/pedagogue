@@ -38,10 +38,9 @@ pub(crate) struct Finished {
 pub(crate) struct Environment {
     /// The root of the repository.
     pub(crate) root: PathBuf,
-    /// The target folder of cargo, as an absolute path.
+    /// The target folder of the build, as an absolute path: the folder
+    /// `CARGO_TARGET_DIR` names, or `target` under the root.
     pub(crate) target_dir: PathBuf,
-    /// Whether the caller chose the target folder with `CARGO_TARGET_DIR`.
-    pub(crate) target_dir_is_chosen: bool,
     /// The cargo that asks for the host.
     pub(crate) cargo: PathBuf,
     /// The Node that runs the Tauri CLI.
@@ -62,7 +61,7 @@ impl Environment {
             .context("find the repository root above this crate")?
             .to_path_buf();
         let chosen = std::env::var_os("CARGO_TARGET_DIR").filter(|folder| !folder.is_empty());
-        let target_dir = match &chosen {
+        let target_dir = match chosen {
             // Cargo reads a relative folder against the folder it runs in.
             Some(folder) => std::env::current_dir()
                 .context("read the current folder")?
@@ -76,7 +75,6 @@ impl Environment {
         Ok(Self {
             root,
             target_dir,
-            target_dir_is_chosen: chosen.is_some(),
             cargo,
             node: PathBuf::from("node"),
             system: System::current(),
@@ -135,26 +133,25 @@ pub(crate) fn host_command(environment: &Environment) -> CommandSpec {
 /// bundler of each format of the target.
 ///
 /// The Tauri CLI runs in the desktop crate's folder, where it finds
-/// `tauri.conf.json`. `--ci` keeps it from asking questions.
+/// `tauri.conf.json`. `--ci` keeps it from asking questions. The build
+/// writes into the target folder of the environment.
 pub(crate) fn build_command(environment: &Environment, platform: Platform) -> CommandSpec {
     let mut args = vec![environment.tauri_cli().into_os_string()];
     args.extend(["build", "--ci", "--target", platform.triple, "--bundles"].map(OsString::from));
     args.push(OsString::from(platform.bundles()));
-    // The Tauri CLI starts cargo in the desktop crate's folder, where a
-    // relative target folder would name another place than it names here.
-    let envs = if environment.target_dir_is_chosen {
-        vec![(
-            OsString::from("CARGO_TARGET_DIR"),
-            environment.target_dir.clone().into_os_string(),
-        )]
-    } else {
-        Vec::new()
-    };
     CommandSpec {
         program: environment.node.clone(),
         args,
         current_dir: environment.desktop_dir(),
-        envs,
+        // The build has to write where this tool clears and collects, so
+        // the cargo that the Tauri CLI starts is told the folder outright.
+        // The variable outranks a `build.target-dir` in a cargo config
+        // file. The path is absolute, because that cargo runs in the
+        // desktop crate's folder.
+        envs: vec![(
+            OsString::from("CARGO_TARGET_DIR"),
+            environment.target_dir.clone().into_os_string(),
+        )],
         capture: false,
     }
 }
@@ -169,7 +166,6 @@ mod tests {
         Environment {
             root: PathBuf::from("repo"),
             target_dir: PathBuf::from("repo").join("target"),
-            target_dir_is_chosen: false,
             cargo: PathBuf::from("the-cargo"),
             node: PathBuf::from("the-node"),
             system: Some(System::Linux),
@@ -215,7 +211,10 @@ mod tests {
                     current_dir: PathBuf::from("repo")
                         .join("crates")
                         .join("pedagogue-desktop"),
-                    envs: Vec::new(),
+                    envs: vec![(
+                        OsString::from("CARGO_TARGET_DIR"),
+                        PathBuf::from("repo").join("target").into_os_string(),
+                    )],
                     capture: false,
                 },
                 "{triple}",
@@ -224,13 +223,14 @@ mod tests {
     }
 
     #[test]
-    fn a_chosen_target_folder_reaches_the_tauri_cli_as_an_absolute_path() {
+    fn the_build_writes_into_the_folder_this_tool_clears_and_collects_from() {
         let chosen = Environment {
             target_dir: PathBuf::from("elsewhere").join("target"),
-            target_dir_is_chosen: true,
             ..environment()
         };
         let platform = PLATFORMS[0];
+        // One folder for all three: the Tauri CLI is told it, and the
+        // bundle and output folders sit under it.
         assert_eq!(
             build_command(&chosen, platform).envs,
             [(

@@ -111,7 +111,6 @@ mod tests {
         Environment {
             root: temp.path().join("repo"),
             target_dir: temp.path().join("target"),
-            target_dir_is_chosen: false,
             cargo: PathBuf::from("cargo"),
             node: PathBuf::from("node"),
             // Collecting reads folders and copies files, on any system.

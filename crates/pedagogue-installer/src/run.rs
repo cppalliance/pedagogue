@@ -163,7 +163,6 @@ mod tests {
         let environment = Environment {
             root: temp.path().join("repo"),
             target_dir: temp.path().join("repo").join("target"),
-            target_dir_is_chosen: false,
             cargo: PathBuf::from("the-cargo"),
             node: PathBuf::from("the-node"),
             system: Some(system),
