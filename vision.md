@@ -188,7 +188,7 @@ Where do lesson plans come from? Most of what makes people good at their work wa
 **Built today**
 
 - **The tutor prompt.** [The prototype](https://github.com/cppalliance/tools-public/blob/master/prototypes/tutor/tutor.md) builds one tutor for each topic in a chain of prerequisites. It has produced eight tutors so far, three on Rust and five on Python, one of them in Arabic. Each one teaches through mastery-gated milestones.
-- **The app.** A desktop app with the complete textbook page and chat: 21 page commands, five kinds of quiz, and the quiz rules and the answer key held in Rust. 196 Rust tests and 72 UI tests pass. Today it plays scripted lessons with a stand-in tutor. [ARCHITECTURE.md](ARCHITECTURE.md) explains how the parts fit together.
+- **The app.** A desktop app with the complete textbook page and chat: 21 page commands, five kinds of quiz, and the quiz rules and the answer key held in Rust. 234 Rust tests and 77 UI tests pass. Today it plays scripted lessons with a stand-in tutor. [ARCHITECTURE.md](ARCHITECTURE.md) explains how the parts fit together.
 - **Runvil.** It runs prompts end to end today, with Lua, model calls, tool loops, web search and a record of every run.
 
 **Next**
