@@ -55,7 +55,7 @@ The session is the one place that holds state. A host changes it through a handl
 - `design/` - the two design reference files. They link the CSS files under `ui/src`, so the look has one home, and each keeps its icons in a sprite of its own.
 - `.github/workflows/` - the two workflows.
   - `ci.yml` runs the checks of `AGENTS.md` on every pull request and on every push to `master`. Its last job, `ci-green`, succeeds only when every other job did.
-  - `release.yml` builds the installers of the four targets with `cargo installer` and checks each one on the runner that built it: the Windows setup installs, each disk image holds the app for its processor with an ad hoc signature that verifies, the Debian package installs in a bare container, and the AppImage unpacks. Its `assemble` job gathers the five files with `SHA256SUMS` and the release notes, which are the section of `CHANGELOG.md` for the version. A `vX.Y.Z` tag publishes that set, and a pull request or a manual run ends after `assemble`.
+  - `release.yml` builds the installers of the four targets with `cargo installer` and checks each one on the runner that built it: the Windows setup installs, each disk image holds the app for its processor with an ad hoc signature that verifies, the Debian package installs in a bare container, and the AppImage unpacks. Then it starts each app the way a user does, and the page in the app's window has to connect back to the app. `.github/installers/` holds that check as two scripts, `launch.ps1` for Windows and `launch.sh` for macOS and Linux. Its `assemble` job gathers the five files with `SHA256SUMS` and the release notes, which are the section of `CHANGELOG.md` for the version. A `vX.Y.Z` tag publishes that set, and a pull request or a manual run ends after `assemble`.
 
 ## Invariants
 
@@ -69,5 +69,5 @@ The session is the one place that holds state. A host changes it through a handl
 
 - **Wording.** Text the student reads lives in `ui/src/wording.ts`. Text a model reads (receipts, refusals and reports of student actions) lives in each Rust crate's `wording.rs`.
 - **Errors.** Each kind of failure has its own opaque error type. An error is logged or returned, and the layer that handles it is the one that logs it.
-- **Logging.** The libraries log with `tracing`. The binaries install the subscriber.
+- **Logging.** The libraries log with `tracing`. The binaries install the subscriber, which shows the info level and above. The server logs each socket it opens and closes at the info level, so a running app shows the moment the page in its window connects. The release run's launch check waits for that line.
 - **Tests.** Rust unit tests sit in the file under test, and tests of a crate's public API sit in one binary at `tests/it/main.rs`. UI tests load the built bundle into jsdom. Shared JSON fixtures pin the wire contract from both sides.

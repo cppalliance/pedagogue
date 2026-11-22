@@ -10,8 +10,9 @@ run-name: Pedagogue installers (${{ github.event_name == 'push' && github.ref_na
 # Each check runs in the build job, on the runner that built the installer:
 # the setup installs, each disk image holds the app for its processor with
 # a signature that verifies, the package installs in a bare Ubuntu
-# container, and the AppImage unpacks. The checks stop short of starting
-# the app.
+# container, and the AppImage unpacks. Then each app is started the way a
+# user starts it, and the page in its window has to connect back to the
+# app. .github/installers/ holds that check.
 #
 # What starts a run:
 # - A pushed vX.Y.Z tag that names the workspace version: build, check,
@@ -32,6 +33,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/release.yml
+      - .github/installers/**
       - crates/pedagogue-installer/**
       - crates/pedagogue-desktop/tauri.conf.json
       - crates/pedagogue-desktop/icons/**
@@ -174,10 +176,11 @@ jobs:
           key: ${{ matrix.triple }}
 
       # The three packages the desktop crate links against, as in ci.yml,
-      # and two for the bundlers: patchelf for the AppImage's libraries and
-      # xdg-utils for the xdg-open it carries. A mirror that does not answer
-      # makes apt-get wait for a long time, so the step has a limit of its
-      # own.
+      # two for the bundlers (patchelf for the AppImage's libraries and
+      # xdg-utils for the xdg-open it carries), and two that give the start
+      # of the AppImage a display (xvfb and xauth). A mirror that does not
+      # answer makes apt-get wait for a long time, so the step has a limit
+      # of its own.
       - name: Install the Linux build packages
         if: matrix.platform == 'linux'
         timeout-minutes: 15
@@ -185,7 +188,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            libwebkit2gtk-4.1-dev libssl-dev librsvg2-dev patchelf xdg-utils
+            libwebkit2gtk-4.1-dev libssl-dev librsvg2-dev patchelf xdg-utils \
+            xvfb xauth
           # Tauri's linuxdeploy is an AppImage itself. Unpacked, it runs
           # without FUSE.
           echo "APPIMAGE_EXTRACT_AND_RUN=1" >> "$GITHUB_ENV"
@@ -228,6 +232,14 @@ jobs:
           if ($installed -ne $env:VERSION) { throw "$app has version '$installed', expected $env:VERSION" }
           Write-Host "installed $app, version $installed"
 
+      # The installed app starts, and the page in its window connects.
+      - name: Start the installed app
+        if: matrix.platform == 'windows'
+        timeout-minutes: 10
+        shell: pwsh
+        run: |
+          & ./.github/installers/launch.ps1 -App (Join-Path $env:LOCALAPPDATA 'Pedagogue\pedagogue.exe')
+
       # The disk image holds the app for the target's processor, with a
       # signature that verifies. It is an ad hoc one: see tauri.conf.json.
       - name: Mount the disk image and check the app
@@ -252,10 +264,33 @@ jobs:
           shown=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist")
           [ "$shown" = "$VERSION" ] || { echo "$app has version '$shown', expected $VERSION"; exit 1; }
           echo "checked $app: $archs, version $shown"
+          # A copy outside the image, as dragging the app to Applications
+          # makes one. A later step starts it.
+          ditto "$app" "$RUNNER_TEMP/Pedagogue.app"
+
+      # The Intel build runs under Rosetta on this Apple silicon runner.
+      - name: Install Rosetta
+        if: matrix.platform == 'macos-intel'
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          if ! arch -x86_64 /usr/bin/true 2>/dev/null; then
+            sudo softwareupdate --install-rosetta --agree-to-license
+          fi
+          arch -x86_64 /usr/bin/true || { echo "Rosetta is needed to start the Intel build, and it does not run"; exit 1; }
+
+      # The app from the disk image starts, and the page in its window
+      # connects.
+      - name: Start the app from the disk image
+        if: startsWith(matrix.platform, 'macos')
+        timeout-minutes: 10
+        shell: bash
+        run: bash .github/installers/launch.sh "$RUNNER_TEMP/Pedagogue.app/Contents/MacOS/pedagogue"
 
       # The package installs on a bare Ubuntu 22.04 with the libraries it
-      # names, and the app then finds every library it loads.
-      - name: Install the package in a clean container
+      # names, and the app then finds every library it loads. Then the app
+      # starts under a virtual display, and the page in its window connects.
+      - name: Install the package in a clean container and start the app
         if: matrix.platform == 'linux'
         timeout-minutes: 15
         shell: bash
@@ -265,6 +300,7 @@ jobs:
           [ -f "target/installer/$TRIPLE/$package" ] || { echo "the build left no $package"; exit 1; }
           docker run --rm \
             --volume "$PWD/target/installer/$TRIPLE:/dist:ro" \
+            --volume "$PWD/.github/installers:/installers:ro" \
             --env PACKAGE="$package" --env VERSION="$VERSION" \
             ubuntu:22.04 bash -euo pipefail -c '
               export DEBIAN_FRONTEND=noninteractive
@@ -281,11 +317,19 @@ jobs:
                 exit 1
               fi
               echo "installed $app, version $packaged"
+              # The display server and curl serve the start alone. They
+              # come after the library check, so that check sees the
+              # package with nothing beside what it names.
+              apt-get install -y --no-install-recommends xvfb xauth curl
+              bash /installers/launch.sh xvfb-run -a pedagogue
             '
 
-      # The AppImage unpacks without FUSE, and the tree holds the app.
-      - name: Unpack the AppImage and check the app
+      # The AppImage unpacks without FUSE, and the tree holds the app. Then
+      # the AppImage itself starts under a virtual display, and the page in
+      # its window connects.
+      - name: Unpack the AppImage and start the app
         if: matrix.platform == 'linux'
+        timeout-minutes: 10
         shell: bash
         run: |
           set -euo pipefail
@@ -300,6 +344,7 @@ jobs:
           app=$(find "$work/squashfs-root" -type f -name pedagogue -perm -u+x -print -quit)
           [ -n "$app" ] || { echo "the AppImage holds no executable pedagogue"; cat "$work/extract.log"; exit 1; }
           echo "unpacked $app"
+          bash .github/installers/launch.sh xvfb-run -a "$work/Pedagogue.AppImage"
 
       # A build that writes into the repository is caught here.
       - name: Clean tree

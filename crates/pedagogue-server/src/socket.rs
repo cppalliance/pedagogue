@@ -64,7 +64,10 @@ async fn connection(
     mut stopping: watch::Receiver<bool>,
     _open: mpsc::Sender<()>,
 ) {
-    tracing::debug!("socket opened");
+    // At the level a binary shows by default, because the release check of
+    // each installer waits for this line: it appears once the page in the
+    // app's window has connected, which shows that the window works.
+    tracing::info!("socket opened");
     let mut cursor = Version::ZERO;
     let ending = loop {
         tokio::select! {
@@ -93,7 +96,7 @@ async fn connection(
         // The client may be gone already, and then there is no one to tell.
         let _ = socket.send(Message::Close(None)).await;
     }
-    tracing::debug!(?ending, "socket closed");
+    tracing::info!(?ending, "socket closed");
 }
 
 /// Sends frames in order. Says `false` when the socket no longer takes
