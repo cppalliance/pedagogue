@@ -83,7 +83,7 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
 
   <h2 data-spec="h2">3.2 Taking a Straw Poll</h2>
   <p data-spec="p">The chair states the question clearly and makes sure the room understands what is being asked. If needed, the chair restates the question in neutral terms before calling for the poll.</p>
-  <p>The chair then counts the room, recording the number of hands in each column. WG21 uses five columns: <em>strongly favor</em> (SF), <em>favor</em> (F), <em>neutral</em> (N), <em>against</em> (A), and <em>strongly against</em> (SA). The results are reported back to the room as five numbers, for example <code>9 14 5 2 1</code>.<sup class="fn-ref">1</sup> Read the <a href="#">full poll guidance</a> before your first meeting.</p>
+  <p>The chair then counts the room, recording the number of hands in each column. WG21 uses five columns: <em>strongly favor</em> (SF), <em>favor</em> (F), <em>neutral</em> (N), <em>against</em> (A), and <em>strongly against</em> (SA). The results are reported back to the room as five numbers, for example <code>9 14 5 2 1</code>.<sup class="fn-ref">1</sup> Read the <a href="https://isocpp.org/std/meetings-and-participation" target="_blank" rel="noopener">full poll guidance<span class="visually-hidden"> (opens in a new window)</span></a> before your first meeting.</p>
 
   <div data-spec=".data" data-sheet-wrap>
   <table class="data">
@@ -102,10 +102,10 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
   </ol>
   <p>A good proposal keeps four things in view:</p>
   <ul data-spec="ul">
-    <li><span class="lead">Problem:</span> What precisely is difficult, ambiguous, or missing?</li>
-    <li><span class="lead">Motivation:</span> Who runs into this, and what does it cost them?</li>
-    <li><span class="lead">Design:</span> What is the smallest language change that removes the problem?</li>
-    <li><span class="lead">Wording:</span> How would you explain the change to a working C++ programmer?</li>
+    <li><em class="lead">Problem:</em> What precisely is difficult, ambiguous, or missing?</li>
+    <li><em class="lead">Motivation:</em> Who runs into this, and what does it cost them?</li>
+    <li><em class="lead">Design:</em> What is the smallest language change that removes the problem?</li>
+    <li><em class="lead">Wording:</em> How would you explain the change to a working C++ programmer?</li>
   </ul>
 
   <blockquote data-spec="blockquote"><p>Consensus is more than a majority. It asks whether the whole delegation can live with the outcome.</p></blockquote>
@@ -113,7 +113,7 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
   <div class="band inner roomy" data-sheet>Figures</div>
 
   <figure data-spec="figure + bar chart">
-    <svg viewBox="0 0 460 215" role="img" aria-label="Bar chart of a poll with consensus in favor: SF 10, F 8, N 2, A 1, SA 0">
+    <svg viewBox="0 0 460 215" role="img" aria-label="Bar chart, A poll with consensus in favor: SF 10, F 8, N 2, A 1, SA 0">
       <line class="chart-axis" x1="30" y1="170" x2="430" y2="170"/>
       <rect class="bar accent"   x="42"  y="30"  width="56" height="140"/><text class="chart-label" x="70"  y="22">10</text><text class="chart-label" x="70"  y="192">SF</text>
       <rect class="bar accent"   x="122" y="58"  width="56" height="112"/><text class="chart-label" x="150" y="50">8</text> <text class="chart-label" x="150" y="192">F</text>
@@ -125,16 +125,16 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
   </figure>
 
   <figure data-spec="figure + tree diagram">
-    <svg viewBox="0 0 520 215" role="img" aria-label="Value category tree: expression splits into glvalue and rvalue; glvalue into lvalue and xvalue; rvalue into xvalue and prvalue">
-      <line class="tree-edge" x1="260" y1="36" x2="170" y2="68"/><line class="tree-edge" x1="260" y1="36" x2="350" y2="68"/>
-      <line class="tree-edge" x1="165" y1="92" x2="80"  y2="142"/><line class="tree-edge" x1="165" y1="92" x2="255" y2="142"/>
-      <line class="tree-edge" x1="355" y1="92" x2="265" y2="142"/><line class="tree-edge" x1="355" y1="92" x2="440" y2="142"/>
+    <svg viewBox="0 0 520 215" role="img" aria-label="Tree diagram, Value categories: expression splits into glvalue and rvalue; glvalue splits into lvalue and xvalue; rvalue splits into xvalue and prvalue">
+      <line class="tree-edge" x1="260" y1="40" x2="130" y2="80"/><line class="tree-edge" x1="260" y1="40" x2="390" y2="80"/>
+      <line class="tree-edge" x1="130" y1="104" x2="86.7" y2="144"/><line class="tree-edge" x1="130" y1="104" x2="260" y2="144"/>
+      <line class="tree-edge" x1="390" y1="104" x2="260" y2="144"/><line class="tree-edge" x1="390" y1="104" x2="433.3" y2="144"/>
       <circle class="tree-root" cx="260" cy="12" r="6"/><line class="tree-edge" x1="260" y1="18" x2="260" y2="22"/>
       <text class="tree-label" x="260" y="34">expression</text>
-      <text class="tree-label" x="165" y="86">glvalue</text><text class="tree-label" x="355" y="86">rvalue</text>
-      <text class="tree-label leaf" x="75"  y="162">lvalue</text>
+      <text class="tree-label" x="130" y="98">glvalue</text><text class="tree-label" x="390" y="98">rvalue</text>
+      <text class="tree-label leaf" x="86.7" y="162">lvalue</text>
       <text class="tree-label leaf" x="260" y="162">xvalue</text>
-      <text class="tree-label leaf" x="445" y="162">prvalue</text>
+      <text class="tree-label leaf" x="433.3" y="162">prvalue</text>
     </svg>
     <figcaption><span class="fig-no">Figure 3.2</span><span class="fig-text">Value categories</span></figcaption>
   </figure>
@@ -147,17 +147,17 @@ body{background:var(--desk);color:var(--ink);font-family:var(--sans);padding:32p
 
   <h3 data-spec=".code">Code</h3>
   <p>The destructor releases the resource when the object leaves scope, even if an exception unwinds the stack.</p>
-  <pre class="code"><span class="kw">class</span> <span class="ty">file</span> {
-  <span class="ty">std::FILE</span>* f_;
+  <pre class="code"><code><span class="kw">class</span> <span class="ty">file</span> {
+  std::FILE* f_;
 <span class="kw">public</span>:
-  <span class="kw">explicit</span> <span class="fn">file</span>(<span class="kw">const</span> <span class="kw">char</span>* path)
-    : f_(<span class="ty">std::</span><span class="fn">fopen</span>(path, <span class="st">"r"</span>)) {}
-  ~<span class="fn">file</span>() { <span class="kw">if</span> (f_) <span class="ty">std::</span><span class="fn">fclose</span>(f_); }
+  <span class="kw">explicit</span> <span class="fn">file</span>(<span class="ty">const</span> <span class="ty">char</span>* path)
+    : f_(std::fopen(path, <span class="st">"r"</span>)) {}
+  ~<span class="fn">file</span>() { <span class="kw">if</span> (f_) std::<span class="fn">fclose</span>(f_); }
 };
 
 <span class="cm">// a is valid but unspecified after the move</span>
-<span class="ty">std::string</span> a = <span class="st">"hello"</span>;
-<span class="ty">std::string</span> b = <span class="ty">std::</span><span class="fn">move</span>(a);</pre>
+std::string a = <span class="st">"hello"</span>;
+std::string b = std::<span class="fn">move</span>(a);</code></pre>
 
   <div class="band inner" data-sheet>Blue: information</div>
 

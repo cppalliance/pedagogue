@@ -3,12 +3,33 @@
 // words come from the two design files. Text the tutor writes arrives in
 // frames, and text a model reads lives in the Rust crates.
 
+/** Joins names as "a", "a and b" or "a, b and c". */
+function listOf(names: readonly string[]): string {
+  const last = names.at(-1) ?? "";
+  return names.length < 2
+    ? last
+    : `${names.slice(0, -1).join(", ")} and ${last}`;
+}
+
 export const wording = {
   page: {
     /** The title of a page that names no chapter. */
     untitled: "Lesson",
     chapter: (number: number): string => `Chapter ${number}`,
     figure: (number: string): string => `Figure ${number}`,
+    /** What a screen reader says for a bar chart: its caption and bars. */
+    barChart: (caption: string, bars: readonly string[]): string =>
+      `Bar chart, ${caption}: ${bars.join(", ")}`,
+    /** What a screen reader says for a tree: its caption and each split. */
+    treeDiagram: (
+      caption: string,
+      splits: readonly { parent: string; kids: readonly string[] }[],
+    ): string => {
+      const told = splits.map(
+        ({ parent, kids }) => `${parent} splits into ${listOf(kids)}`,
+      );
+      return `Tree diagram, ${caption}: ${told.join("; ")}`;
+    },
     previous: "Previous section",
     next: "Next section",
     pages: "Pages",

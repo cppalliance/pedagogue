@@ -4,6 +4,7 @@ import "./tokens.css";
 import "./layout.css";
 import { ChatView } from "./chat/chat-view";
 import { PageView } from "./page/page-view";
+import type { SendFrame } from "./protocol";
 import { Socket, socketUrl } from "./socket";
 
 function start(): void {
@@ -12,8 +13,13 @@ function start(): void {
   if (pagePane === null || chatPane === null) {
     throw new Error("index.html is missing the page pane or the chat pane");
   }
-  const page = new PageView(pagePane);
+  const send: SendFrame = (frame) => {
+    socket.send(frame);
+  };
   const chat = new ChatView(chatPane);
+  const page = new PageView(pagePane, send, (chapter, section) => {
+    chat.setPlace(chapter, section);
+  });
   const socket = new Socket(socketUrl(), (frame) => {
     if (frame.type === "page") {
       page.show(frame);
