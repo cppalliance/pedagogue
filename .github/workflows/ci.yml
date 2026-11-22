@@ -193,9 +193,10 @@ jobs:
           echo "$VNU_SHA256  $archive" | sha256sum --check
           tar -xzf "$archive" -C "$RUNNER_TEMP" package/build/dist/vnu.jar
           java -version
-          # --Werror makes a warning fail the step. The one message that is
-          # filtered out is a note on the "/>" that Prettier writes at the
-          # end of a void element.
+          # --Werror makes a warning fail the step, and a note too. The one
+          # message that is filtered out is the note on the "/>" that
+          # Prettier writes at the end of a void element. Without the
+          # filter, that note fails the step.
           java -jar "$RUNNER_TEMP/package/build/dist/vnu.jar" --Werror \
             --filterpattern '.*Trailing slash on void elements.*' \
             design/page-contact-sheet.html design/chat-panel.html ui/index.html ui/dist/index.html
