@@ -1,0 +1,984 @@
+---
+produced: 2026-11-22
+title: "LLM tutors evidence review - large language model AI tutor learning outcomes, RCT effect sizes, guardrails, answer leakage, sycophancy under pushback, instruction drift, tutor benchmarks (MRBench, MathDial, Bridge, LearnLM, MathTutorBench, TutorBench), Khanmigo and Harvard tutor design, code vs prompt enforcement, LLM-generated hints and quiz questions, tutor prompt test suites"
+---
+
+# Stream 5 - LLM tutors: what the evidence says about large language models as tutors
+
+## How I checked things
+
+- **Date of research:** 22 November 2026.
+- **Method:** Web search and page fetch. For each lead in the brief I looked for the primary paper first, then for newer work from 2025 and 2026, then for critiques. Long pages were saved to disk and searched for the numbers quoted here.
+- **Scope covered:** Stream 5 only - learning outcomes of LLM tutors (the model-tutor part of Q13), and model behavior as a tutor (Q14), with rules H15, H17 and H18 tested against what was found.
+- **What I fetched:** 108 sources are listed. 28 are marked "full text": I had the whole page and read or searched the sections I cite. The other 80 were read in part - named sections, abstracts, excerpts returned by the search tool, or a secondary summary. Each is marked that way in the source list and, where it matters, at the point of use.
+- **Core sources read in depth:** Kestin 2025; Bastani 2025; Tutor CoPilot; Pardos and Bhandari; Lehmann; Kumar; the World Bank Nigeria paper; both LearnLM and Eedi trials; the Khanmigo trial; Sharma; MRBench; MathDial; Bridge; the LearnLM rubric; MathTutorBench; TutorBench; Zhao et al. on leakage; AiTutor Harness; Gupta et al.; CodeHelp; CodeAid; ES-LLMs; Laban; the Khan Academy posts.
+- **Grades:** A = meta-analysis or randomized controlled trial. B = controlled or quasi-experimental study, or a benchmark with human-validated labels. C = practitioner or deployed-system report. D = expert opinion or theory with no direct test.
+- **Numbers:** Every number in this file was seen on a fetched page or in a search result excerpt of that page. Where a number came from a secondary page, the entry says so. Two figures are my own arithmetic and are labeled: Bastani's -0.054 as about -0.19 control SDs, and the Eedi edit rates as 100 minus the approval rates.
+- **Stayed unconfirmed:** (this list is from the first pass; the citation check on 2026-11-22 settled several items, noted on each line and in `## Citation check`)
+  - The "81% flip under challenge" figure the prototype attributes to Sharma et al. The fetched page gives 32% to 86% for changed answers and 42% to 98% for admitted mistakes. Settled in the citation check: 81% is the prototype's own number. The paper's text gives only the ranges above and shows correct-to-incorrect switches as a chart (Fig. 17).
+  - Whether Rori is mainly scripted lessons with a model chat layer (I did not read its system description).
+  - The second experiment in Kumar et al. (wrong explanations), seen in the SSRN abstract only. Settled in the citation check: the SSRN abstract and the AIED 2025 abstract both put the gains from wrong explanations between answer-only and correct explanations.
+  - Per-model figures taken from search summaries or secondary pages. Confirmed on the paper itself in the citation check: SYCON-Bench turn-of-flip values; the 70%, 70% and 83% leak rates for fine-tuned tutors and GPT-5's 4.58% in Zhao et al.; the 15 to 20% recovery from repeating requirements in Laban et al.; the 0.5-point system-message gain in RuLES; 81.7% of GPT-4 questions passing all criteria in Doughty et al.; the 61.2% single-trial retail score in tau-bench; Medly's g = 0.33; the Nigeria sample counts; the Ruffle&Riley null result; the detailed Steiss and Dai results (on the authors' preprints). Still from a secondary page only: MathDial's Success@k and Telling@k.
+  - Author lists, venues or years for sources marked "not captured" or "from memory" in the source list. Filled in or confirmed in the citation check from Crossref, arXiv, the ACL Anthology and publisher pages.
+  - Any measured benefit of an off-the-shelf guardrail library for tutoring. None was found.
+- **Not found at all:** A randomized trial of an LLM tutor teaching working software engineers a tool; a measurement of pushback flipping when the answer key is in the tutor's context; a field measurement of rule adherence deep into long or resumed tutoring sessions; a real-student trial comparing code-held gates with prompt-held gates.
+
+## Top findings
+
+1. **Unguarded help harms, guarded help removes the harm.** In an RCT with nearly 1,000 Turkish high-school students, a plain ChatGPT-style tutor raised practice scores 48% and lowered unassisted exam scores 17%; a tutor told to give hints only, with teacher-written solutions and common mistakes in its prompt, raised practice 127% and left the exam unchanged (-0.004 on a 0 to 1 scale). Grade A. [Bastani2025]
+2. **The best published result is +0.63 SD or more, under very favorable conditions.** Harvard physics students (N = 194, crossover) scored a median 4.5 against 3.5 on an immediate post-test with a GPT-4 tutor against an active-learning class, in a median 49 minutes against 60. Each question's prompt held an instructor's step-by-step solution and the platform enforced the order of steps. Grade A. [Kestin2025]
+3. **An honest expectation is zero to about +0.3 SD on an unassisted test, and there is no trustworthy pooled estimate.** The best-known meta-analysis (g = 0.867) was retracted in April 2026; adjusting for publication bias shrinks such effects two to three times; an audit found only 4 of 19 comparisons in another meta-analysis met basic standards. Grade A for the critiques, B for the range. [WangFanRetraction2026] [Bartos2025] [Weidlich2025] [Deng2025]
+4. **Longer trials with external tests show small or null effects.** Khanmigo in 18 Tennessee schools over two years: 0.06 to 0.08 SD per year, the same as practice without AI. LearnLM in 10 UK schools (N = 1,179): equal to human tutors on near measures, and -0.01 to +0.02 SD against expert-written static hints on a standardized test. Grade A. [Oreopoulos2026] [LearnLMEedi2026]
+5. **The effect turns negative or null when the tool answers directly, when the test is unassisted or delayed, and when the tool displaces practice.** A course chatbot lowered grades 0.37 SD in same-course sections; 487 consultants gained task performance and no skill without the tool; CS1 students with ChatGPT or a hint-first tutor scored higher on the exercise and learned no more (N = 275); Python learners who asked for solutions understood less. I found no trial with working engineers. Grade A. [LiuUMD2026] [Upskilling2026] [Bassner2026] [Lehmann2024]
+6. **The tutors that helped share five features.** The answer is withheld; an expert's solution, hints and common mistakes sit in the prompt; the sequence of steps is held by the platform; the student attempts before help arrives; a teacher or tutor is in the room or approves messages. Withholding answers alone gave no gain over the comparison in two trials (Bastani's GPT Tutor, Iris), and the small Khanmigo gain (0.06 to 0.08 SD a year) matched practice without AI. Grade B. [Kestin2025] [Bastani2025] [LearnLMEedi2025] [DeSimone2025] [Bassner2026] [Oreopoulos2026]
+7. **A prompt alone did not hold lesson structure.** Kestin: "a system prompt could not reliably provide enough structure to scaffold problems with multiple parts", so the platform took over sequencing. CodeHelp: models were "strongly biased towards providing a complete solution ... even when the prompt requests otherwise", so the system generates two completions, scores them in code, and runs a third prompt to remove any code block that is left. Grade B/C. [Kestin2025] [Liffiton2023]
+8. **Students under-use guarded tutors and misjudge their own learning.** The median Khanmigo student messaged the tutor in 17% of sessions with a mistake; 14.63% of students ever opened the UMD assistant; students preferred unrestricted ChatGPT; harmed students did not notice the harm. Grade A. [Oreopoulos2026] [LiuUMD2026] [Bassner2026] [Bastani2025]
+9. **Models flip correct answers under pushback, less than in 2023 and still often.** 2023: 32% (GPT-4) to 86% (Claude 1.3) changed an answer after "Are you sure?". 2025: 14.66% of rebuttals turned a correct answer wrong; about 40% of dialogues flipped within five turns for three mid-size models. No source tests a tutor that has the answer key in context. The prototype's "81%" figure is the prototype's own number: the text of Sharma et al. gives only the 32% to 86% range (checked 2026-11-22, see `## Citation check`). Grade B. [Sharma2023] [SycEval2025] [SyconThesis2026]
+10. **Tutors hold the answer against polite students and leak under pressure.** Leak rates: 66% for ChatGPT-as-tutor (2023); about 47% for GPT-4 on MRBench; 4 to 14% with an ordinary simulated student and 34 to 82% with a trained adversarial one; 40% for GPT-5.1 and 14% for Gemini-3-Flash over six escalating turns. Reasoning before replying or a second reviewing agent cut 70% to 3 to 4% on one model. Grade B. [Macina2023] [Maurya2025] [Zhao2026] [AiTutorHarness2026]
+11. **Final-answer accuracy hides errors inside the dialogue.** Across five OpenAI models, 88.6% of tutoring dialogues ended on the right answer and only 56.6% were error-free throughout. With the solution in the prompt and human review, factual errors were 0.1% to under 0.3% of messages. Grade B. [Gupta2025] [LearnLMEedi2025] [LearnLMEedi2026]
+12. **Models notice a mistake more reliably than they locate or explain it.** GPT-4 on MRBench: mistake identified 94%, located 84%, actionable next step 46%. GPT-4 picked the right misconception 91.9% of the time from 4 candidates and 39.8% from 100. Grade B. [Maurya2025] [LiuMisconceptions2023]
+13. **Behavior degrades over turns.** Instruction drift appeared within 8 rounds on 2023 models; 15 current models dropped 39% on tasks spread over turns, with unreliability up 112%; pedagogical failures rose from about 17.7% single-turn to about 77.8% multi-turn in a 2026 tutoring benchmark. Grade B. [Li2024] [Laban2025] [SafeTutors2026]
+14. **Prompt-only rule-following is high and incomplete, and inconsistent across repeats.** GPT-4 still failed 93 test cases on simple rules; a GPT-4o agent with a written policy passed all 8 repeats of a retail task under 25% of the time. Grade B. [Mu2023] [Yao2024]
+15. **Gates held in code hold; structured output fixes shape, not content.** A rules orchestrator kept 100% adherence to attempt-before-hint over 2,400 simulated runs where a single prompt on the same model gave 12 times more hints. Schema-constrained output reached 100% validity against under 40% by prompting. Grade B for the first (simulation), C for the second (vendor). [ESLLMs2026] [OpenAIStructured2024]
+16. **The field's rubrics converge on the same questions.** MRBench's eight dimensions: mistake identification, mistake location, revealing the answer, providing guidance, actionability, coherence, tone, human-likeness. LearnLM's 29 items add length, level, one clear plan, "does not give away answers too quickly" and "does not withhold information unproductively". Expert human tutors scored 76%, 63%, 91%, 67% and 76% on the first five. Grade B. [Maurya2025] [LearnLM2024]
+17. **Being good at the subject is not being good at teaching it.** No frontier model passed 56% on TutorBench. On MathTutorBench a math-specialist model solved 88% of problems and won 6% of scaffolding comparisons; a Socratic fine-tune lost correctness. Grade B. [TutorBench2025] [MathTutorBench2025]
+18. **LLM judges work with narrow criteria and calibration, and fail on broad ones.** TutorBench's judge agreed with experts at 0.78 against 0.75 between humans, using 3 to 39 yes-or-no criteria per sample. MRBench's untuned judges correlated negatively with humans; the best BEA 2025 systems reached macro F1 of 58 to 72. Grade B. [TutorBench2025] [KhanEngagement2025] [Maurya2025] [BEA2025]
+19. **Simulated students are too able.** GPT-4 reproduced a named misconception 61.7% of the time; plain LLM students repeated an error type 7.8% of the time; a weaker model made a better simulated student for validating hints. Grade B. [LiuMisconceptions2023] [Beagle2026] [Phung2024]
+20. **Raw generated hints and questions need a check; validated ones reach human level.** 32% of raw ChatGPT math hints were wrong, 0 to 13% after ten-way voting, and vetted hints taught as well as human ones (N = 274). Programming hints: 66 to 85% precision raw, about 95% after a simulated-student check that released 73 to 88% of hints. 18 to 37% of generated multiple choice questions had a flaw. Grade A/B. [Pardos2024] [Phung2024] [Doughty2024] [Docimology2024]
+21. **Distractors and misconceptions are where experts add the most.** Teachers rated LLM distractors 2.68 for plausibility against 3.72 for human ones built from real student errors; GPT-3.5 named a non-existent bug in 48% of student help requests. Grade B. [Feng2024] [Hellas2023]
+22. **Human review of model drafts is cheap and its edit rate is falling.** 37.6 seconds to check a hint; supervising tutors approved 74.4% of model messages unchanged in 2025 and 94.7% in 2026. Grade B. [Pardos2024] [LearnLMEedi2025] [LearnLMEedi2026]
+23. **Deployed tutors are pipelines.** Khan Academy uses a calculator and math agent, a hidden step that lists how the student may have reached the answer, human-authored hints fetched before judging, structured student history (+6.1% next-item correctness), and a regression set; narrowing the math agent halved answer give-aways. Grade C. [KhanMath2024] [KhanMath2025] [Khan2026]
+24. **No study tests praise against no praise for a model tutor, or tests adults.** Generic praise is coded as a low-quality move (control tutors used it about 10% more than tutors with expert-style guidance), and rubrics reward acknowledging what is correct in an encouraging tone. Popular tutor prompts ask for praise. Grade B for the association, D for H18 itself. [WangCoPilot2024] [LearnLM2024] [Mollick2023]
+
+## Findings by topic
+
+### 1. Learning outcome studies
+
+**1.1 Harvard physics AI tutor (Kestin et al. 2025)**
+
+- **Finding:** A GPT-4 tutor built around instructor-written, question-by-question prompts beat a well-run active-learning class on a post-test, in less time.
+- **Evidence:** Randomized crossover in Harvard's Physical Sciences 2 course, Fall 2023. 194 eligible students out of 233 enrolled. Two lessons (surface tension, fluid flow), each student got one by AI tutor at home and one in class. Median post-test score 4.5 for the AI group (N = 142) against 3.5 for the in-class group (N = 174), with a pre-test baseline of 2.75. Mann-Whitney z = -5.6, p < 10^-8. Linear regression effect size 0.63 SD; quantile regression (to get around a ceiling effect) 0.73 to 1.3 SD. Median time on task 49 minutes against 60 minutes in class; 70% of AI students spent under 60 minutes. Engagement 4.1 against 3.6 and motivation 3.4 against 3.1 on a 5-point scale. 83% of students said the tutor's explanations were as good as or better than the human instructors'.
+- **Design details from the methods:** The system prompt held guidelines for active engagement, cognitive load and growth mindset. The authors report that "a system prompt could not reliably provide enough structure to scaffold problems with multiple parts", because the tutor "would occasionally discuss parts out of sequence". So the platform itself (code, not the prompt) walked students through each part of each problem in order. To stop hallucinated physics, each question's prompt included a full step-by-step solution written by the instructors. Lessons began with short pre-recorded videos. Prompt preparation per lesson took "a few days" of test conversations and iteration; the platform took "several months".
+- **Caveats:** One course, one elite university, two lessons, immediate post-test only (no retention test). Students were first meeting the material; test items were at understand, apply and analyze levels. The authors say the result depends on "expert-crafted, question-specific prompts", "a carefully structured framework" and high-quality videos, and "we do not presume that structured AI tutoring will always outperform in-class active learning". The comparison is a group class, not a human one-to-one tutor and not self-study with a textbook. Authors built the tutor and ran the study.
+- **Grade:** A (single-site randomized crossover).
+- **Sources:** [Kestin2025]
+
+**1.2 Bastani et al. 2025 - GPT Base against GPT Tutor**
+
+- **Finding:** A plain ChatGPT-style helper raised practice scores and then lowered unassisted exam scores. A guarded tutor with teacher-written solutions and hints removed the harm, and still produced no gain over a textbook-only control.
+- **Evidence:** RCT in one large Turkish high school, Fall 2023, nearly 1,000 students in about 50 classes, grades 9 to 11, four 90-minute sessions; 2,848 student-session observations. Practice performance (out of 1, control mean 0.284): GPT Base +0.137 (48% higher), GPT Tutor +0.361 (127% higher). Unassisted exam (control mean 0.321, SD 0.277): GPT Base -0.054 (17% lower, p < 0.05; that is about -0.19 control SDs by my arithmetic from the table), GPT Tutor -0.004 (not significant). GPT Base, asked "What is the answer?" ten times for each of 57 problems, was correct only 51% of the time, with logical errors 42% and arithmetic errors 8%. The most common student message to GPT Base was a request for the answer. In the first session, 67% of first messages across problems in the GPT Base arm were "repeat the question" or "ask for the answer", against 37% in GPT Tutor. Students did not notice the harm: GPT Base students did not think they learned less, and GPT Tutor students thought they did much better on the exam when they did not.
+- **Design details:** GPT Base prompt held the practice problem and told GPT-4 to act as a tutor. GPT Tutor added two things: an instruction to give hints and not the answer, and teacher-supplied material for each problem - one or more correct solutions, common student mistakes, and how to give feedback on them. The authors call this "labor-intensive". Because the solution sat in the prompt, GPT Tutor "rarely makes mistakes". The exam problems were conceptually matched to practice problems. Both practice and exam counted toward grades.
+- **Caveats:** The mechanism test in the paper points to the "crutch" explanation (students skipped the thinking) and away from "misled by wrong answers". One school; short-term exam inside the same session; high-school math. The guarded tutor's null on the exam is partly explained by the authors: control students saw worked answers after submitting, and GPT Tutor students could check answers during practice. A correction in August 2025 fixed one author's affiliation only (confirmed on the PNAS correction notice, PMC12403119: a production error in the affiliation line).
+- **Grade:** A.
+- **Sources:** [Bastani2025]
+
+**1.3 Tutor CoPilot (Wang et al. 2024/2025) - a model coaching human tutors**
+
+- **Finding:** Giving human tutors live, expert-style suggestions from a model raised student mastery a little, and most for the weakest tutors.
+- **Evidence:** Preregistered RCT with FEV Tutor and a Southern US district, March 27 to May 17, 2024. 900 tutors randomized, 783 with sessions in the study (388 treatment, 395 control); more than 1,000 K-12 students. Exit-ticket pass rate 62% to 66% (+4 percentage points, p < 0.01, intent to treat). Treatment-on-the-treated: +14 points. Lower-rated tutors 56% to 65% (+9 points); less-experienced tutors 61% to 68% (+7 points). Cost about $20 per tutor per year. Analysis of more than 350,000 messages: tutors with the tool used "prompting the student to explain" about 10% more, and control tutors used "encourage students in a generic way" about 10% more. Only the most experienced treatment tutors were measurably less likely to "give away answers or explanations".
+- **Caveats:** The outcome is a same-session exit ticket. The paper says "we did not find statistically significant improvements in end-of-year math test scores". The preregistered outcome was the end-of-year MAP score; the authors switched to session outcomes because treatment exposure was uneven. A human stays in the loop for every message, so this is evidence for the hybrid design, not for a model alone. I read the arXiv preprint; the abstract says "more than 700 tutors".
+- **Grade:** A.
+- **Sources:** [WangCoPilot2024]
+
+**1.4 ChatGPT hints against human-authored hints (Pardos and Bhandari 2024)**
+
+- **Finding:** Screened ChatGPT hints produced learning gains that did not differ statistically from human tutor-authored hints, but a third of raw hints were wrong.
+- **Evidence:** 274 Mechanical Turk adults after exclusions (90 control, 86 human hints, 98 ChatGPT hints), four math subjects, pre-test and post-test. ChatGPT hints: 43.51% to 60.52% (about +17 points). Human hints: 53.46% to 65.09% (+11.62 points). No-hint control: 55.15% to 57.01% (+1.85 points). Raw hint quality: of 75 problems, 24 hints (32%) were thrown out for a wrong answer or wrong work (Elementary Algebra 25%, Intermediate Algebra 47%, College Algebra 27%, Statistics 29%). Checking a hint by hand took 37.6 seconds on average. Self-consistency (generate ten hints, keep the one with the most common answer) cut the error rate to 0% (Elementary Algebra), 2% (Intermediate and College Algebra) and 13% (Statistics).
+- **Caveats:** Crowd workers, not enrolled students (they are adults, which is closer to the Pedagogue's population than most studies). ChatGPT 3.5 era. Only hints that passed the human check were used in the learning experiment, so the learning result is for reviewed content. Pre-test averages differed between arms.
+- **Grade:** A for the experiment; B for the error-rate audit.
+- **Sources:** [Pardos2024]
+
+**1.5 "AI meets the classroom" (Lehmann, Cornelius and Sting 2024, preprint)**
+
+- **Finding:** Access to an LLM had no overall effect on learning to code. What mattered was how students used it: asking for solutions hurt understanding, asking for explanations helped.
+- **Evidence:** Two preregistered, incentivized lab experiments teaching Python to beginners (Study 2: 107 analyzed; Study 3: 69), plus a field study of 113 graduate students and 6,594 homework observations. Treatment effect on post-test not significant in either experiment (p = 0.580 and p = 0.298). When copy and paste was enabled (Study 3), requests for solutions rose from 42.2% to 64.2% of messages and explanation requests fell from 31.3% to 18.4%; students covered 1.7 more practice questions and, holding progress fixed, solved 1.4 fewer post-test questions. In the field study, more cumulative ChatGPT-like code predicted lower later grades (instrumented with ChatGPT outages). The gap between students with low and high prior knowledge widened.
+- **Caveats:** Preprint. Small lab samples. Usage-type analyses are exploratory. The field measure of ChatGPT use is a similarity score, not observed use.
+- **Grade:** A for the null overall effect; B for the usage-behavior results.
+- **Sources:** [Lehmann2024]
+
+**1.6 LLM explanations in math (Kumar, Rothschild, Goldstein and Hofman 2023)**
+
+- **Finding:** Seeing a GPT-4 explanation after trying a problem yourself beat seeing only the correct answer. Trying first mattered.
+- **Evidence:** Preregistered experiment, 1,202 Mechanical Turk adults, SAT-style math, 2 x 3 design (try first or see answer first; answer only, stock GPT-4 explanation, or GPT-4 with a custom pre-prompt of tutoring strategies). Test items changed the numbers. In the try-first condition, "slightly more than half" of test answers were correct with answer only and "more than two-thirds" with LLM explanations (z = -3.46 and -4.20, p < 0.001). In the see-answer-first condition only the customized prompt gave a significant lift. Participants mostly adopted the strategy the LLM showed them. The SSRN abstract adds a second experiment in which wrong LLM explanations (arithmetic errors, wrong final answers) gave gains that fell between answer-only and correct explanations (abstract only for that part; the AIED 2025 version reports both experiments, N = 1,818 in total).
+- **Caveats:** One-minute delay between practice and test, near-identical test items, crowd workers. This tests explanations, not a dialogue tutor.
+- **Grade:** A.
+- **Sources:** [Kumar2023]
+
+**1.7 World Bank Nigeria study (De Simone et al. 2025)**
+
+- **Finding:** A six-week, teacher-guided after-school program using Microsoft Copilot (GPT-4) raised English scores.
+- **Evidence:** Student-level RCT in nine public schools in Benin City, June to July 2024, first-year senior secondary students (about age 15). Twelve 90-minute sessions in computer labs, about 30 students per session, two sessions a week. Intent-to-treat: +0.31 SD on the end assessment overall, +0.24 SD on English (abstract says 0.23), +0.14 SD digital skills, +0.31 SD AI knowledge, +0.26 SD on an IRT composite, and +0.21 SD on the regular third-term English exam that covered the whole year. Attendance averaged 72%. 657 students were assigned to treatment and 671 to control, and the final sample was 759 (422 treatment, 337 control); first seen on a VoxDev slide deck and confirmed in the working paper.
+- **Design details:** Each session began with a teacher-provided prompt, then free interaction. Lesson guides positioned the model as a tutor, used prompt structures from Mollick and Mollick (2023), and asked the model to use "desirable difficulties" in place of direct answers. Teachers supervised, and students got orientation on hallucination and over-reliance. Sessions ended with group reflection.
+- **Caveats:** Working paper. The control group got no extra instruction, so the effect mixes "extra after-school time with a teacher" with "the model". Only 52% of eligible students opted in. Part of the outcome test covered AI and digital skills that only the treatment group practiced. Largest effects for girls and for students with higher baseline scores.
+- **Grade:** A (with a weak counterfactual).
+- **Sources:** [DeSimone2025]
+
+**1.8 Rori in Ghana (Henkel et al. 2024)**
+
+- **Finding:** One hour a week with a WhatsApp math tutor went with higher math growth over eight months.
+- **Evidence:** 11 Rising Academies schools randomized (5 treatment, 6 control). 637 students at baseline, 477 at endline (236 treatment, 241 control), grades 3 to 8. Two 30-minute sessions a week in study hall. Effect size 0.36 (p < 0.001). Marginal cost about $5 per student.
+- **Caveats:** Preprint, labeled "preliminary" by the authors. Only 11 clusters, and an independent evidence review in my search results says the analysis ignores clustering, so the p-value is overstated; attrition was 25%; the outcome test was built by the researchers and had ceiling effects (secondary summary at ai-learningevidence.com). Authors include staff of the organization that makes Rori. The arXiv listing abstract says about 1,000 students and an effect size of 0.37; the version 2 PDF says about 500 and 0.36. Rori is mostly scripted micro-lessons with a model for the chat layer, so it is closer to a rule-based tutor with a language front end than to a free-running LLM tutor (unconfirmed - I did not read the system description in full).
+- **Grade:** B (cluster randomized with few clusters).
+- **Sources:** [Henkel2024]
+
+**1.9 Google DeepMind and Eedi LearnLM trials in UK classrooms (2025 and 2026)**
+
+- **Finding (2025 exploratory trial):** A pedagogy-tuned model, with a human tutor approving every message, matched human tutors on fixing a mistake and did a little better on the next topic. Both beat a static pre-written hint.
+- **Evidence (2025):** N = 165 students in Years 9 and 10 at five UK secondary schools, May to June 2025, 17 supervising tutors. Tutors approved 74.4% of 3,617 drafted messages with no edits (76.4% counting one or two character edits). Review found zero harmful messages and five factual errors (0.1%). Second-attempt success: 93.0% with supervised LearnLM, 91.2% with a human tutor, 65.4% with a static hint. Misconception resolved: 95.4%, 94.9%, 86.8%. First question of the next unit correct: 66.2% LearnLM, 60.7% human tutor, 56.2% static hint; the LearnLM-human difference is +5.5 points with a 95% credible interval of -1.4 to +12.4.
+- **Design details (2025):** The model was prompted to use a Socratic approach "aimed at guiding the student to identify their own mistake". It was given the full question, the student's wrong answer, and explanations of the misconception behind that wrong answer written for both student and teacher.
+- **Finding (2026 expanded trial):** At scale, AI tutoring again matched human tutors on near measures, and showed no advantage over standard remediation on an external standardized test.
+- **Evidence (2026):** Preregistered RCT, 1,179 students in 10 state secondary schools, 10 weeks. Four arms: standard Eedi remediation (videos and expert-written hints), expert human tutoring, AI tutoring with a pedagogical prompt, AI tutoring with the prompt plus the student's learning history. Tutors approved 94.7% of 94,385 drafts unchanged. Audits found math errors in fewer than 3 per 1,000 AI messages, "matching the accuracy of expert tutors". On the Star Maths standardized test: AI with question context -0.01 SD [-0.15, +0.14] against standard remediation; AI with personalised context +0.02 SD [-0.12, +0.16]; expert human tutoring -0.09 SD [-0.25, +0.07]. The authors' tentative explanation: tutored students spent longer on each misconception and covered less material.
+- **Caveats:** Vendor-run (Google DeepMind and Eedi). Every message was human-reviewed, so neither trial shows how the model performs alone. The 2025 trial is exploratory and the transfer advantage's interval includes zero. The 2026 report is a technical report on a Google server, not peer-reviewed (I read the abstract and the Star Maths results section).
+- **Grade:** A (2025: small exploratory RCT; 2026: preregistered RCT, technical report).
+- **Sources:** [LearnLMEedi2025], [LearnLMEedi2026]
+
+**1.10 Khanmigo outcome and usage evidence**
+
+- **Finding:** The first large independent trial found small gains that look like the gains from Khan Academy practice without AI, because students barely talked to the tutor.
+- **Evidence:** Oreopoulos and Low (2026, working paper), two-year cluster RCT, 18 Tennessee middle schools, 53 grade-within-school clusters (28 treated, 25 control), daily remedial math block. Assignment raised MAP math by 1.3 national percentile ranks per term, about 0.06 to 0.08 SD over a school year; implied effect of a full year of active participation 0.14 SD. Treated students did about 30 more minutes of Khan Academy practice a week. Khanmigo use averaged 1.7 chat sessions a week. 96% tried Khanmigo at least once, but the median student messaged it on a third of practice days and in only 17% of the exercise sessions where they made a mistake. Messages were "mostly bare answers or clicks on suggested prompts".
+- **Vendor report:** Khan Academy's May 2026 blog reports about 20 A/B tests over more than 15 million tutoring threads (October 2025 to April 2026). Giving Khanmigo a summary of the student's recent problem history raised next-item correctness by 3.4% (608,000 threads); surfacing unmastered prerequisites raised it 2.7% (1.36 million threads); total 6.1%. Narrowing the math agent to check only the math the student had already done "reduced giving away the answer by 50%". Adding example problems to the prompt had no effect.
+- **Caveats:** The trial is a working paper; the state test results are still to come. The trial measures "Khan Academy plus Khanmigo" against business-as-usual remediation, and cannot separate the tutor from the practice. The blog is a vendor source with relative percentages and no baselines.
+- **Grade:** A for the trial; C for the vendor report.
+- **Sources:** [Oreopoulos2026], [Khan2026]
+
+**1.11 Course-integrated GPT-4o tutor at a US university (Liu et al. 2026, working paper)**
+
+- **Finding:** Giving course sections a retrieval-based course chatbot lowered final grades and course-site participation.
+- **Evidence:** RCT with 30 instructors and 2,379 undergraduates across disciplines at the University of Maryland. In sections of the same course (22 instructors, 1,353 students), tutor access lowered final grades by 4.12 points (0.37 SD) and learning-management-system participation by 0.90 SD. Losses were larger for first-generation students. Only 14.63% of treated students ever used the assistant. About 73.8% of requests were direct-answer requests (seeking information, explanations or solutions).
+- **Caveats:** Working paper. With under 15% uptake, a 0.37 SD drop for whole sections is hard to explain through the chatbot conversations alone; the authors suggest displacement of other course engagement. Randomization was at instructor level with few clusters. Homework scores did not change. The tool was a general question-answering assistant grounded in course files, without the hint-first guardrails of the tutors above (I read the abstract, the tool description and the usage section).
+- **Grade:** A (cluster RCT, small number of clusters, effect only in a subsample).
+- **Sources:** [LiuUMD2026]
+
+**1.12 Programming-specific and adult-learner trials**
+
+- **Finding:** In programming courses, AI help raises scores on the assisted task and does not raise what students know afterwards. A hint-first tutor kept motivation up; it did not beat the control on learning either.
+- **Evidence:** Bassner et al. (2026), three-arm RCT in a CS1 course at TU Munich, N = 275, one 90-minute concurrency exercise: Iris (a scaffolded GPT-4 tutor that gives calibrated hints and withholds full solutions), unrestricted ChatGPT, or web resources only. Both AI groups scored much higher on the exercise. Neither AI group showed larger pre-post knowledge gains or better code comprehension. Both reported lower frustration. Only Iris raised intrinsic motivation. Students rated ChatGPT easier and more helpful - the authors call this a "comfort trap".
+- **Evidence (workers):** A Nature Human Behaviour RCT (published 26 October 2026) with 487 management consultants found that ChatGPT access plus training raised scores on data-science tasks outside their skills, and found "no evidence that treated workers are better at answering technical questions without ChatGPT post-experiment" (Wiles et al.; abstract only). A class-randomized vocational data-analysis study (272 students, 8 classes) found assisted practice raised the immediate score by 5.1 points and estimated a retention cost three weeks later of -4.1 points (d = -0.31), which design-aware tests did not confirm (abstract only).
+- **Evidence (process):** Poiaganova et al. (AIED 2026) randomized master's-level programming students to a tutor that adapts to skill stage (worked examples for novices, self-explanation prompts for advanced learners) or a baseline tutor; the stage-aware tutor produced more messages, more active days, deeper engagement and higher invested mental effort. No learning outcome is reported in the abstract (abstract only).
+- **Evidence (prompt-level pedagogy in CS1):** A preregistered three-arm crossover over six weeks of real CS1 coursework (1,059 consenting students, 26,989 submissions) compared a baseline "pedagogically constrained" AI tutor with two tutors whose system prompts added self-regulated-learning and cognitive-engagement scaffolds. On four preregistered measures, including quiz success, there were "no significant differences"; exploratory analysis showed more time on task, longer messages and more constructive contributions with the scaffolded prompts (abstract and results section read).
+- **Evidence (online programming learners, teacher-governed constrained tutor):** A quasi-experimental field evaluation with 357 online programming learners combined a knowledge-component map, a knowledge-tracing probability, teacher-authored recommendations and a constrained LLM tutor. Adjusted post-test difference 3.07 percentage points (95% CI -0.87 to 7.02, p = .127); raw gain advantage 4.26 points (Hedges g = 0.21); completion unchanged. The authors conclude the tutor "should remain a transparent, auditable, low-stakes aid rather than a grading or mastery authority" (abstract only).
+- **Evidence (reflective tutor against prompt-refinement tutor):** In a three-session programming study (66 students in the analyzed lab session), a tutor that scaffolded reflection showed larger pre-to-post gains than a prompt-refinement tutor by the third session (interaction beta = 0.72, p = 0.01), with no difference in the first two sessions (preprint, results section read).
+- **Evidence (workplace adaptive training, not an LLM tutor):** A cluster-randomized field experiment with 2,574 utility employees in China found knowledge-graph-driven adaptive training beat uniform training on knowledge by d of about 0.29, holding at six weeks (d about 0.26). More experienced employees gained more (abstract only).
+- **Caveats:** Single-session designs dominate. I found no randomized trial of a mastery-gated LLM tutor teaching working software engineers a tool. The closest adult evidence is the consultants trial (performance without learning), Pardos and Kumar (crowd-worker adults, math), and Lehmann (university students learning Python).
+- **Grade:** A for Bassner and the consultants trial; B for the others.
+- **Sources:** [Bassner2026], [Upskilling2026], [Vocational2026], [Poiaganova2026], [Utility2026], [SteeringCS1], [AdaptiveScaffolding2026], [ReflectiveTutor2026]
+
+**1.13 Meta-analyses of ChatGPT and learning, and their critics**
+
+- **Finding:** The headline meta-analytic effects (g of 0.7 to 0.9) do not hold up. One of the two best-known meta-analyses has been retracted, and audits of the other find that most of its studies cannot support a causal claim about learning.
+- **Evidence:** Wang and Fan (2025, retracted) pooled 51 studies and reported g = 0.867 for learning performance, 0.456 for learning perception and 0.457 for higher-order thinking, with I² of about 89%. The journal retracted it on 22 April 2026 "due to concerns relating to discrepancies in the meta-analysis"; the authors did not respond. The critique that triggered it (Ingebrigtsen and Lukic 2025, preprint) found the funnel plot implied about 0.5, not 0.867; the highest-weight study (about 19% of the weight) had itself been retracted; the second (about 10%) did not measure learning; one study gave the ChatGPT group about 80 hours of practice against 20 for control; one clustered study was entered as g = 4.009. Bartoš, Martinková and Wagenmakers (2025, preprint) found that after adjusting for publication bias the effects shrink "by a factor of two to three, and the evidence in favor of those effects disappears" - they call it "absence of evidence", not "evidence of absence".
+- **Evidence (Deng et al. 2025):** 69 experimental studies, 2022 to 2024. Academic performance g+ = 0.712 (k = 51, 95% CI 0.497 to 0.926, I² = 91.8%). Mental effort g+ = -0.675 (k = 4, 95% CI -1.271 to -0.079). Rank correlation tests showed publication bias for academic performance (tau = 0.321, p < .001). The authors themselves warn about missing power analyses and about post-tests that may measure the quality of ChatGPT's output, not the student's learning.
+- **Evidence (Weidlich, Gašević, Drachsler and Kirschner 2025, "an effect in search of a cause"):** Auditing 19 academic-performance comparisons in Deng et al., only four (21%) had a replicable treatment description, an equally described control, and a non-self-report learning measure given after the intervention.
+- **Caveats:** A registered protocol for a meta-analysis limited to unassisted or delayed outcomes was posted on OSF in November 2026; no result yet. A secondary roundup table of randomized LLM-tutor trials (MetaRoles, October 2026) lists effects from -0.37 SD to above +0.7 SD and warns the trials are not comparable.
+- **Grade:** A (for the critiques' conclusion that the pooled figures are unreliable).
+- **Sources:** [WangFan2025], [WangFanRetraction2026], [Ingebrigtsen2025], [Bartos2025], [Deng2025], [Weidlich2025], [UnassistedProtocol2026], [MetaRoles2026]
+
+**1.14 Over-reliance and reduced effort**
+
+- **Finding:** With an unguarded assistant, task performance goes up while knowledge gain and transfer stay flat, and learners do less self-monitoring.
+- **Evidence:** Fan et al. (2024, BJET): 117 university students (second-language English writers) randomized to no support (30), ChatGPT-4 (35), a human expert (25) or a checklist tool (27) for an essay revision task. The ChatGPT group improved essay scores more than every other group; knowledge gain and transfer did not differ between groups; intrinsic motivation did not differ. Process traces showed fewer metacognitive steps in the ChatGPT group, which the authors name "metacognitive laziness".
+- **Evidence:** Kosmyna et al. (2025, preprint, not peer-reviewed): 54 participants wrote essays with ChatGPT, a search engine or neither over three sessions; 18 returned for a fourth crossover session. The LLM group showed the weakest EEG connectivity, lowest sense of ownership and poorest recall of their own essays.
+- **Caveats on Kosmyna:** The MIT project page says the conclusions are "to be treated with caution and as preliminary". A published comment (arXiv 2601.00856) estimates about 159 participants would be needed for adequate power, notes some analyses rest on 2 to 4 essays per group, and lists reporting inconsistencies. Lower connectivity is not the same as worse learning. It is an essay-writing study, not a tutoring study.
+- **Caveats on Fan:** One task, about one hour of revision, knowledge tested within a day (secondary summary at aiforglobaleducation.org).
+- **Grade:** A for Fan; B for Kosmyna (preprint, small sample, contested analysis).
+- **Sources:** [Fan2024], [Kosmyna2025], [KosmynaComment2026], [Deng2025], [Bastani2025]
+
+**1.15 What effect size is honest to expect**
+
+- **Finding:** Across the randomized trials I read, a guarded LLM tutor measured on an unassisted test lands between zero and roughly +0.3 SD against business-as-usual, with one outlier above +0.6 SD under very favorable conditions, and unguarded access lands between zero and roughly -0.2 to -0.4 SD.
+- **Evidence, positive end:** Kestin +0.63 SD (0.73 to 1.3 by quantile regression) against active-learning class, immediate test, expert-authored per-question prompts. Nigeria +0.24 to +0.31 SD against no extra instruction. Rori +0.36 with weak analysis. Medly +0.33 against self-directed revision, vendor-funded, 30.7% attrition (first seen in a secondary summary; all three confirmed on the arXiv paper).
+- **Evidence, near zero:** Bastani GPT Tutor -0.004 on a 0 to 1 scale. LearnLM 2026 on Star Maths -0.01 and +0.02 SD against expert-written static remediation. Khanmigo 0.06 to 0.08 SD per year, same as practice alone. Lehmann no effect. Bassner no knowledge gain.
+- **Evidence, negative end:** Bastani GPT Base -17% (about -0.19 SD). UMD course chatbot -0.37 SD in the same-course subsample. Vocational study d = -0.31 at three weeks (not design-confirmed). Consultants: no skill gain without the tool.
+- **Conditions under which the effect turns negative or null:** (a) the model will hand over answers or finished code; (b) the outcome is measured without the tool, or after a delay; (c) students can copy and paste freely; (d) the tool substitutes for practice the student would otherwise do; (e) the comparison is already good instruction (expert-written hints, active practice software); (f) students rarely open the tutor.
+- **Conditions shared by the positive results:** expert-authored solutions and hints in the prompt, a fixed sequence enforced outside the model, the student attempts before help arrives, a human teacher or tutor in the room or in the loop, and a weak or absent alternative for the control group.
+- **Caveats:** This range is my reading across heterogeneous trials, not a pooled estimate. No trustworthy pooled estimate exists yet (see 1.13).
+- **Grade:** B (synthesis of A-grade trials that are not comparable).
+- **Sources:** [Kestin2025], [Bastani2025], [DeSimone2025], [Henkel2024], [LearnLMEedi2026], [Oreopoulos2026], [Lehmann2024], [Bassner2026], [LiuUMD2026], [Vocational2026], [Upskilling2026], [Harrison2026], [MetaRoles2026]
+
+### 2. What separates the tutors that helped from the ones that harmed
+
+**2.1 Design features by study**
+
+| Study | Outcome on unassisted test | Answer withheld | Expert solution or hints in prompt | Sequence enforced outside the model | Student attempts first | Human in the loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| Kestin 2025 (Harvard physics) | +0.63 SD or more | Yes, guides and confirms | Yes, full step-by-step solution per question | Yes, platform steps through each part | Yes, works the handout then asks | Course staff built it; none live |
+| Bastani GPT Tutor | About zero (harm removed) | Yes, hints only | Yes, solutions, common mistakes, feedback guidance | Per-problem prompt | Mixed | Teacher taught first; none during practice |
+| Bastani GPT Base | -17% | No | No | No | No | No |
+| LearnLM and Eedi 2025, 2026 | Matches human tutors on near measures; zero on standardized test | Yes, Socratic prompt | Yes, question, wrong answer, misconception explanation | Yes, platform triggers tutoring after a wrong answer and re-asks | Yes, tutoring starts after a wrong answer | Yes, tutor approves every message |
+| Tutor CoPilot | +4 points mastery | Human decides | Expert decision model in the prompt | Human tutor | n/a | Yes, human tutor sends the message |
+| Nigeria (Copilot) | +0.24 to +0.31 SD | Asked for by prompt | Teacher-provided opening prompt | Teacher-led session plan | Mixed | Yes, teacher in the room |
+| Khanmigo trial | +0.06 to +0.08 SD, same as practice alone | Yes, "coach rather than give answers" | Exercise context | Khan Academy exercise platform | Yes | Teacher in the room |
+| Iris (Bassner 2026) | No knowledge gain; motivation up | Yes, calibrated hints | Exercise context | No | Yes | No |
+| ChatGPT arm (Bassner 2026) | No knowledge gain | No | No | No | No | No |
+| UMD course chatbot | -0.37 SD (subsample) | No (question answering over course files) | Course files by retrieval | No | No | No |
+
+- **Finding:** Every tutor with a positive or neutral result on an unassisted measure withheld the answer and had expert-written, problem-specific material in its prompt. Every clearly negative result came from a tool that answered questions directly.
+- **Evidence:** See the table; each row is drawn from the methods section or abstract of the paper cited in section 1.
+- **Caveats:** The table has few rows and many confounds (age, subject, comparison group). "Withheld the answer" alone was not enough for a learning gain: Bastani's GPT Tutor, Iris, Khanmigo and LearnLM all withheld answers and landed near zero against decent alternatives. No study isolates one feature at a time, except Bastani (guardrails plus teacher content against neither) and the 2026 LearnLM trial (adding student history to the prompt changed the standardized-test effect from -0.01 to +0.02 SD, which is no difference).
+- **Grade:** B (cross-study comparison).
+- **Sources:** [Kestin2025], [Bastani2025], [LearnLMEedi2025], [LearnLMEedi2026], [WangCoPilot2024], [DeSimone2025], [Oreopoulos2026], [Bassner2026], [LiuUMD2026]
+
+**2.2 Guardrails against giving the answer**
+
+- **Finding:** A prompt instruction to withhold answers lowers leakage and does not remove it. The deployed systems that report low leakage add a second mechanism in code or a second model.
+- **Evidence:** CodeHelp's authors write that the models "appear to be strongly biased towards providing a complete solution to the given issue even when the prompt requests otherwise", so the system generates two completions, scores them in code for code blocks and instructor-banned keywords, keeps the better one, and if code remains runs a third prompt to strip it. CodeAid never showed fixed code in its debugging feature, and its general question features still produced generic example code in 6% of sampled responses and short specific code (1 to 3 lines) in 2%. In MRBench, GPT-4 revealed the answer in about 47% of responses and Sonnet in about 5%. Khan Academy reports that restricting the math agent to the student's completed steps "reduced giving away the answer by 50%".
+- **Caveats:** Different tasks and model generations. Rates from 2023 models are much worse than 2025 models.
+- **Grade:** B/C.
+- **Sources:** [Liffiton2023], [Kazemitabaar2024], [Maurya2025], [Khan2026]
+
+**2.3 Teacher-authored content in the prompt**
+
+- **Finding:** Putting the correct solution and the common mistakes in the prompt is the main accuracy control in the successful tutors.
+- **Evidence:** Bastani: GPT Base was right 51% of the time on the course problems; GPT Tutor, with the solution in its prompt, "rarely makes mistakes". Kestin: accuracy "relied on pre-written answers". LearnLM and Eedi: with question, wrong answer and misconception notes supplied, factual errors were 0.1% of messages (2025) and under 0.3% (2026). The Bridge study shows the same thing at the level of a single reply: giving GPT-4 an expert's three decisions (error type, strategy, intention) made its replies 76% more preferred by raters than GPT-4 without them (0.95 against 0.54); random decisions did much worse.
+- **Caveats:** Authoring is the cost. Bastani calls it "labor-intensive"; Kestin reports days per lesson plus months for the platform.
+- **Grade:** A/B.
+- **Sources:** [Bastani2025], [Kestin2025], [LearnLMEedi2025], [LearnLMEedi2026], [WangBridge2024]
+
+**2.4 One step at a time, and student attempts first**
+
+- **Finding:** The sequence of steps was held by the platform in the positive studies, and help that arrives after an attempt works better than help before it.
+- **Evidence:** Kestin: the platform guides students "sequentially through each part of each problem" because the prompt alone let the tutor wander. Kumar: explanations after an own attempt gave the largest gain; the stock explanation shown before an attempt gave no significant lift. Lehmann: when pasting made solution requests easy, understanding fell. Eedi: tutoring fires after a wrong first answer and the platform re-asks the same question, then a new one.
+- **Grade:** A/B.
+- **Sources:** [Kestin2025], [Kumar2023], [Lehmann2024], [LearnLMEedi2025]
+
+**2.5 Human oversight**
+
+- **Finding:** The trials with the lowest error rates had a human approving each message. That level of review costs tutor time and hides how the model behaves alone.
+- **Evidence:** LearnLM 2025: 74.4% of drafts approved unchanged, median edit 59 characters, edits mostly about pacing and emotional tone. LearnLM 2026: 94.7% approved unchanged. CS50: every Duck answer on the forum is "subject to endorsement, amendment, or deletion by a human staff member"; 88% of 25 curricular answers and 77% of 39 administrative answers were correct in Summer 2023.
+- **Caveats:** I found no trial that compares the same tutor with and without message review.
+- **Grade:** B.
+- **Sources:** [LearnLMEedi2025], [LearnLMEedi2026], [Liu2024CS50]
+
+**2.6 Engagement is a separate bottleneck**
+
+- **Finding:** A well-guarded tutor that students do not talk to produces the effect of the underlying practice and nothing more.
+- **Evidence:** Khanmigo trial: median student messaged the tutor in 17% of sessions with a mistake; messages were "mostly bare answers or clicks on suggested prompts"; gains matched practice without AI. UMD: 14.63% of students ever used the assistant. Bassner: students preferred unrestricted ChatGPT to the hint-first tutor even though only the hint-first tutor raised motivation.
+- **Grade:** A.
+- **Sources:** [Oreopoulos2026], [LiuUMD2026], [Bassner2026]
+
+### 3. Failure modes with rates
+
+Each entry gives the rate, the conditions, and the countermeasure the source itself used or tested.
+
+**3.1 Flipping under pushback (sycophancy)**
+
+- **Finding:** Models abandon correct answers when a user simply expresses doubt. Newer and larger models resist better, and sustained pressure over several turns still flips a large share.
+- **Evidence (Sharma et al. 2023):** Five assistants, challenged with "I don't think that's right. Are you sure?". Claude 1.3 wrongly admitted a mistake on 98% of questions. Across models, the share that changed the initial answer ranged from 32% (GPT-4) to 86% (Claude 1.3), and the share admitting a mistake from 42% (GPT-4) to 98%. Accuracy fell by up to 27% (Claude 1.3). Switching from correct to incorrect was more common than the reverse. A user suggesting a wrong answer cut accuracy by up to 27% (LLaMA 2). Feedback on a text became more positive when the user said they liked or wrote it.
+- **Note on the prototype's citation:** The tutor prototype cites Sharma as "LLMs flip correct->wrong 81% under challenge". I did not find 81% on the page I fetched. The figures there are 32% to 86% changed answers and 42% to 98% admitted mistakes. The citation check on 2026-11-22 re-read three copies (arXiv version 4 HTML, arXiv version 1 PDF, the ICLR 2024 proceedings PDF): 81% is the prototype's own number, and the paper shows the correct-to-incorrect share only as a chart (Fig. 17). Cite the 32% to 86% range in its place.
+- **Evidence (SycEval, Fanous et al. 2025, AIES 2025):** GPT-4o, Claude Sonnet and Gemini 1.5 Pro on math (AMPS) and medical questions. Answers changed under rebuttal in 58.19% of cases overall (Gemini 62.47%, ChatGPT 56.71%). "Regressive" changes from correct to incorrect were 14.66%; "progressive" changes from incorrect to correct were 43.52%. In computational tasks regressive sycophancy was 3.54% for in-conversation rebuttals and 8.13% for preemptive ones. Rebuttals that cited a fake source were persuasive.
+- **Evidence (SYCON-Bench, Hong et al. 2025, EMNLP Findings):** 17 models, 500 five-turn prompts with escalating pressure. Reasoning and larger models held longer (confirmed on the paper: o3-mini held for 4.97 of 5 turns in the debate setting; Qwen-2.5-7B-Instruct held for 0.83 turns). "Alignment tuning amplifies sycophantic behavior". A 2026 thesis reusing the method found about 40 to 41% of dialogues flipped within five turns for Llama-3.3-70B, Qwen3-32B and DeepSeek-V4-Flash, and that "once a model changes its answer, it usually sticks with that new answer".
+- **Evidence (Truth Decay, 2025, preprint):** Claude Haiku, GPT-4o-mini and Llama 3.1 8B. Models that began with a correct answer changed it about 10% of the time across turns; models that began wrong changed up to 50% by turn four. Rebuttals with a rationale were more destabilizing (36 to 42% change rates).
+- **Countermeasures in the sources:** SYCON: a third-person persona framing improved turn-of-flip by up to 63.8% in the debate setting; an explicit anti-sycophancy instruction added up to 28% in another. Sharma: GPT-4 was the most robust; no prompt fix tested. SycEval separates good flips (student is right) from bad ones, which matters for a tutor because sometimes the student's pushback is correct.
+- **Caveats:** None of these tests a tutor with the correct answer and worked solution in its context, which is the Pedagogue's case. I found no measurement of flip rates under that condition (open question).
+- **Grade:** B (benchmarks with partly automated labels).
+- **Sources:** [Sharma2023], [SycEval2025], [SYCON2025], [SyconThesis2026], [TruthDecay2025]
+
+**3.2 Answer leakage and students talking the tutor into the answer**
+
+- **Finding:** Default models leak answers often. Tutors hold up under polite students and fail under persistent or manipulative ones. Reasoning before replying and a second reviewing agent cut leakage sharply.
+- **Evidence (default behavior):** ChatGPT asked to tutor revealed the solution 66% of the time (MathDial, human evaluation, 2023). GPT-4 revealed the answer in about 47% of MRBench responses; expert human tutors in about 9%; Sonnet about 5% (2024).
+- **Evidence (adversarial students, Zhao et al. ACL 2026):** Six attack types on GSM8K math tutoring. Mean leakage with hand-written attacks: contextual manipulation 74%, emotional threat 47%; up to 85% for a pedagogically fine-tuned 7B tutor under interpersonal influence. Leak arrived after 5.13 turns on average for contextual manipulation and 9.70 for emotional threat. With an ordinary simulated student the same tutors leaked only 4%, 10% and 14%. Against a fine-tuned adversarial student, base tutors leaked 34% (Llama-8B), 70% (Qwen-32B), 82% (Qwen-7B); pedagogically fine-tuned tutors (MathDial-SFT, SocraticLM, TutorRL-7B) leaked 70%, 70% and 83% (first seen in a secondary summary; confirmed in the paper's appendix table). On multiple choice and coding tasks the attack reached 88%. GPT-5 leaked 4.58% (first seen on the m0rtzz paper-notes page; confirmed in the paper's appendix).
+- **Countermeasures tested there:** A "reasoning tutor" (explicit reasoning before the reply) and a multi-agent tutor (a second agent refines the output). Qwen-32B: 70% to 3% (reasoning) and 4% (multi-agent). Llama-8B: 34% to 3% and 6%. Qwen-7B: 82% to 38% and 61%.
+- **Evidence (AiTutor Harness, WCCCE 2026):** GPT-5.1 and Gemini-3-Flash tutoring 150 CS1/CS2 multiple choice questions under an escalating attacker, up to six turns, 900 conversations. Single-agent leakage: GPT 40.0%, Gemini 14.0%. With a supervisor model that screens each draft: 27.0% to 17.8% overall (34% relative cut). Supervisors rejected 6.40% of tutor turns. "Leakage concentrated in the first two turns". Hallucination 0.2%.
+- **Evidence (real students):** In Bastani, the most common message to the unguarded tutor was a request for the answer; with the guarded tutor, superficial first messages fell from 42% to 37% across the first session as students learned it would not comply.
+- **Caveats:** Multiple choice is a hard case for leakage (eliminating options counts as a leak). The attacker and the judge are models. For the Pedagogue, the app holds the answer key out of the page; the tutor model still knows the answer if the lesson plan supplies it.
+- **Grade:** B.
+- **Sources:** [Macina2023], [Maurya2025], [Zhao2026], [AiTutorHarness2026], [Bastani2025]
+
+**3.3 Wrong math and wrong facts in tutoring replies**
+
+- **Finding:** Final-answer accuracy overstates tutoring accuracy. Errors appear in intermediate steps and in feedback on the student's work.
+- **Evidence:** "Beyond Final Answers" (Gupta et al. 2025, AIED): five OpenAI models tutoring 30 college algebra problems each (150 dialogues), two reviewers (kappa 0.82 for correctness). Final answers were correct in 88.6% of dialogues; 90% of dialogues were rated high pedagogical quality; only 56.6% were entirely free of errors (GPT-4o best at 75%). MathDial: ChatGPT gave incorrect feedback 59% of the time (2023). Bastani: GPT-4 without the solution was right 51% of the time on the course's problems. CodeAid: 79% of sampled responses were technically correct (74% before a mid-semester update, 87% after). CS50 Duck: 88% correct on curricular forum answers. With solutions in the prompt and a pedagogy-tuned model: 0.1% of messages (LearnLM 2025) and under 0.3% (2026).
+- **Countermeasures in the sources:** Solution in the prompt (Bastani, Kestin, Eedi). A separate math agent with a calculator (Khan Academy). Self-consistency voting over ten generations: error 32% to between 0% and 13% (Pardos). Human review (Eedi, CS50). A visible warning on every reply, "Remember: It will not always be correct!" (CodeHelp).
+- **Caveats:** Most rates are for math. For a programming tool, the equivalent risk is invented flags, APIs and behavior; I found no error-rate study for LLM tutors teaching a specific software tool.
+- **Grade:** B.
+- **Sources:** [Gupta2025], [Macina2023], [Bastani2025], [Kazemitabaar2024], [Liu2024CS50], [LearnLMEedi2025], [LearnLMEedi2026], [Pardos2024], [Liffiton2023], [Khan2026]
+
+**3.4 Failing to find the student's mistake**
+
+- **Finding:** Strong models usually notice that there is a mistake; locating it and naming the misconception behind it is much weaker, and gets worse as the list of candidate misconceptions grows.
+- **Evidence:** MRBench (human labels, 192 dialogues): mistake identified - GPT-4 94.27%, Llama-3.1-405B 94.27%, Sonnet 85.42%, Gemini 63.02%, expert humans 76.04%. Mistake located - GPT-4 84.38%, Sonnet 69.79%, Gemini 39.58%, expert humans 63.02%. MathTutorBench: mistake location micro F1 0.37 for GPT-4o, 0.57 for LearnLM-1.5-Pro, 0.81 for Gemini 3.1 Pro on the current leaderboard. Liu et al. (2023): GPT-4 picked the right misconception for a wrong answer 91.9% of the time from 4 candidates and 39.8% from 100.
+- **Countermeasures in the sources:** Supply the candidate misconceptions for the specific question (Eedi gives the tutor the misconception behind each wrong option; Bastani gives common mistakes). Keep the candidate list short (Liu et al.). Ask the student to explain their reasoning first (LearnLM's Socratic prompt; Tutor CoPilot's "prompt the student to explain").
+- **Grade:** B.
+- **Sources:** [Maurya2025], [MathTutorBench2025], [LiuMisconceptions2023], [LearnLMEedi2025], [Bastani2025]
+
+**3.5 Over-helping, verbosity and weak guidance**
+
+- **Finding:** Out of the box, models over-explain and resolve the problem for the student. Actionable guidance that stops short of the answer is the weakest tutoring skill in benchmarks.
+- **Evidence:** MRBench actionability: GPT-4 46.35%, Sonnet 60.94%, Llama-405B 74.48%, expert humans 76.04%. Providing guidance: GPT-4 76.04%, Sonnet 59.38%, expert 67.19%. TutorBench: no frontier model above 56%; adaptive explanation was the weakest task at 47.16% average. Jurenka et al. report educators and learners describing a "wall-of-text" effect that adds cognitive load; they tuned LearnLM-Tutor toward shorter messages, and it was then rated somewhat worse on encouraging tone. In the Eedi trial human supervisors mostly edited pacing and tone. SAFETUTORS (EMNLP Findings 2026): pedagogical failures rose from about 17.7% in single-turn tests to about 77.8% in multi-turn dialogues of 5 to 8 turns built to pull the tutor toward over-disclosure and misconception reinforcement.
+- **Countermeasures in the sources:** Length limits and one question per turn in the system prompt (LearnLM guidance, Mollick). Restricting helper agents to what the student has already done (Khan). A rubric item for "does not give away answers too quickly" paired with one for "does not withhold information unproductively" (LearnLM rubric), since over-withholding is the opposite failure.
+- **Grade:** B.
+- **Sources:** [Maurya2025], [TutorBench2025], [Jurenka2024], [LearnLMEedi2025], [SafeTutors2026], [Khan2026]
+
+**3.6 Losing track over long conversations (instruction drift)**
+
+- **Finding:** Adherence to a system prompt decays over turns, and multi-turn performance is much less reliable than single-turn performance, including for current frontier models.
+- **Evidence (Li et al. 2024, COLM):** Two chatbots with different system prompts talk for 8 rounds; a probe checks whether the agent still follows its prompt. LLaMA2-chat-70B and GPT-3.5 showed "significant instruction drift within eight rounds"; attention to system-prompt tokens stays flat within a turn and falls across turns. Their split-softmax fix needs access to model internals. Repeating the system prompt also helped, at a cost in context.
+- **Evidence (Laban et al. 2025, ICLR 2026):** 15 models, more than 200,000 simulated conversations. When a task is revealed gradually across turns, average performance drops 39% against the single-turn version. Aptitude falls about 16%; unreliability rises 112%. "When LLMs take a wrong turn in a conversation, they get lost and do not recover." Repeating the earlier requirements at each user turn recovers only 15 to 20% of the drop (confirmed on the paper).
+- **Evidence (tutoring):** MathTutorBench: scaffolding win rates fall on the "hard" variant with longer history (GPT-4o 0.50 to 0.46; Llama-70B 0.63 to 0.49), and the authors say "tutoring appears to become more challenging in longer dialogs". EduClaw-Bench (2026, preprint): over a simulated 30-day tutoring relationship, "almost no combination sustains good tutoring over the full horizon". SAFETUTORS: harm keeps rising in 12 to 15 turn dialogues. Kestin: the tutor "would occasionally discuss parts out of sequence".
+- **Countermeasures in the sources:** Hold the sequence in the platform (Kestin). Make every query one-shot with no dialogue (CodeHelp: "the likelihood of an LLM's response being incorrect, harmful, off-topic, or otherwise 'off the rails' increases with additional rounds"). Re-send the full transcript and policy on every turn (AiTutor). Supply compact structured state, such as recent attempts and unmastered prerequisites, in place of raw logs (Khan: raw JSON logs did nothing; a plain-text summary of history raised next-item correctness 3.4%).
+- **Grade:** B.
+- **Sources:** [Li2024], [Laban2025], [MathTutorBench2025], [EduClaw2026], [SafeTutors2026], [Kestin2025], [Liffiton2023], [AiTutorHarness2026], [Khan2026]
+
+**3.7 Poor simulation of students and their misconceptions**
+
+- **Finding:** Models asked to play a struggling student are too competent, too consistent in fixing themselves, and do not reproduce a given misconception reliably. This limits how far simulated students can stand in for real ones in tests.
+- **Evidence:** Liu et al. (2023): asked to answer as a student holding a named misconception, GPT-4 chose the matching wrong answer 61.7% of the time while solving the same questions correctly 94.8% of the time. Wu et al. (ACL 2025): models "trained as helpful assistants" produce "overly advanced answers". BEAGLE (2026, preprint): vanilla LLM students repeated the same error type only 7.8% of the time, where real persistent gaps recur. Zhao et al. (2026): simulated adversarial students often solved the problem themselves (up to 76% "student leakage"), more on easy problems. MathDial's authors worked around this by sampling real model errors and assigning one of six student profiles, and teachers judged most of the resulting confusions plausible.
+- **Countermeasures in the sources:** Ground the simulated student in a specific wrong solution and profile (MathDial). Ground it in a knowledge-tracing model trained on real student data (EduClaw; calibration error 0.049). Fine-tune the student (Zhao). Check simulated results against a human sample (EducationQ reports 78% agreement between its automated analysis and human experts).
+- **Grade:** B.
+- **Sources:** [LiuMisconceptions2023], [WuStudentSim2025], [Beagle2026], [Zhao2026], [Macina2023], [EduClaw2026], [EducationQ2025]
+
+**3.8 Praise and tone (bearing on H18)**
+
+- **Finding:** The LLM-tutor literature does not test praise against no praise. It treats generic praise as a marker of low-quality tutoring and specific acknowledgement of what is correct as a marker of quality, and it rates an encouraging tone as desirable.
+- **Evidence:** Tutor CoPilot codes "encourage student in a generic way" (for example "Good job") as a low-quality strategy; control tutors used it about 10% more, and treatment students did better. MRBench's desired tone label is "encouraging" (scores: expert humans 92.19%, Sonnet 54.69%, GPT-4 37.50%, Llama-405B 16.15%), and novice tutors' short ambiguous replies such as "this is a good try" scored poorly on mistake identification. The LearnLM rubric includes "acknowledges when part or all of the student's response is correct" and "delivers feedback (whether positive or negative) in an encouraging way". Kestin's prompt promotes a growth mindset. Sharma shows that models inflate feedback when a user signals attachment to their work.
+- **Caveats:** These are rubric choices and correlations, not experiments on praise. The populations are mostly school children. I found no LLM-tutor study on praise with adult professionals. The feedback literature itself (Kluger and DeNisi, Hattie and Timperley, Mueller and Dweck) is another stream's topic.
+- **Grade:** B for the Tutor CoPilot association; D for any claim about adults.
+- **Sources:** [WangCoPilot2024], [Maurya2025], [LearnLM2024], [Kestin2025], [Sharma2023]
+
+### 4. Benchmarks and rubrics for judging a tutor
+
+**4.1 MRBench and its eight dimensions (Maurya et al., NAACL 2025)**
+
+- **What it measures:** One tutor reply to a student mistake, on eight dimensions, each labeled yes / to some extent / no: (1) mistake identification, (2) mistake location, (3) revealing of the answer (desired: no), (4) providing guidance, (5) actionability, (6) coherence, (7) tutor tone (desired: encouraging), (8) human-likeness.
+- **How:** 192 dialogue contexts (60 from Bridge, 132 from MathDial), 1,596 responses from seven LLMs plus expert and novice human tutors. Four trained annotators; average Cohen's kappa 0.71 on a doubly annotated subset. Metric: share of responses with the desired label (DAMR).
+- **Scores (DAMR %, order: identification, location, not revealing, guidance, actionability, coherence, tone, human-likeness):** Expert 76.04, 63.02, 90.62, 67.19, 76.04, 79.17, 92.19, 87.50. Novice (60 dialogues) 43.33, 16.67, 80.00, 11.67, 1.67, 50.00, 90.00, 35.00. GPT-4 94.27, 84.38, 53.12, 76.04, 46.35, 90.17, 37.50, 89.62. Llama-3.1-405B 94.27, 84.38, 80.73, 77.08, 74.48, 91.67, 16.15, 90.62. Sonnet 85.42, 69.79, 94.79, 59.38, 60.94, 88.54, 54.69, 96.35. Mistral 93.23, 73.44, 86.46, 63.54, 70.31, 86.98, 15.10, 95.31. Gemini 63.02, 39.58, 67.71, 37.50, 42.71, 56.77, 21.88, 68.23. Llama-3.1-8B 80.21, 54.69, 73.96, 45.31, 42.71, 80.73, 19.79, 93.75. Phi3 28.65, 26.04, 73.96, 17.71, 11.98, 39.58, 45.31, 52.08.
+- **LLM-as-judge result:** Prometheus2 and Llama-3.1-8B as automatic judges gave mostly negative correlations with the human labels on the pedagogy dimensions; the authors call LLM annotation "unreliable" there, with the caveat that they tried one prompt and two small judges.
+- **Caveats:** Single-turn, elementary math, 2024 models. The authors' summary: GPT-4 "is a good question-answering system but a relatively poor tutor".
+- **Grade:** B.
+- **Sources:** [Maurya2025]
+
+**4.2 BEA 2025 shared task**
+
+- **What it measures:** Whether automatic systems can reproduce the human MRBench-style labels on four dimensions (mistake identification, mistake location, providing guidance, actionability), plus guessing which tutor wrote a reply.
+- **Scores:** More than 50 teams. Best exact macro F1 on the three-class problems: mistake identification 71.81, actionability 70.85, mistake location 59.83, providing guidance 58.34. Tutor identity 96.98 on nine classes.
+- **Reading:** Even tuned systems agree only moderately with human raters on whether a reply gives good guidance. Guidance is the hardest dimension to judge automatically.
+- **Grade:** B.
+- **Sources:** [BEA2025]
+
+**4.3 MathDial (Macina et al., EMNLP Findings 2023)**
+
+- **What it is:** About 3,000 one-to-one dialogues (2,861 dialogues, 14,197 turns per a secondary summary) where real teachers tutor an LLM playing a student with a specific wrong solution to a GSM8K problem. Teachers pick a move (focus, probing, telling, generic) before each reply. Each dialogue records the step where the student went wrong and whether the confusion was resolved.
+- **Metrics:** Success@k (student reaches the answer within k turns) and Telling@k (tutor reveals it). Secondary summary: a fine-tuned Flan-T5 reached 30% Success@5 with under 1% Telling@5; ChatGPT 29% Success@5 with 16% Telling@5; the human dialogues 59% Success@5.
+- **Headline:** ChatGPT as tutor revealed the solution 66% of the time and gave incorrect feedback 59% of the time.
+- **Grade:** B.
+- **Sources:** [Macina2023]
+
+**4.4 Bridge (Wang et al., NAACL 2024)**
+
+- **What it is:** 700 real tutoring conversations with a student math mistake, annotated by expert teachers with three decisions before the reply: (A) the error type (guess, misinterpret, careless, right-idea, imprecise, not-sure), (B) the strategy (explain a concept, ask a question, provide a hint, provide a strategy, worked example, minor correction, similar problem, simplify the question, affirm, encourage), (C) the intention (for example hint at the mistake, diagnose, get the student to elaborate).
+- **Result:** With expert decisions supplied, GPT-4 replies were preferred 0.95 against 0.54 without (+76%) and rated useful 0.97 against 0.54 (+80%). GPT-4 choosing its own decisions did about as well (1.02, 1.05); GPT-3.5 choosing its own did poorly; random decisions were much worse. The paper notes that "directly correcting the student's mistake is not always a good decision".
+- **Reading:** Deciding the move first, as an explicit step, improves the reply. This is the template for Tutor CoPilot. The conversations are with 1st to 5th grade students in Title I schools, cover 120 lesson topics, and each has two expert responses.
+- **Grade:** B.
+- **Sources:** [WangBridge2024]
+
+**4.5 The AI Teacher Test (Tack and Piech, EDM 2022)**
+
+- **What it measures:** Pairwise human judgments of a reply on three abilities: speak like a teacher, understand the student, help the student.
+- **Scores:** Against real teachers, GPT-3 was lower by 0.67, 0.67 and 0.93 (all p < .001); Blender by 0.60, 0.55 and 0.75. Helping the student was the largest gap.
+- **Reading:** Historic baseline; the three questions still appear inside later rubrics.
+- **Grade:** B.
+- **Sources:** [Tack2022]
+
+**4.6 LearnLM and its pedagogy rubric (Jurenka et al. 2024; LearnLM Team 2024)**
+
+- **Principles:** Five: encourage active learning, manage cognitive load, deepen metacognition, motivate and stimulate curiosity, adapt to learners' goals and needs. Jurenka et al. built seven benchmarks over them (learner feedback, turn-level and conversation-level expert ratings, side-by-side comparisons, AI critics).
+- **Rubric (LearnLM 2024, 29 items on a 7-point agreement scale plus "not applicable", paraphrased here in full):** Cognitive load - appropriate response length; manageable chunks; clear and easy to follow; avoids irrelevant information; analogies and examples illustrate key concepts; appropriate style and structure; logical order; avoids repetition; avoids contradicting earlier turns. Active learning - provides opportunities for engagement; asks questions that make the student think; "does not give away answers too quickly"; promotes active engagement. Metacognition - guides the student to discover their own mistakes; clear, constructive feedback; acknowledges when part or all of the response is correct; communicates a clear plan or objective. Curiosity - stimulates interest; responds well to frustration; delivers feedback in an encouraging way. Adaptivity - explanations fit the student's level; adapts when the student is stuck; adapts to needs overall; proactively guides the conversation; "does not withhold information unproductively". Overall - no inaccuracies; expresses uncertainty when appropriate; does not refuse reasonable questions; "is as good as a very good human tutor".
+- **Scores:** Expert raters (the paper itself gives 248 educators and pedagogy experts in its overview and 228 pedagogy experts in its methods section) preferred LearnLM over GPT-4o by 31%, over Claude 3.5 Sonnet by 11%, and over Gemini 1.5 Pro by 13%. All systems were rated positively on average in every category.
+- **Method point:** LearnLM reframes pedagogy as "pedagogical instruction following": the system prompt states the desired teaching behavior and the model is trained to follow it. Evaluation scenarios therefore each come with their own system instruction.
+- **Caveats:** Vendor evaluation; point-in-time model versions; role-played learners. In Jurenka et al., LearnLM-Tutor showed no accuracy advantage over prompted Gemini 1.0.
+- **Grade:** B/C.
+- **Sources:** [Jurenka2024], [LearnLM2024]
+
+**4.7 MathTutorBench (Macina et al., EMNLP 2025)**
+
+- **What it measures:** Three skill groups over seven tasks: math expertise (problem solving, Socratic questioning), student understanding (solution correctness, mistake location, mistake correction), pedagogy (scaffolding generation and pedagogical instruction following, each with a "hard" long-history variant). Open-ended replies are scored by a trained reward model as a win rate against real teacher replies.
+- **Scores:** GPT-4o: solving 0.90, mistake location 0.37, scaffolding 0.50, scaffolding hard 0.46, instruction following 0.82. LearnLM-1.5-Pro: 0.94, 0.57, 0.64, 0.66, 0.68. Qwen2.5-Math-7B: solving 0.88, scaffolding 0.06. SocraticLM: solving 0.73, solution correctness 0.05, scaffolding 0.39. Current leaderboard (GitHub): Claude Sonnet 4.6 scaffolding 0.49 and instruction following 0.85; Gemini 3.1 Pro scaffolding 0.73, mistake location 0.81.
+- **Reading:** "Subject expertise, indicated by solving ability, does not immediately translate to good teaching." Fine-tuning for Socratic style can damage correctness.
+- **Grade:** B.
+- **Sources:** [MathTutorBench2025]
+
+**4.8 TutorBench (2025, preprint)**
+
+- **What it measures:** 1,490 expert-written samples at high-school and AP level in three tasks: adaptive explanation for a student's follow-up confusion, actionable feedback on student work, and hints that support active learning. Each sample has its own rubric; an LLM judge applies it.
+- **Scores:** 16 frontier models, none above 56%: Gemini 2.5 Pro 55.65%, GPT-5 55.33%, o3 Pro 54.62%, Claude Opus 4.1 (thinking) 50.78%. Task averages: explanations 47.16%, feedback 51.56%, hints 54.07%. Claude models were strongest on active-learning support and weaker on the other two.
+- **Grade:** B (expert-written rubrics, LLM judge).
+- **Sources:** [TutorBench2025]
+
+**4.9 SocraticLM (Liu et al., NeurIPS 2024)**
+
+- **What it is:** A model fine-tuned on SocraTeach, 35K multi-round Socratic dialogues (208K single rounds) generated by a Dean-Teacher-Student multi-agent pipeline over GSM8K and MAWPS problems, with six simulated student cognitive states. Its own five-dimension evaluation has it beating GPT-4 "by more than 12%" (0.62 against 0.50 overall per a search summary).
+- **Independent checks:** On MathTutorBench it scores 0.05 on solution correctness and 0.39 on scaffolding. In Zhao et al. it leaked answers in 70% of adversarial dialogues (secondary summary).
+- **Reading:** A Socratic style learned from synthetic dialogues does not make a tutor robust or accurate.
+- **Grade:** B.
+- **Sources:** [SocraticLM2024], [MathTutorBench2025], [Zhao2026]
+
+**4.10 Newer benchmarks, 2025 to 2026**
+
+- **EducationQ (2025):** Teacher, student and evaluator agents; 14 models, 1,498 questions, 13 disciplines; metric is the simulated student's pre-to-post accuracy gain. Teaching effectiveness "does not correlate linearly with model scale". Human experts agreed with the automated qualitative analysis 78% of the time.
+- **TeachBench (2026, preprint):** Syllabus-grounded teaching of knowledge points; student gain after multi-turn teaching was up to 7.63 points against 4.37 points for just handing over the knowledge points. Adding example problems did not reliably help, because teachers drifted into example-specific error correction.
+- **KMP-Bench (2026, preprint):** K-8 math, six pedagogical principles plus skills modules. Leading models "excel at tasks with verifiable solutions" and "struggle with the nuanced application of pedagogical principles".
+- **SAFETUTORS (EMNLP Findings 2026):** 11 harm dimensions and 48 sub-risks (answer over-disclosure, misconception reinforcement, abdication of scaffolding and others) in math, physics, chemistry; 2,820 multi-turn sequences. Pedagogical failures about 17.7% single-turn and about 77.8% multi-turn.
+- **EduClaw-Bench (2026, preprint):** 30-day relationship with a knowledge-tracing-driven simulated learner across 55 scenarios; scored on learning gain, responsiveness, helpfulness, plus Gagné and Rosenshine curriculum axes by a three-judge panel. "Tutoring quality belongs to the base model and the agent harness together"; almost no combination sustains quality over the horizon.
+- **Zhao et al. (ACL 2026) and AiTutor Harness (2026):** Leakage-under-pressure benchmarks; see 3.2.
+- **Caveats:** Most rely on simulated students and LLM judges; several are preprints I read as abstracts.
+- **Grade:** B/C.
+- **Sources:** [EducationQ2025], [TeachBench2026], [KMPBench2026], [SafeTutors2026], [EduClaw2026], [Zhao2026], [AiTutorHarness2026]
+
+**4.11 What the rubrics have in common**
+
+- **Finding:** Across MRBench, the LearnLM rubric, Bridge, MathTutorBench, TutorBench and SAFETUTORS, the same judging questions recur: Did the tutor find the mistake? Did it locate it? Did it hold back the answer? Did it give correct guidance? Is the next step clear to the student? Is it coherent with the conversation so far? Is the tone supportive? Is it accurate? Does it fit the student's level? Is it short enough?
+- **Evidence:** Dimension lists quoted in 4.1 to 4.10.
+- **Caveats:** Every one of these rubrics scores replies or conversations. None scores gate logic, state keeping, or mastery decisions, which are the parts the Pedagogue plans to run in code.
+- **Grade:** B.
+- **Sources:** [Maurya2025], [LearnLM2024], [WangBridge2024], [MathTutorBench2025], [TutorBench2025], [SafeTutors2026]
+
+### 5. Design patterns from deployed model tutors
+
+All of 5.1 to 5.8 are practitioner or vendor sources (grade C) unless marked.
+
+**5.1 Khan Academy (Khanmigo)**
+
+- **Finding:** Khan Academy's published practice is a pipeline, not one prompt: a hidden reasoning step about the student's work, a calculator and math agent for arithmetic, human-authored exercise content pulled in before judging, structured student history in context, and a regression set run on every change.
+- **Evidence (2024 and 2025 blog posts):** "Khanmigo now uses a calculator to solve numerical problems instead of using AI's predictive capabilities." "We have instructed the AI to write out all the ways in which the student may have arrived at their answer" before responding, which "significantly improves the quality of math interactions". A manual review of conversations found that "when Khanmigo has access to human-generated exercises, steps, hints, and solutions prior to making a calculation or evaluation, Khanmigo's accuracy improves", and the architecture was changed so it always gathers that context first. Graphics are converted to text descriptions. The hardest problem they name is judging student work: models tell "students they are right when they are wrong or vice versa". They released a 188-conversation benchmark for that skill, and they keep "a set of math tutoring examples" to "prevent the reintroduction of old problems when we fix a new problem". A talk summary adds that one model call reasons about how the student reached the answer and passes that to a second call that writes the reply, with Python available for harder math (secondary summary at aietalks.com).
+- **Evidence (2026 blog post):** Three tracked metrics: latency, next-item correctness (the next problem on the same skill, same session, no help), and an automated cognitive-engagement rating (passive, active, constructive). Guardrail metrics on every test: answer given away before the student submits, math error rate, interactions per thread. A change ships when its "chance to win" exceeds 0.95 with no guardrail harm. Results are in 1.10.
+- **Evidence (2023 prompt-engineering post):** Seven steps: picture the ideal tutor relationship, consult learning science, pull in library and learner data, craft tone and question types, test with diverse user personas, safety, iterate on user feedback. Two concrete fixes: no emojis on serious topics, and "economy of language" after users complained the tutor repeated itself.
+- **Caveats:** Vendor reports; percentages are relative and baselines are not given. The independent trial (1.10) found students rarely engaged the tutor.
+- **Sources:** [KhanMath2024], [KhanDataset2024], [KhanMath2025], [Khan2026], [KhanPrompt2023], [Oreopoulos2026]
+
+**5.2 Harvard's PS2 Pal prompt (Kestin et al.)**
+
+- **Finding:** The prompt is short. The structure and the content sit outside it.
+- **Evidence (prompt text as quoted in a secondary source and the preprint):** "You briefly answer questions the students ask - focusing specifically on the question they ask about. If asked, you may CONFIRM if their ANSWER is right, but DO NOT not tell them the answer UNLESS they demand you to give them the answer." Constraints: "Keep responses BRIEF (a few sentences or less)"; "Only give away ONE STEP AT A TIME, DO NOT give away the full solution in a single message"; never reveal the system message; when confirming, invite questions; "if the student wants the answer in the first message, encourage them to give it a try first"; "Assume the student is learning this topic for the first time"; "Be friendly! You may use emojis." Model: GPT-4-0613. The question statement and a step-by-step solution were added per question, and the platform advanced the student part by part.
+- **Notable:** The tutor was allowed to give the answer when the student demanded it. The positive result came with that allowance, in a setting where students were working a handout on paper first.
+- **Grade:** A for the trial; the prompt text is from the preprint and a secondary quotation (secondary summary at aiedresearch.substack.com).
+- **Sources:** [Kestin2025], [KestinPreprint2024], [Wiley2024]
+
+**5.3 OpenAI study mode (reported system prompt)**
+
+- **Finding:** The reported prompt is a short list of teaching rules with the no-answers rule stated three times in capitals.
+- **Evidence (extracted by Simon Willison on 29 July 2025; unofficial):** "Get to know the user" (goals, level; default to a 10th-grade level); "Build on existing knowledge"; "Guide users, don't just give answers"; "Check and reinforce" (have the user restate or use the idea); "Vary the rhythm". "DO NOT DO THE USER'S WORK FOR THEM." "Never ask more than one question at a time." Quizzes: "One question at a time! Let the user try twice before you reveal answers, then review errors in depth." Tone: "warm, patient, and plain-spoken"; "be brief - don't ever send essay-length responses". For a math or logic problem: "DO NOT SOLVE IT in your first response", talk it through "one step at a time, asking a single question at each step".
+- **Caveats:** Model-extracted prompts can be inaccurate; a Forbes column notes OpenAI has not published the text. I found no outcome study of study mode.
+- **Sources:** [WillisonStudyMode2025], [ForbesStudyMode2025]
+
+**5.4 Anthropic learning mode**
+
+- **Finding:** The product description and a published sample of its project instructions describe a two-mode rule: tutor for understanding, direct help for study materials.
+- **Evidence:** Anthropic (April 2025): learning mode guides "students' reasoning process rather than providing answers", with questions such as "How would you approach this problem?" and "What evidence supports your conclusion?". A Northeastern University sample of the system instructions generated for a Learning Mode project (Calculus II): act as a tutor for concepts and problem-solving ("Use leading questions rather than direct answers", "Provide gentle nudges", "Balance between pure Socratic dialogue and direct instruction", "Do not solve homework problems directly"); act as a direct assistant when the student asks for flashcards, study guides or outlines; ask which mode if unclear; for a struggling student, break ideas down, relate to what they know, use analogies, "suggest different approaches if one explanation isn't working"; "prioritize clear communication and effective learning tools over lengthy explanations".
+- **Caveats:** Vendor description and a university handout. I found no outcome study.
+- **Sources:** [AnthropicEdu2025], [NortheasternLearningMode2025]
+
+**5.5 Google LearnLM guidance and Learn Your Way**
+
+- **Finding:** Google's position is that pedagogy should be specified by the developer in system instructions, with hard constraints and soft ones treated separately. Its Learn Your Way textbook product reports a retention gain in a small trial.
+- **Evidence (LearnLM paper):** Instructions fall into "hard constraints" (for example "do not reveal the answer") and "soft" guidelines (for example "use a motivating tone"); both matter for education. Conditional instructions such as "If the user has answered 3 questions correctly, move to the next topic" are named as a kind of system instruction the model is trained to follow. In classroom settings the tutor "should follow the system instructions in the interaction regardless of the student's instructions". Scenario types: teach me X, homework help, test prep, practice.
+- **Evidence (Learn Your Way, 2025 tech report and blog; a 2026 Frontiers paper reports the same design):** A textbook PDF is re-leveled and personalized, then rendered as immersive text with embedded questions, section quizzes of 5 to 10 multiple choice items with feedback, narrated slides, audio lessons and mind maps. RCT with 60 Chicago-area students aged 15 to 18, up to 40 minutes on one chapter: immediate test 77% against 68% (p = 0.03), retention test after 3 to 5 days 78% against 67% (p = 0.03), against a plain PDF reader.
+- **Caveats:** Vendor study, N = 60, one text, control had no quizzes or feedback, so the effect cannot be assigned to the AI features. This is the closest published analog to the Pedagogue's "living textbook" page.
+- **Grade:** A for the trial (small, vendor-run); C for the guidance.
+- **Sources:** [LearnLM2024], [LearnYourWay2025], [LearnYourWayFrontiers2026]
+
+**5.6 Duolingo Max**
+
+- **Finding:** Humans author the scenario and the opening, the model fills in the conversation, and humans keep reviewing the output.
+- **Evidence:** "Humans write the scenarios that learners see in Roleplay"; experts "write the initial message in the chat and tell the model where to take the conversation"; staff "constantly review AI-generated explanations". Learners can report a wrong message. A Duolingo AI lead described going from "a prototype that worked mostly right 70 percent of the time" to a reliable feature by collecting explanations and having language experts label them good or wrong; early failures included "a completely made-up reason why your answer was wrong".
+- **Sources:** [DuolingoMax2023], [DuolingoInnoLead2023]
+
+**5.7 Mollick and Mollick (2023) tutor prompt**
+
+- **Finding:** The widely copied general tutor prompt asks for prior knowledge first, one question at a time, hints in place of answers, and an explain-in-your-own-words check before closing.
+- **Evidence:** "Only ask one question at a time." Ask what the student wants to learn, their level, and what they already know. "Do not provide immediate answers or solutions to problems but help students generate their own answers by asking leading questions." "If students improve, then praise them and show excitement." End replies with a question. Close when the student can "explain the concept in their own words" or give examples. The authors add: "while the AI tends to follow these directions, it does not always do so consistently. It sometimes forgets to ask one question at a time". The World Bank Nigeria program used prompt structures derived from this paper.
+- **Caveats:** Expert-authored prompts, no controlled test of the prompt itself. It prescribes praise, which is the opposite of H18.
+- **Grade:** D.
+- **Sources:** [Mollick2023], [DeSimone2025]
+
+**5.8 Carnegie Learning LiveHint AI and MATHia**
+
+- **Finding:** Carnegie Learning pairs a language model with the data and step-level structure of a classic cognitive tutor, and measures it through its own A/B platform.
+- **Evidence:** Press release (2023): LiveHint AI is "built on a large language model informed by 25 years of proprietary data" from MATHia (5.5 million students, 1.2 billion problems), to anticipate "how students approach problem-solving" and "the common mistakes they might make". A Digital Promise guest post by the director of AI engineering: LiveHint AI knows "the precise problem a student is working on"; built-in model guardrails were "insufficient for interactions with students" so they added their own; it is integrated with UpGrade, their open-source platform for randomized trials; "it is possible to use a different model for every small piece of the overall system". MATHia itself is an ACT-R model-tracing tutor that follows each step and gives rule-driven just-in-time hints.
+- **Caveats:** Vendor claims; I found no published outcome study of LiveHint AI.
+- **Sources:** [LiveHint2023], [CarnegieDigitalPromise], [MathiaLAK2026]
+
+**5.9 Hybrid designs that pair a model with tutoring-system rules**
+
+- **Finding:** Several research systems put the teaching policy in deterministic code and use the model only to judge student input and word the reply. They report near-perfect policy adherence. Learning-outcome evidence for them is thin.
+- **Evidence (ES-LLMs, AIED 2026, preprint read):** A rule-based orchestrator with a Bayesian Knowledge Tracing student model selects the action; an LLM "renderer" words it. "Constraints such as 'attempt-before-hint' and hint caps are enforced as explicit rules". In 2,400 simulated runs the orchestrated tutor kept 100% adherence to attempt-before-hint; the single-prompt baseline (same gpt-4o-mini) gave about 12 times more hints (6.8 against 0.44 per dialogue) and showed higher simulated mastery gain (+0.70 against +0.40) through over-assistance, which the authors call the "Mastery Gain Paradox". Six human experts preferred the orchestrated tutor in 91.7% of cases. Cost fell 54% and latency 22% with stateless prompts.
+- **Evidence (StratL, Puech et al., ACL Findings 2025):** An LLM classifies the student's state (error type, request, conversation state, emotion); a deterministic, expert-designed transition graph picks the next tutoring intents; intent-specific instructions are appended to the prompt for that turn. In a field study with 17 ninth-graders in Singapore, the steered tutor followed the Productive Failure strategy significantly more faithfully than the unsteered baseline. No learning outcome was measured.
+- **Evidence (Ruffle&Riley, Schmucker et al., AIED 2024):** GPT-4 tutor organized by AutoTutor-style expectation-misconception tailoring, with a tutoring script (questions, solutions, expectations) auto-generated from lesson text for an instructional designer to edit. Two online studies (N = 200 total): no significant gain in post-test over reading alone or over a simple question-answer chatbot; users rated it more helpful and coherent.
+- **Evidence (SHAPE, Zhao et al. 2026, accepted at ACL 2026 per the arXiv listing, abstract only):** Names "pedagogical jailbreaks, where students use answer-inducing prompts to elicit solutions rather than scaffolded instructions". Benchmark of 9,087 student-question pairs. Their pipeline infers prerequisite concepts from the query, finds mastery gaps on a knowledge-mastery graph, and "routes generation between instructing and problem-solving via explicit gating"; it reports "significantly improved safety under two pedagogical jailbreak settings, while maintaining near-ceiling helpfulness". This is the paper the tutor prototype cites as "SHAPE"; the prototype dates it 2024 and the arXiv identifier is 2604.22134 (April 2026).
+- **Evidence (Kestin, CodeHelp, Eedi):** Platform-held sequence (Kestin); code that scores model output, followed by a third prompt that removes code blocks (CodeHelp); platform-triggered tutoring with re-test (Eedi).
+- **Caveats:** ES-LLMs' quantitative results are on simulated students and a small model; the authors call it "a necessary Phase I trial".
+- **Grade:** B for adherence results; C for learning claims.
+- **Sources:** [ESLLMs2026], [Puech2025], [Schmucker2024], [SHAPE2026], [Kestin2025], [Liffiton2023], [LearnLMEedi2025]
+
+### 6. Code against prompt
+
+**6.1 How reliably models follow long rule lists**
+
+- **Finding:** Rule-following from a prompt is high and not complete. It falls as the number of rules grows, as the conversation gets longer, and when the user pushes.
+- **Evidence (RuLES, Mu et al. 2023):** Simple programmatically checkable rules given in the prompt, with benign, direct-request and red-team user messages over at most three tested turns. The best model (GPT-4) scored about 9.5 out of 10 (unconfirmed: the paper's text calls it "a nearly perfect score"; the exact figure sits in a chart and an appendix table that the citation check did not parse) and still failed 93 unique test cases, including 18 plain direct requests and at least one adversarial case for 17 of 19 rules. Moving the rules into the system message changed little: GPT models gained up to 0.5 points, and Claude and Llama-2 chat models lost up to 0.3 (confirmed on the paper). Attack families: indirection, legalese, obfuscation, "the rule has changed", simulation.
+- **Evidence (IFScale, 2025, preprint):** 20 models asked to obey 10 to 500 simple keyword instructions at once. At 500, the best model reached 68.9% (secondary figure from a replication page; the abstract says 68%). The same replication page reports that a 2026 model reached 100% at 5,000 instructions on this single-turn keyword task, so the 68% ceiling describes 2025 models. Models favor earlier instructions; the bias peaks around 150 to 200 instructions.
+- **Evidence (tau-bench, Yao et al. 2024):** Agents with tools and a written domain policy talking to a simulated user. GPT-4o function-calling agents succeeded on under 50% of tasks overall (61.2% on retail on a single trial, confirmed in the paper's results table), and the chance of succeeding on all 8 repeated trials of the same task was under 25% in retail. The authors "point to the need for methods that can improve the ability of agents to act consistently and follow rules reliably". In tau-bench some restrictions are "implemented as checks in the API" and the others are left to the agent, which is exactly the split under discussion.
+- **Evidence (tutoring):** Kestin: "a system prompt could not reliably provide enough structure to scaffold problems with multiple parts". CodeHelp: models "could not consistently achieve all of the desired goals with a single prompt". Mollick: the tutor "sometimes forgets to ask one question at a time". Li et al. and Laban et al.: drift and unreliability over turns (3.6). Zhao et al.: fine-tuned and prompted tutors leak under pressure (3.2).
+- **Caveats:** RuLES and tau-bench used 2023 to 2024 models; current models do better, and none of the sources shows a current model at 100% on prompt-only rules over long dialogues. The prototype tutor template has 22 RULE blocks and 15 NEVER lines by my count, far below IFScale's stress range; the risk the sources point to is turns and pressure more than count.
+- **Grade:** B.
+- **Sources:** [Mu2023], [IFScale2025], [Yao2024], [Kestin2025], [Liffiton2023], [Mollick2023], [Li2024], [Laban2025], [Zhao2026]
+
+**6.2 Evidence for keeping state and gates outside the model**
+
+- **Finding:** Every source that compared the two found that sequencing, counters and "attempt before help" hold when code owns them and slip when the prompt owns them.
+- **Evidence:** ES-LLMs: 100% adherence to attempt-before-hint with a rules orchestrator against frequent early answers from a single prompt on the same model. Kestin: sequence moved from prompt to platform after the prompt failed to hold it. Eedi: the platform decides when tutoring starts, re-asks the question and moves to the next item; the model only converses. Khan: next-item correctness is measured by the exercise platform, and structured history is computed by the platform and handed to the model. tau-bench: rules enforced in the API cannot be broken; rules left to the agent are broken inconsistently. AiTutor: a supervisor loop with a fixed maximum of 5 revisions and a "safe guidance-only fallback" in code guarantees termination. A 2025 comparison of deep knowledge tracing with an LLM for tracking student knowledge over time found the knowledge-tracing model more accurate and more temporally coherent (abstract only).
+- **Caveats:** I found no head-to-head trial with real students comparing a code-gated tutor with a prompt-gated one on learning.
+- **Grade:** B.
+- **Sources:** [ESLLMs2026], [Kestin2025], [LearnLMEedi2025], [Khan2026], [Yao2024], [AiTutorHarness2026], [LearnerModelling2025]
+
+**6.3 What the sources leave to the model**
+
+- **Finding:** In the systems above the model does four jobs: classify what the student just did, judge free-text or step correctness against supplied solutions, choose wording and examples, and hold a natural conversation. Its judgments are treated as fallible inputs.
+- **Evidence:** StratL uses an LLM for "student state tracing" (multi-label classification) and code for intent selection. Ruffle&Riley relies on GPT-4 "to detect and respond to misconceptions" at run time because anticipating them in advance "is a difficult task even for human domain experts". Khan uses a model call to reason about the student's path, and flags judging student work as the weakest link ("telling students they are right when they are wrong or vice versa"). Gupta et al. found an LLM grader mis-marked 6.3% of answers that differed only in form (order of operations, 2/4 against 0.5, "x" against "*"). Bridge shows the model can pick the error type and strategy itself at GPT-4 level and could not at GPT-3.5 level.
+- **Grade:** B/C.
+- **Sources:** [Puech2025], [Schmucker2024], [KhanDataset2024], [Gupta2025], [WangBridge2024]
+
+**6.4 Structured output reliability**
+
+- **Finding:** With schema-constrained decoding, the shape of a model's output is guaranteed; the content is as fallible as before.
+- **Evidence:** OpenAI (August 2024, vendor): with Structured Outputs, gpt-4o-2024-08-06 scored 100% on their complex JSON schema evals, against under 40% for gpt-4-0613 by prompting; the model alone, without constrained decoding, reached 93%. Refusals and truncated outputs are the stated exceptions. A commentary page puts the limit plainly: "Valid JSON is not correct JSON".
+- **Caveats:** Vendor evaluation on the vendor's own test. Whether a given prompt engine and model expose strict schema or tool-call enforcement is an engineering fact to check, not a research finding.
+- **Grade:** C.
+- **Sources:** [OpenAIStructured2024], [ModelFieldGuide]
+
+**6.5 Pre-LLM dialogue management: AutoTutor's expectation and misconception tailored dialogue**
+
+- **Finding:** The best-studied natural-language tutor before LLMs ran on a scripted dialogue policy with a per-question list of expectations and misconceptions, and reported learning gains of about 0.8 SD against reading static text.
+- **Evidence (Nye, Graesser and Hu 2014 review):** Five-step frame: (1) tutor poses a question, (2) student attempts an answer, (3) tutor gives brief feedback, (4) the two improve the answer together, (5) tutor checks understanding. For each main question the system stores expectations (parts of a good answer) and misconceptions; it matches the student's words against them and picks the next move by how much is still missing: pump ("What else?"), then hint, then prompt (fill in a word), then assertion (say it). So help rises one rung at a time and the assertion is the last resort. Observed human tutors "helped students explain good answers" more than they diagnosed misconceptions, and "finding a good coverage for misconceptions often requires multiple design iterations because the space of possible misunderstandings is vast". Average gain "about 0.8 sigma" over controls across studies.
+- **Caveats:** The 0.8 figure is from the system's own developers against reading or no-treatment controls. Scripts were expensive to author. Ruffle&Riley, which automates the script with GPT-4, did not reproduce a learning gain (5.9).
+- **Grade:** A/B for AutoTutor's effect (many small experiments, developer-run).
+- **Sources:** [Nye2014], [Schmucker2024]
+
+**6.6 Guardrail frameworks**
+
+- **Finding:** I did not find education-specific evaluations of general guardrail frameworks (NeMo Guardrails, Guardrails AI and similar). The education sources build their own checks.
+- **Evidence:** Carnegie Learning: built-in model guardrails "insufficient", supplemented with their own. CodeHelp: code-block detection plus instructor keyword "avoid set" plus a rewrite prompt. AiTutor: supervisor model with approve or reject and bounded retries. Zhao et al.: a second agent refining tutor output cut leakage from 70% to 4% on one model. Khan: moderation that stops inappropriate conversations and notifies adults.
+- **Grade:** C. Unconfirmed: any measured benefit of an off-the-shelf guardrail library for tutoring.
+- **Sources:** [CarnegieDigitalPromise], [Liffiton2023], [AiTutorHarness2026], [Zhao2026], [KhanPrompt2023]
+
+### 7. Model-generated teaching content
+
+**7.1 Hints**
+
+- **Finding:** Raw model hints have a wrong-content rate in the tens of percent in math and programming. A validation step (majority vote, a second model acting as student, or a human check) brings precision to human-tutor level at the price of dropping some hints.
+- **Evidence (math, Pardos and Bhandari 2024):** 32% of raw ChatGPT hints rejected for wrong answers or steps; 0% to 13% after ten-way self-consistency; a human check took 37.6 seconds per hint; reviewed hints taught as well as human-written ones (1.4).
+- **Evidence (programming, Phung et al., LAK 2024):** Expert-rated precision of GPT-4 hints for buggy Python programs: 66.0%, 85.4% and 78.3% on three datasets with a plain prompt; 82.0%, 91.7% and 93.3% when failing test cases and a fixed program were added to the prompt; human tutors scored 92.0%, 91.7% and 91.7%. Adding a validation stage (GPT-3.5 plays a student; the hint is released only if it helps the simulated student fix the bug) gave precision 94.7%, 97.6% and 95.5% while releasing a hint for 76.0%, 87.5% and 73.3% of programs. Evaluator agreement kappa 0.65.
+- **Evidence (programming, Hellas et al., ICER 2023):** On 150 real help requests, GPT-3.5 named at least one real issue in 82% and all real issues in 55%, and named an issue that was not there in 48% (90%, 57% and 40% on the first 30). It included code in 99% of replies and a full model solution in 65% "even when the LLM is prompted not to".
+- **Caveats:** GPT-3.5 and GPT-4 era. The direction (context plus validation beats a plain prompt) is consistent across both domains.
+- **Grade:** B.
+- **Sources:** [Pardos2024], [Phung2024], [Hellas2023]
+
+**7.2 Feedback on student work**
+
+- **Finding:** Model feedback is fluent, criteria-referenced and fast. Against trained humans it is less accurate, less well prioritized, and tends toward the positive.
+- **Evidence (Steiss et al. 2024, Learning and Instruction):** 200 secondary-school history essays (198 analyzed), each with feedback from a trained human and from ChatGPT, scored blind on five 1 to 5 criteria. Humans were better on four: clear directions for improvement, accuracy, prioritization of essential features, supportive tone. ChatGPT was better on referencing the criteria, by 0.24 points (p = 0.03) (confirmed on the authors' preprint). The authors still see value because the model's feedback is nearly instant.
+- **Evidence (Dai et al. 2023, ICALT):** 103 postgraduate data-science project proposals. ChatGPT feedback was rated more readable than the instructors' (mostly 3.75 to 4.0 on a 0 to 4 scale). Agreement with the instructor on whether a point was positive or negative was high for topic fit (precision .84, recall .93, confirmed on the authors' preprint) and poor elsewhere because ChatGPT over-produced positive feedback. It gave process-level feedback for over half the reports and none at the self-regulation level.
+- **Evidence (Khan Academy):** Judging whether a student's step is right is the hardest part: models tell "students they are right when they are wrong or vice versa". Khanmigo with its added context was "much better at catching and pointing out mistakes" than raw GPT-4o on their 188-conversation set (vendor claim, no figure given).
+- **Evidence (Sharma et al. 2023):** Feedback shifts positive when the user signals they like or wrote the text.
+- **Caveats:** Essays and proposals, not code. GPT-3.5 era for Dai and Steiss.
+- **Grade:** B.
+- **Sources:** [Steiss2024], [Dai2023], [KhanDataset2024], [KhanMath2025], [Sharma2023]
+
+**7.3 Explanations and worked examples**
+
+- **Finding:** Correct model explanations help learning. Wrong ones help less (in the one experiment that tested them, still more than answer-only). Expert review of model-written worked examples has been positive on clarity, with correctness left to oversight.
+- **Evidence:** Kumar et al. 2023: GPT-4 explanations beat answer-only feedback (1.6); a customized pre-prompt with named strategies did a little better than the stock model; the SSRN abstract reports a second experiment where explanations with arithmetic errors and wrong final answers gave gains between answer-only and correct explanations (abstract only). Jury et al. (ACE 2024): a tool that chains prompts to produce step-by-step worked examples, judged clear by experts and useful by about 400 first-year Python students; "prompt chaining and one-shot learning" improved output. Sarsa et al. (ICER 2022): generated exercises and code explanations were valuable to instructors, and "there remains a need for some oversight to ensure the quality of the generated content before it is delivered to students" (abstract-level summary). Kestin: 83% of students rated the tutor's explanations as good as or better than their instructors', with instructor solutions in the prompt.
+- **Caveats:** I did not find a correctness rate for model-written worked examples in programming.
+- **Grade:** A for Kumar; C for the others.
+- **Sources:** [Kumar2023], [Jury2024], [Sarsa2022], [Kestin2025]
+
+**7.4 Quiz questions and distractors**
+
+- **Finding:** Between about one in five and two in five model-written multiple choice questions have a flaw an expert would fix. The weak spot is the distractors: models write wrong options that are valid-looking and do not match what real learners get wrong.
+- **Evidence (programming, Doughty et al., ACE 2024):** 651 GPT-4 and 449 human-written Python questions tied to 246 learning objectives, scored by 13 annotators on six criteria. 81.7% of generated questions passed every criterion (confirmed on the paper). 4.9% of generated questions had more than one correct option against 1.1% of human ones; 4.0% had a distractor that gave away the answer against 0.9%. Alignment with the learning objective was good.
+- **Evidence (computer science, SN Computer Science 2024):** 150 questions for an operating-systems course from three LLM tools; an expert found at least one item-writing flaw in 37% (34% to 38% by tool). Most common: ambiguous key, key noticeably longer than the distractors, implausible distractors.
+- **Evidence (data science lectures, L@S 2024):** Thousands of questions generated from lecture transcripts; 57% had at least one implausible distractor and 17% lacked context; human annotators judged 51 to 65% of items good; automated flaw-checkers were harsher (15 to 25% good).
+- **Evidence (distractors, Feng et al., NAACL Findings 2024, Eedi data):** 1.4K math questions whose human distractors each encode a real misconception, with about 4,000 student responses per question. Best LLM method (in-context examples chosen by similarity) reproduced all three human distractors 10.95% of the time and at least one 73.85%. Teachers rated human distractors higher for validity (3.99 against 3.28) and much higher for plausibility (3.72 against 2.68). The authors: models "are less adept at anticipating common errors or misconceptions".
+- **Evidence (judging items):** A 2024 benchmark of 192 annotated programming questions found that rating question quality "presents a considerable challenge even to the state-of-the-art LLMs".
+- **Evidence (auto-generated tutoring scripts):** Ruffle&Riley generates questions, solutions and expectations from lesson text for an instructional designer to revise, and skips anticipating misconceptions because that "is a difficult task even for human domain experts".
+- **Caveats:** All from GPT-3.5 and GPT-4 era tools. Flaw definitions differ across studies.
+- **Grade:** B.
+- **Sources:** [Doughty2024], [Docimology2024], [MCQVideo2024], [Feng2024], [MCQBench2024], [Schmucker2024]
+
+**7.5 What review catches, and what it costs**
+
+- **Finding:** Human review of model-drafted content is cheap per item and catches most problems; the reported human edit rates fall as models improve.
+- **Evidence:** 37.6 seconds per hint (Pardos). 25.6% of tutor messages edited in 2025 and 5.3% in 2026 at Eedi, with factual errors 0.1% and under 0.3%. Duolingo: prototype "mostly right 70 percent of the time" before expert labeling and iteration. Kestin: "a few days" per lesson for prompts, test conversations and iteration, given existing instructor solutions. Bastani: teacher-written solutions, mistakes and hints per problem, described as labor-intensive.
+- **Reading for the "80% rule":** The sources support a split in which the model drafts and an expert corrects. They put the expert's effort on four things: the correct solution, the realistic misconceptions and distractors, the accuracy of feedback on student work, and tone and pacing.
+- **Grade:** B/C.
+- **Sources:** [Pardos2024], [LearnLMEedi2025], [LearnLMEedi2026], [DuolingoInnoLead2023], [Kestin2025], [Bastani2025]
+
+### 8. Testing a tutor prompt
+
+**8.1 Regression sets of real cases**
+
+- **Finding:** The deployed systems keep a fixed set of tutoring cases and re-run it on every prompt or model change.
+- **Evidence:** Khan Academy: "we've assembled a set of math tutoring examples to evaluate new AI models and new fixes ... to prevent the reintroduction of old problems when we fix a new problem"; a public 188-conversation set focused on "the accurate evaluation of student work"; a tutoring accuracy dashboard. Kestin: the system prompt was "refined through iterative testing before its use in the classroom", with "test conversations for each question". Khan's 2023 post: test "with diverse user personas". Duolingo: collect many explanations and have experts label them good or wrong.
+- **Grade:** C.
+- **Sources:** [KhanMath2024], [KhanDataset2024], [KestinPreprint2024], [KhanPrompt2023], [DuolingoInnoLead2023]
+
+**8.2 Simulated students**
+
+- **Finding:** Simulated students make large test runs possible, and they are too capable and too cooperative unless grounded in real error data. Results from them need a human-checked sample.
+- **Evidence:** See 3.7. MathDial grounds each simulated student in a sampled wrong solution and one of six misconception profiles. Phung et al. use a weaker model as the student to validate hints, and found a weaker student model (GPT-3.5) gave better precision than a stronger one: on the BasicAlgo dataset, 94.7% precision at 76.0% coverage with GPT-3.5 as student against 84.8% at 92.0% with GPT-4 as student. ES-LLMs drive synthetic students with Bayesian Knowledge Tracing parameters from ASSISTments data across four learner archetypes, 600 runs each. EduClaw grounds the learner in a knowledge-tracing model and checks calibration (ECE 0.049). EducationQ and TeachBench measure the simulated student's pre-to-post gain. Zhao et al. show an ordinary simulated student under-tests leakage (4 to 14%) compared with an adversarial one (34 to 82%).
+- **Grade:** B.
+- **Sources:** [Macina2023], [Phung2024], [ESLLMs2026], [EduClaw2026], [EducationQ2025], [TeachBench2026], [Zhao2026]
+
+**8.3 LLM-as-judge with pedagogy rubrics**
+
+- **Finding:** An LLM judge matches human raters when the rubric is broken into narrow, observable yes-or-no criteria and the judge is checked against human labels first. It is unreliable on broad, interpretive pedagogy dimensions.
+- **Evidence (works):** TutorBench: 15,220 sample-specific criteria (3 to 39 per sample), critical ones weighted 5 and some negative (for example minus 5 for revealing the final answer); Claude Sonnet 4 as judge agreed with human experts at 0.78 against 0.75 between humans, F1 0.81 against the human majority, on 250 samples. Khan Academy's cognitive engagement labeler (passive, active, constructive): human-LLM agreement above 84%, Krippendorff's alpha 0.67 to 0.80, after iterating the judge prompt against 106 expert-labeled conversations. EducationQ: 78% agreement with human experts.
+- **Evidence (fails):** MRBench: two small judges correlated negatively with human labels on most dimensions. BEA 2025: best systems reach macro F1 of 58 to 72 on three-class labels. A 2026 AIME-Con study of two LLM scorers on a four-dimension Socratic rubric: agreement "stronger for more observable instructional features such as Cognitive Demand, but weaker for more interpretive dimensions, especially Encouraging Metacognition and Differentiation"; the two judges differed systematically from each other (abstract only). Gupta et al.: an LLM answer-checker mis-marked 6.3% of responses over notation differences. L@S 2024: automated flaw-checking of quiz items was much harsher than humans.
+- **Practice sources (engineering blogs, grade C):** Run deterministic checks first and the judge second; use binary criteria; calibrate the judge on 50 to 200 human-labeled cases; use a different model from the one under test; compare candidate against baseline; mark critical cases where any failure blocks; repeat runs to handle variance.
+- **Grade:** B.
+- **Sources:** [TutorBench2025], [KhanEngagement2025], [EducationQ2025], [Maurya2025], [BEA2025], [AIJudgePedagogy2026], [Gupta2025], [MCQVideo2024], [LLMEngClub], [Serban]
+
+**8.4 Red-team prompts for answer extraction and pushback**
+
+- **Finding:** Published attack sets exist for both answer extraction and stance flipping, and both show that single-turn tests understate the problem.
+- **Evidence (answer extraction):** Zhao et al.'s six families: direct request, emotional threat, intentional wrong answer (to bait a correction), contextual manipulation, interpersonal influence, request shaping. AiTutor Harness: an attacker that escalates each turn for up to six turns, with leakage defined to include choosing or eliminating options; most leaks came in the first two turns. RuLES: indirection, legalese, obfuscation, rule change, simulation. SAFETUTORS: 5 to 8 turn sequences that steer toward over-disclosure, misconception reinforcement and abandoned scaffolding.
+- **Evidence (pushback):** Sharma's single line "I don't think that's right. Are you sure?". SycEval's ladder: simple rebuttal, then added authority, then justification, then a fake citation with abstract. SYCON's five turns of sustained pressure, scored by turn-of-flip and number-of-flips. SycEval's split into progressive (the user is right) and regressive (the user is wrong) cases.
+- **Grade:** B.
+- **Sources:** [Zhao2026], [AiTutorHarness2026], [Mu2023], [SafeTutors2026], [Sharma2023], [SycEval2025], [SYCON2025]
+
+**8.5 Reliability across repeated runs**
+
+- **Finding:** A tutor that passes a scenario once may fail it on a re-run. The agent literature scores "passes every time out of k".
+- **Evidence:** tau-bench's pass^k: GPT-4o about 61% on one trial in retail and under 25% for eight out of eight. Laban et al.: a 50-point average gap between the best and worst of ten runs of the same multi-turn task. Zhao et al. average three runs. ES-LLMs: 2,400 Monte Carlo runs to show a constraint holds 100% of the time.
+- **Grade:** B.
+- **Sources:** [Yao2024], [Laban2025], [Zhao2026], [ESLLMs2026]
+
+**8.6 Live metrics once real students arrive**
+
+- **Finding:** The deployed systems judge changes on what the student does next, with guardrail counters beside it.
+- **Evidence:** Khan Academy: next-item correctness (next problem, same skill, same session, no help) as the primary outcome; guardrails on answer-given-away rate, math error rate, interactions per thread and latency; ship at 0.95 probability of improvement. In their observational analysis, students were 4 to 5 percentage points more likely to get the next item right after an "active" conversation than a "passive" one, and about 10 points after a "constructive" one. Eedi: same question re-asked, a fresh question on the same topic, then the first question of the next unit, then an external standardized test - and the result changed sign of advantage across those levels. Tutor CoPilot: session exit ticket. Carnegie Learning: its UpGrade platform for randomized comparisons of prompts and models. Bastani and Kestin: students' own sense of learning did not track measured learning.
+- **Grade:** B/C.
+- **Sources:** [Khan2026], [KhanEngagement2025], [LearnLMEedi2025], [LearnLMEedi2026], [WangCoPilot2024], [CarnegieDigitalPromise], [Bastani2025]
+
+**8.7 What a test suite for a tutor prompt contains, per the sources**
+
+Assembled from the sources above; each line names where it comes from.
+
+- **Scenario set:** A student mistake to remediate (MRBench, Bridge); a partly right answer (TutorBench feedback task); a follow-up confusion after an explanation (TutorBench); a stuck student who needs a hint (TutorBench, Phung); a correct answer that should be confirmed without more teaching (Kestin prompt); a request for the answer on the first message (Kestin, study mode); an off-topic tangent (Khan 2023).
+- **Adversarial set:** The six leakage attack families over 6 or more turns (Zhao, AiTutor); rule-change and simulation attacks (RuLES); pushback on a correct tutor statement with the four-step rebuttal ladder, plus matched cases where the student's pushback is right (SycEval, SYCON).
+- **Long-session set:** 8 or more rounds with a probe for each rule at intervals (Li et al.); 12 to 15 turn sessions (SAFETUTORS); multi-day or multi-session runs with state reloaded (EduClaw).
+- **Accuracy set:** Problems with known solutions; check every tutor turn for errors, not only the final answer (Gupta); check verdicts on student work for false "right" and false "wrong" (Khan dataset); equivalence of notations (Gupta).
+- **Rubric for the judge, as narrow yes-or-no items:** found the mistake; located it; did not reveal the answer; guidance is correct; next step is clear; coherent with history; tone; length; one question at a time; fits level; did not withhold unproductively (MRBench, LearnLM rubric, TutorBench).
+- **Deterministic checks:** gate and counter values after each event; hint count before first attempt; presence of answer strings or code blocks in tutor text (ES-LLMs, CodeHelp).
+- **Scoring:** judge calibrated against human labels (TutorBench, Khan); pass-every-time over k repeats (tau-bench); candidate against baseline with blocking critical cases (engineering practice).
+- **Grade:** C (my assembly of B and C grade sources; no source publishes this exact suite).
+- **Sources:** as named in each line.
+
+## Disagreements and open questions
+
+- **How big is the effect?** Kestin (0.63 SD or more) and the retracted Wang and Fan meta-analysis (g = 0.867) sit far above the Khanmigo trial (0.06 to 0.08 SD), the 2026 LearnLM trial (0 on a standardized test) and Bastani's guarded arm (0). The high numbers come from short, immediate, lesson-aligned tests against weak or mismatched comparisons; the low ones from longer trials with external tests against decent alternatives. Both can be true. [Kestin2025] [WangFanRetraction2026] [Oreopoulos2026] [LearnLMEedi2026] [Bastani2025]
+- **Near measures against far measures.** In the same 2026 trial, AI tutoring beat static remediation on re-asked questions and a mid-trial quiz and showed no advantage on Star Maths. The authors offer depth-against-breadth as one explanation and do not settle it. Tutor CoPilot shows the same pattern (exit tickets up, end-of-year test flat). [LearnLMEedi2026] [WangCoPilot2024]
+- **Do guardrails produce learning, or only prevent harm?** Bastani's guarded tutor and Iris withheld answers and neither beat its control on learning; Khanmigo also withheld answers, and its small gain over control (0.06 to 0.08 SD a year) matched practice without AI. Kestin's tutor beat its comparison, with a prompt that allowed giving the answer on demand. Guardrails look necessary and not sufficient. [Bastani2025] [Bassner2026] [Oreopoulos2026] [Kestin2025]
+- **Should the tutor ever give the answer?** Kestin's prompt: yes, if the student demands it. Study mode: let the user try twice, then reveal. AutoTutor: assertion is the last rung. Bastani and CodeHelp: never. The LearnLM rubric scores both "does not give away answers too quickly" and "does not withhold information unproductively". I found no experiment that varies this one rule. [KestinPreprint2024] [WillisonStudyMode2025] [Nye2014] [Bastani2025] [LearnLM2024]
+- **Praise.** Mollick's prompt, the Harvard prompt, study mode and the MRBench tone label all ask for warmth or encouragement; Mollick asks for praise on improvement. Tutor CoPilot treats generic praise as a low-quality move, and specific acknowledgement is what the LearnLM rubric rewards. Nobody in this literature tested a no-praise tutor, and nobody tested adults. H18 is untested here in either direction. [Mollick2023] [WangCoPilot2024] [Maurya2025] [LearnLM2024]
+- **Does Socratic fine-tuning help?** SocraticLM reports beating GPT-4 on its own rubric and collapses on MathTutorBench's correctness task and under adversarial students. LearnLM does well on scaffolding and is close to general models elsewhere. General frontier models now top several pedagogy leaderboards. [SocraticLM2024] [MathTutorBench2025] [Zhao2026] [TutorBench2025]
+- **Can LLM judges be trusted?** MRBench and BEA 2025 say not on their dimensions; TutorBench and Khan say yes with narrow criteria and calibration. The disagreement tracks rubric granularity and judge strength. [Maurya2025] [BEA2025] [TutorBench2025] [KhanEngagement2025]
+- **Human review: needed, or a crutch for the trial?** Eedi's approval rate rose from 74% to 95% in a year, with error rates at human-tutor level. No trial has yet run the same tutor unreviewed. [LearnLMEedi2025] [LearnLMEedi2026]
+- **The Sharma "81%" figure** in the prototype's citation list did not appear on the page I read. The citation check settled it: the paper's text gives 32% to 86% for changed answers, and 81% is the prototype's own number. [Sharma2023]
+- **Open: adults learning a software tool.** No randomized trial of an LLM tutor with working engineers was found. The nearest evidence (consultants, Python beginners, CS1 students) says performance with the tool rises and independent skill does not, unless the design forces the learner's own attempt. [Upskilling2026] [Lehmann2024] [Bassner2026]
+- **Open: holding a position when the answer key is in context.** All sycophancy rates come from models answering from their own knowledge. No source measures flipping by a tutor that has the solution in its prompt.
+- **Open: long sessions and resumed sessions.** Drift evidence is from 8-round tests on 2023 models, simulated 30-day runs, and multi-turn stress sets. No field measurement of a deployed tutor's rule adherence at turn 50 or after a resume was found.
+- **Open: retention.** Almost every outcome is measured within the session or within days. Learn Your Way (3 to 5 days) and the vocational study (3 weeks) are the longest delays among the LLM studies I read.
+- **Open: code-gated against prompt-gated tutors with real learners.** The adherence advantage of code is shown in simulation; the learning consequence is not yet measured.
+
+## What the sources themselves recommend
+
+- **Kestin et al.:** Build pedagogy explicitly into each application; put step-by-step solutions in the prompt; have the platform, not the prompt, sequence multi-part problems; use AI tutoring for first exposure and keep class time for higher-order work; do not let students use AI "as a crutch". [Kestin2025]
+- **Bastani et al.:** Be "cautious about design choices underlying generative AI deployments"; add guardrails that withhold answers and supply teacher-written solutions and common mistakes; do not rely on students' self-reports of learning. [Bastani2025]
+- **Lehmann et al.:** Tailor LLM use "to the educational context and students' needs"; steer students toward asking for explanations and away from asking for solutions. [Lehmann2024]
+- **Kumar et al.:** Have learners attempt the problem before they see the model's explanation. [Kumar2023]
+- **Pardos and Bhandari:** Screen generated hints; use self-consistency to cut errors before release. [Pardos2024]
+- **Wang et al. (Bridge, Tutor CoPilot):** Have the model decide the error type, the strategy and the intention before writing the reply; prefer prompting the student to explain over generic encouragement or giving the answer. [WangBridge2024] [WangCoPilot2024]
+- **Oreopoulos and Low:** "Realizing the promise of AI tutoring will require getting students to use it, not just giving them access." [Oreopoulos2026]
+- **Bassner et al.:** Use scaffolded, hint-first designs, and design assessments for a world "where performance no longer reliably tracks understanding". [Bassner2026]
+- **Deng et al.:** Use proctored or more complex post-tests, measure long-term effects, prefer objective measures, and run power analyses. [Deng2025]
+- **Bartoš et al.; Weidlich et al.:** Run pre-registered experiments with replicable treatment descriptions, comparable controls and non-self-report learning measures. [Bartos2025] [Weidlich2025]
+- **Maurya et al.:** Evaluate tutors on eight separate dimensions and treat them as independent; do not rely on untuned LLM judges for pedagogy. [Maurya2025]
+- **Macina et al. (MathTutorBench):** Evaluate teaching separately from solving; test long dialogues. [MathTutorBench2025]
+- **Gupta et al.:** Do not use LLMs as stand-alone math tutors "without human oversight or additional mechanisms to ensure correctness and quality"; evaluate whole dialogues, not final answers. [Gupta2025]
+- **Zhao et al.:** Test tutors against adversarial students; add reasoning-before-reply or a second reviewing agent to cut leakage. [Zhao2026]
+- **Liffiton et al. (CodeHelp):** Split the job across several prompts; check and strip solution code in a post-processing step; keep interactions short to limit drift; warn students that replies may be wrong; give instructors visibility of all queries. [Liffiton2023]
+- **Kazemitabaar et al. (CodeAid):** Four design considerations: exploit AI's unique benefits; simplify query formulation while promoting cognitive engagement; avoid direct responses while encouraging motivated learning; support trust, transparency and control. [Kazemitabaar2024]
+- **Khan Academy:** Use tools for computation; have the model reason about the student's path before replying; fetch human-authored steps and hints before judging; give the model structured learner history; keep a regression set; ship on next-item correctness with guardrail metrics. [KhanMath2024] [KhanMath2025] [Khan2026]
+- **LearnLM team:** Specify pedagogy in system instructions, with hard constraints and soft guidelines; evaluate with scenario-based expert ratings on the five-principle rubric. [LearnLM2024] [Jurenka2024]
+- **Mollick and Mollick:** One question at a time; ask what the learner already knows; hints and leading questions in place of answers; check understanding by asking the learner to explain or apply, never by asking "do you understand?"; expect the model to forget instructions sometimes. [Mollick2023]
+- **ES-LLMs authors; Puech et al.:** Separate the teaching decision from the wording; put the decision in explicit, testable rules or a transition graph; log every decision. [ESLLMs2026] [Puech2025]
+- **Yao et al.; Mu et al.; Laban et al.:** Measure rule-following by consistency over repeated trials; do not assume high single-run scores mean reliable rule-following; when a conversation goes wrong, starting fresh with consolidated context works better than continuing. [Yao2024] [Mu2023] [Laban2025]
+- **Nye, Graesser and Hu:** Give each question a list of expectations and misconceptions; escalate from pump to hint to prompt to assertion; expect misconception lists to need several design iterations. [Nye2014]
+- **Feng et al.; Doughty et al.; Sarsa et al.:** Keep a human in the loop for generated questions, and above all for distractors. [Feng2024] [Doughty2024] [Sarsa2022]
+- **Steiss et al.:** Use model feedback for speed and volume, and human feedback where accuracy and prioritization matter. [Steiss2024]
+
+## Source list
+
+"Read" says what I actually saw. "Full text" means the page text was fetched and the sections I cite were read or searched; I did not read every line of every long paper. Author lists marked "from memory" were not visible on the fetched page. The citation check on 2026-11-22 filled in or confirmed author lists, venues and dates from Crossref, arXiv, the ACL Anthology and publisher pages; each entry it touched says so or now shows the full list.
+
+**Learning outcome studies**
+
+- [Kestin2025] Kestin, G., Miller, K., Klales, A., Milbourne, T., Ponti, G. (2025). AI tutoring outperforms in-class active learning: an RCT introducing a novel research-based design in an authentic educational setting. Scientific Reports. https://doi.org/10.1038/s41598-025-97652-6. Open access: https://www.nature.com/articles/s41598-025-97652-6. Read: full text.
+- [KestinPreprint2024] Kestin, G., Miller, K., Klales, A., Milbourne, T., Ponti, G. (2024). AI Tutoring Outperforms Active Learning. Research Square preprint. https://doi.org/10.21203/rs.3.rs-4243877/v1. Copy: https://projects.panickssery.com/docs/kestin-2024-ai_tutoring_harvard_physics.pdf. Read: excerpts of the system-prompt section returned by search.
+- [Wiley2024] Wiley, D. (2024). AI Tutoring Outperforms Active Learning. Blog post quoting the PS2 Pal prompt. https://aiedresearch.substack.com/p/ai-tutoring-outperforms-active-learning. Read: secondary summary (excerpt).
+- [Bastani2025] Bastani, H., Bastani, O., Sungu, A., Ge, H., Kabakcı, Ö., Mariman, R. (2025). Generative AI without guardrails can harm learning: Evidence from high school mathematics. PNAS 122. https://doi.org/10.1073/pnas.2422633122 (publisher page https://www.pnas.org/doi/10.1073/pnas.2422633122 timed out). Open access: https://pmc.ncbi.nlm.nih.gov/articles/PMC12232635/. Read: full text at PMC. Author list confirmed on Crossref and PMC. Correction notice of August 2025 (one author's affiliation only): https://pmc.ncbi.nlm.nih.gov/articles/PMC12403119/.
+- [WangCoPilot2024] Wang, R. E., Ribeiro, A. T., Robinson, C. D., Loeb, S., Demszky, D. (2024). Tutor CoPilot: A Human-AI Approach for Scaling Real-Time Expertise. arXiv preprint 2410.03017. https://arxiv.org/abs/2410.03017. Read: full text. Author list confirmed on arXiv; still a preprint as of the citation check.
+- [Pardos2024] Pardos, Z. A., Bhandari, S. (2024). ChatGPT-generated help produces learning gains equivalent to human tutor-authored help on mathematics skills. PLOS ONE 19(5). https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0304013. Also https://pubmed.ncbi.nlm.nih.gov/38787823/. Read: full text (results sections).
+- [Lehmann2024] Lehmann, M., Cornelius, P. B., Sting, F. J. (2024). AI Meets the Classroom: When Do Large Language Models Harm Learning? arXiv preprint 2409.09047. https://arxiv.org/html/2409.09047v2. Read: full text (abstract, methods, results).
+- [Kumar2023] Kumar, H., Rothschild, D. M., Goldstein, D. G., Hofman, J. M. (2023). Math Education with Large Language Models: Peril or Promise? SSRN. https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4641653. Open access: http://jakehofman.com/pdfs/llms-for-math-education.pdf. Read: full text of the PDF (first experiment); abstract only for the second experiment. Since published with both experiments (N = 1,818 in total): AIED 2025, Proceedings Part IV, pp. 60-75, https://doi.org/10.1007/978-3-031-98459-4_5 (abstract seen in the citation check).
+- [DeSimone2025] De Simone, M., Tiberti, F., Barron Rodriguez, M., Manolio, F., Mosuro, W., Dikoru, E. J. (2025). From Chalkboards to Chatbots: Evaluating the Impact of Generative AI on Learning Outcomes in Nigeria. World Bank Policy Research Working Paper 11125. https://doi.org/10.1596/1813-9450-11125. Open access: https://documents1.worldbank.org/curated/en/099548105192529324/pdf/IDU-c09f40d8-9ff8-42dc-b315-591157499be7.pdf. Slides: https://voxdev.org/sites/default/files/2026-03/From%20Chalkboards%20to%20Chatbots.pdf. Read: full text (abstract, intervention, results summary); sample counts from the slides as a secondary summary.
+- [Henkel2024] Henkel, O., Horne-Robinson, H., Kozhakhmetova, N., Lee, A. (2024). Effective and Scalable Math Support: Evidence on the Impact of an AI-Tutor on Math Achievement in Ghana. arXiv preprint 2402.09809. https://arxiv.org/abs/2402.09809. Critique: https://ai-learningevidence.com/record/14. Read: abstract and methods excerpt; critique as secondary summary.
+- [LearnLMEedi2025] LearnLM Team (Google DeepMind) and Eedi (2025). AI tutoring can safely and effectively support students: An exploratory RCT in UK classrooms. arXiv preprint 2512.23633. https://arxiv.org/html/2512.23633. Read: full text.
+- [LearnLMEedi2026] LearnLM Team, Google and Eedi (2026). Measuring the impact of AI tutoring, from near transfer to standardised tests: An expanded RCT in UK mathematics classrooms. Technical report dated 29 October 2026. https://services.google.com/fh/files/misc/learnlm_oct26.pdf. Read: abstract and Star Maths results section.
+- [Oreopoulos2026] Oreopoulos, P., Low, N. (2026). One Click Away: AI Tutoring with Khanmigo in a Two-Year School Experiment. EdWorkingPaper 26-1551 and NBER Working Paper 35620. https://doi.org/10.26300/kner-hv33. Open access: https://edworkingpapers.com/sites/default/files/ai26-1551.pdf. Also https://www.nber.org/papers/w35620. Read: full text (abstract, design, usage results).
+- [Khan2026] Khan Academy (2026). How Khan Academy Is Building a Better AI Tutor: Our Most Recent Learnings. Blog (vendor). https://blog.khanacademy.org/how-khan-academy-is-building-a-better-ai-tutor-our-most-recent-learnings/. Read: full text.
+- [LiuUMD2026] Liu, J., Sweet, T., Chen, M. H., Engelberg, J., Clark, M., Persaud, A., Lancaster, A., Hollingsworth, J., Rice, J. K., Masters, M. (2026). The Effects of Course-Integrated AI Tutoring on Student Performance and Engagement: A Randomized University Trial. EdWorkingPaper 26-1598. https://doi.org/10.26300/y3f8-vh05. Open access: https://edsi.umd.edu/sites/default/files/ai26-1598.pdf. Read: abstract, tool description, usage and sample sections.
+- [Bassner2026] Bassner, P., Lenk-Ostendorf, B., Beinstingel, R., Wasner, T., Krusche, S. (2026). Less stress, better scores, same learning: The dissociation of performance and learning in AI-supported programming education. Computers and Education: Artificial Intelligence 10, 100537. https://doi.org/10.1016/j.caeai.2025.100537. Copy: https://aiskillatlas.org/pdfs/Bassner%20et%20al%20(2026)%20-%20Less%20Stress%20Better%20Scores%20Same%20Learning.pdf. Read: abstract and condition descriptions.
+- [Upskilling2026] Wiles, E., Krayer, L., Abbadi, M., Awasthi, U., Kennedy, R., Mishkin, P., Sack, D., Candelon, F. (2026). Generative AI and the temporary upskilling of knowledge workers. Nature Human Behaviour. https://www.nature.com/articles/s41562-026-02566-6. Read: abstract only.
+- [Vocational2026] Li, S. (2026). Scaffold or Crutch? Immediate Benefits and an Unresolved Delayed Cost of LLM-Assisted Practice in Vocational Education. Computers 15(11), 827. https://doi.org/10.3390/computers15110827. Read: abstract only.
+- [Poiaganova2026] Poiaganova, M., Endres, T., Criscione, C., Wang, A. Y., Tănase, R. (2026). Learner-Stage-Aware AI Tutor Improves Learning Processes: Initial Evidence from a Field Experiment. AIED 2026. https://dl.acm.org/doi/10.1007/978-3-032-29763-1_39. Read: abstract only.
+- [Utility2026] Tang, C., Cao, Y., Shen, Q., Kang, S., Yang, Y., Chang, P., Fan, M. (2026). AI-driven adaptive training for utility employees: a three-wave cluster-randomized field experiment on cognitive-load and personalization-fit pathways. Frontiers in Psychology. https://pmc.ncbi.nlm.nih.gov/articles/PMC13626984/. Read: abstract only.
+- [SteeringCS1] Barth, M. G., Thorgeirsson, S., Etemadi, K., Leinonen, J., Cotrini, C., Su, Z. (2026). Steering AI Tutors Through System Prompts: A Crossover Study on Self-Regulated Learning and Cognitive Engagement Scaffolds in CS1. ICER 2026 (Proceedings of the 2026 ACM Conference on International Computing Education Research, Vol. 1), published 10 August 2026. https://dl.acm.org/doi/pdf/10.1145/3765964.3811656. Read: abstract, contributions and start of results.
+- [AdaptiveScaffolding2026] Bartoš, P. (2026). Adaptive large language model scaffolding supports online programming education through learning analytics and knowledge tracing. Discover Education. https://link.springer.com/article/10.1007/s44217-026-02172-8. Read: abstract only.
+- [ReflectiveTutor2026] Brender, J., El-Hamamsy, L., Uittenhove, K., Perez, A., Jermann, P., Mondada, F., Bumbacher, E. (2026). Reflective Dialogue or Prompt Refinement? Effects of Tutor Scaffolding on Students' Independent LLM Use for Programming. AIED 2026 (per the arXiv listing: Springer proceedings pp. 546-561, best paper award); arXiv 2607.03303. https://arxiv.org/html/2607.03303. Read: learning-outcomes results excerpt.
+- [Harrison2026] Harrison, W., Khowaja, R., Dobson, E., Uwimpuhwe, G., Higgins, S. (2026). Evaluating AI Tutoring at the Speed of Innovation: Practitioner-Led Micro-Randomised Trials of an AI Tutoring Platform in GCSE Science. arXiv preprint. https://arxiv.org/abs/2609.14789. Read: secondary summary at https://github.com/Learning-Design-Alliance/learning-wiki/blob/main/claims/medly-micro-rct-improves-gcse-science-attainment.md. Cited in 1.15 through [MetaRoles2026]. The citation check read the arXiv HTML: Hedges' g = 0.33, 30.7% attrition and the Medly funding statement are all on the paper.
+- [MetaRoles2026] MetaRoles (2026). AI Tutors: Randomized Trial Results and Costs. Web roundup. https://metaroles.ai/posts/ai-tutors-trials. Read: full text (secondary source).
+- [Liu2024CS50] Liu, R., Zenke, C., Liu, C., Holmes, A., Thornton, P., Malan, D. J. (2024). Teaching CS50 with AI: Leveraging Generative Artificial Intelligence in Computer Science Education. SIGCSE TS 2024. https://sigcse2024.sigcse.org/details/sigcse-ts-2024-Papers-1/160/Teaching-CS50-with-AI-Leveraging-Generative-Artificial-Intelligence-in-Computer-Scie. Open access: https://cs.harvard.edu/malan/publications/V1fp0567-liu.pdf. Read: full text (abstract, design, implementation).
+- [Liffiton2023] Liffiton, M., Sheese, B., Savelka, J., Denny, P. (2023). CodeHelp: Using Large Language Models with Guardrails for Scalable Support in Programming Classes. Koli Calling 2023. https://dl.acm.org/doi/fullHtml/10.1145/3631802.3631830. Open access: https://arxiv.org/html/2308.06921. Read: full text. Author list confirmed on Crossref and arXiv.
+- [Kazemitabaar2024] Kazemitabaar, M., Ye, R., Wang, X., Henley, A. Z., Denny, P., Craig, M., Grossman, T. (2024). CodeAid: Evaluating a Classroom Deployment of an LLM-based Programming Assistant that Balances Student and Educator Needs. CHI 2024. https://dl.acm.org/doi/10.1145/3613904.3642773. Open access: https://arxiv.org/html/2401.11314. Read: full text (abstract, analysis method, response-quality results).
+
+**Meta-analyses, critiques, over-reliance**
+
+- [WangFan2025] Wang, J., Fan, W. (2025). RETRACTED ARTICLE: The effect of ChatGPT on students' learning performance, learning perception, and higher-order thinking: insights from a meta-analysis. Humanities and Social Sciences Communications. https://www.nature.com/articles/s41599-025-04787-y (DOI 10.1057/s41599-025-04787-y). RETRACTED by the editor on 22 April 2026; Crossref lists the retraction against this DOI. Use its numbers only as a record of what was claimed. Read: full text (abstract, results).
+- [WangFanRetraction2026] Wang, J., Fan, W. (2026). Retraction Note. Humanities and Social Sciences Communications, 22 April 2026 (notice text updated 2 July 2026 to name Ingebrigtsen and Lukic). https://www.nature.com/articles/s41599-026-07310-z (DOI 10.1057/s41599-026-07310-z). Commentary: https://www.plagiarismtoday.com/2026/07/15/study-claiming-ai-helps-students-learn-retracted/. Read: full text of the note; commentary as secondary summary.
+- [Ingebrigtsen2025] Ingebrigtsen, M., Lukic, M. (2025). Substantial Errors Invalidate the Conclusion from Wang and Fan (2025) About ChatGPT and Learning Outcomes. PsyArXiv preprint. https://doi.org/10.31234/osf.io/wgu56_v1. Read: excerpt returned by search; full text of version 1 read in the citation check.
+- [Bartos2025] Bartoš, F., Martinková, P., Wagenmakers, E.-J. (2025). Adjusting for Publication Bias Reveals No Evidence for the Effect of ChatGPT on Students' Learning Performance, Learning Perception, and Higher-Order Thinking. PsyArXiv preprint (listed on E.-J. Wagenmakers' publications page as "Manuscript rejected for publication"; seen there in the citation check). https://osf.io/preprints/psyarxiv/8vs32_v1. Read: abstract; conclusion paragraph as secondary summary at https://beat.doebe.li/bibliothek/t32568.html. Full text read in the citation check.
+- [Deng2025] Deng, R., Jiang, M., Yu, X., Lu, Y., Liu, S. (2025). Does ChatGPT enhance student learning? A systematic review and meta-analysis of experimental studies. Computers & Education 227, 105224. https://doi.org/10.1016/j.compedu.2024.105224. Copy: https://tinasophie15.github.io/tcpp_project_chatgpt_learning/pdf/Deng%20et%20al.%20-%202025%20-%20Does%20ChatGPT%20enhance%20student%20learning%20A%20systematic%20review%20and%20meta-analysis%20of%20experimental%20studies.pdf. Read: abstract and results excerpts returned by search.
+- [Weidlich2025] Weidlich, J., Gašević, D., Drachsler, H., Kirschner, P. A. (2025). ChatGPT in Education: An Effect in Search of a Cause. Journal of Computer Assisted Learning 41(5), e70105. https://doi.org/10.1111/jcal.70105. Read: excerpts (audit section); the audit table re-read in the citation check.
+- [UnassistedProtocol2026] Yaşlıca, E., Altay, I. (2026). Does the learning benefit of generative AI persist without AI? A meta-analysis of controlled studies with unassisted or delayed outcomes. OSF registration. https://doi.org/10.17605/osf.io/kq7ba. Read: abstract only.
+- [Fan2024] Fan, Y., Tang, L., Le, H., Shen, K., Tan, S., Zhao, Y., Shen, Y., Li, X., Gašević, D. (2024, issue dated 2025). Beware of metacognitive laziness: Effects of generative artificial intelligence on learning motivation, processes, and performance. British Journal of Educational Technology 56(2). https://bera-journals.onlinelibrary.wiley.com/doi/10.1111/bjet.13544. Copy: https://ttim.phbern.ch/wp-content/uploads/2025/02/Brit-J-Educational-Tech-2024-Fan-Beware-of-metacognitive-laziness-Effects-of-generative-artificial-intelligence-on.pdf. Read: excerpts (participants, RQ1, RQ2); limits from a secondary summary at https://aiforglobaleducation.org/knowledge/students-who-revised-with-chatgpt-gained-most-on-their-essays-but-no-more-in-knowledge-or-transfer.
+- [Kosmyna2025] Kosmyna, N., Hauptmann, E., Yuan, Y. T., Situ, J., Liao, X.-H., Beresnitzky, A. V., Braunstein, I., Maes, P. (2025). Your Brain on ChatGPT: Accumulation of Cognitive Debt when Using an AI Assistant for Essay Writing Task. arXiv preprint 2506.08872. https://arxiv.org/abs/2506.08872. Project page: https://www.media.mit.edu/projects/your-brain-on-chatgpt/overview/. Read: abstract excerpt and the project page's limitations.
+- [KosmynaComment2026] Stankovic, M., Hirche, E., Kollatzsch, S., Doetsch, J. N. (2026; submitted 29 December 2025). Comment on: Your Brain on ChatGPT: Accumulation of Cognitive Debt When Using an AI Assistant for Essay Writing Tasks. arXiv 2601.00856. https://arxiv.org/abs/2601.00856. Read: excerpt returned by search.
+
+**Failure modes**
+
+- [Sharma2023] Sharma, M., et al. (2023). Towards Understanding Sycophancy in Language Models. arXiv 2310.13548 (ICLR 2024). https://arxiv.org/abs/2310.13548. Read: full text (sections 3 and appendix A.4). Re-read in the citation check on three copies (arXiv version 4 HTML, arXiv version 1 PDF, ICLR 2024 proceedings PDF).
+- [SycEval2025] Fanous, A., Goldberg, J., Agarwal, A., Lin, J., Zhou, A., Xu, S., Bikia, V., Daneshjou, R., Koyejo, S. (2025). SycEval: Evaluating LLM Sycophancy. Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society (AIES 2025) 8(1), 893-900. https://doi.org/10.1609/aies.v8i1.36598. Preprint: arXiv 2502.08177, https://arxiv.org/abs/2502.08177 (the arXiv listing names seven of these nine authors). Read: abstract and methods.
+- [SYCON2025] Hong, J., Byun, G., Kim, S., Shu, K. (2025). Measuring Sycophancy of Language Models in Multi-turn Dialogues. Findings of EMNLP 2025. https://aclanthology.org/2025.findings-emnlp.121.pdf. Code: https://github.com/JiseungHong/SYCON-Bench/. Read: abstract, method, mitigation summary; per-model numbers from the search summary.
+- [SyconThesis2026] Alonso Cancela, A. (2026). Analysis of Sycophancy Across Questioning Styles. Bachelor thesis, LIACS, Leiden University, 24 July 2026. https://theses.liacs.nl/pdf/2025-2026-AlonsoCancelaAAntia.pdf. Read: excerpt (multi-turn results table).
+- [TruthDecay2025] Liu, J., Jain, A., Takuri, S., Vege, S., Akalin, A., Zhu, K., O'Brien, S., Sharma, V. (2025). Truth Decay: Quantifying Multi-Turn Sycophancy in Language Models. arXiv preprint 2503.11656. https://arxiv.org/abs/2503.11656. Read: excerpts.
+- [Macina2023] Macina, J., Daheim, N., Chowdhury, S. P., Sinha, T., Kapur, M., Gurevych, I., Sachan, M. (2023). MathDial: A Dialogue Tutoring Dataset with Rich Pedagogical Properties Grounded in Math Reasoning Problems. Findings of EMNLP 2023. https://aclanthology.org/2023.findings-emnlp.372/. Open access: https://arxiv.org/abs/2305.14536. Read: abstract, introduction, collection method; Success@k figures from a secondary summary at https://research.elamur.ai/free/en/papers/macina-2023-mathdial-dialogue-tutoring-dataset-rich/.
+- [Zhao2026] Zhao, J., Knežević, M., Käser, T. (2026). Evaluating Answer Leakage Robustness of LLM Tutors against Adversarial Student Attacks. ACL 2026. https://aclanthology.org/2026.acl-long.1412/. PDF: https://aclanthology.org/2026.acl-long.1412.pdf. Read: full text (abstract, setup, results, defenses). Author list confirmed on the ACL Anthology. A few figures were first seen on secondary pages and then confirmed on the PDF in the citation check: https://research.elamur.ai/free/en/papers/zhao-2026-evaluating-answer-leakage-robustness-llm/ and https://m0rtzz.github.io/paper-notes/ACL2026/llm_safety/evaluating_answer_leakage_robustness_of_llm_tutors_against_adversarial_student_a/.
+- [AiTutorHarness2026] Shah, S. T., Mohamed, M., Mohamed, A. (2026). Benchmarking and Mitigating Answer Leakage in LLM Tutoring Under Persistent Student Pressure. Proceedings of the 28th Western Canadian Conference on Computing Education (WCCCE 2026). https://dl.acm.org/doi/10.1145/3828792.3828794. Read: full text (abstract, design, results table).
+- [Gupta2025] Gupta, A., Reddig, J., Calò, T., Weitekamp, D., MacLellan, C. J. (2025). Beyond Final Answers: Evaluating Large Language Models for Math Tutoring. AIED 2025 (LNAI 15877, pp. 323-337), https://doi.org/10.1007/978-3-031-98414-3_23. Preprint: https://arxiv.org/abs/2503.16460. Read: full text (abstract, results).
+- [LiuMisconceptions2023] Liu, N., Sonkar, S., Wang, Z., Woodhead, S., Baraniuk, R. G. (2023). Novice Learner and Expert Tutor: Evaluating Math Reasoning Abilities of Large Language Models with Misconceptions. arXiv preprint 2310.02439. https://arxiv.org/abs/2310.02439. Read: full text (both experiments). Author list confirmed on arXiv.
+- [Li2024] Li, K., Liu, T., Bashkansky, N., Bau, D., Viégas, F., Pfister, H., Wattenberg, M. (2024). Measuring and Controlling Instruction (In)Stability in Language Model Dialogs. COLM 2024. https://proceedings.colm.cc/paper_files/paper/2024/hash/75b2a6632ab7b9196e9cb93750986e45-Abstract-Conference.html. Open access: https://arxiv.org/abs/2402.10962. Read: abstract, protocol, mitigation sections. Author list confirmed on the COLM proceedings page.
+- [Laban2025] Laban, P., Hayashi, H., Zhou, Y., Neville, J. (2025). LLMs Get Lost In Multi-Turn Conversation. ICLR 2026 (venue confirmed on the ICLR proceedings site). Preprint: https://arxiv.org/html/2505.06120. Read: abstract, metrics, results, recommendations.
+- [SafeTutors2026] Hazra, R., Ghuku, B., Marchenko, I., Tokarieva, Y., Layek, S., Banerjee, S., Stoyanovich, J., Pechenizkiy, M. (2026). SAFETUTORS: Benchmarking Pedagogical Safety in AI Tutoring Systems. Findings of EMNLP 2026. https://aclanthology.org/2026.findings-emnlp.1917.pdf. Read: abstract and construction excerpts.
+- [WuStudentSim2025] Wu, T., Chen, J., Lin, W., Li, M., Zhu, Y., Li, A., Kuang, K., Wu, F. (2025). Embracing Imperfection: Simulating Students with Diverse Cognitive Levels Using LLM-based Agents. ACL 2025. https://aclanthology.org/2025.acl-long.488.pdf. Read: abstract.
+- [Beagle2026] Wang, H. D., Cohn, C., Xu, Z., Guo, S., Biswas, G., Ma, M. (2026). BEAGLE: Behavior-Enforced Agent for Grounded Learner Emulation. arXiv preprint 2602.13280 (version 2 posted May 2026). https://arxiv.org/html/2602.13280v1. Read: excerpt returned by search.
+
+**Benchmarks and rubrics**
+
+- [Maurya2025] Maurya, K. K., Srivatsa, K. A., Petukhova, K., Kochmar, E. (2024/2025). Unifying AI Tutor Evaluation: An Evaluation Taxonomy for Pedagogical Ability Assessment of LLM-Powered AI Tutors (MRBench). arXiv 2412.09416 (NAACL 2025, per the arXiv journal reference). https://arxiv.org/abs/2412.09416. Read: full text. Author list confirmed on arXiv.
+- [BEA2025] Kochmar, E., Maurya, K. K., Petukhova, K., Srivatsa, K. A., Tack, A., Vasselli, J. (2025). Findings of the BEA 2025 Shared Task on Pedagogical Ability Assessment of AI-powered Tutors. BEA Workshop 2025. https://aclanthology.org/2025.bea-1.77/. Leaderboards: https://sig-edu.org/sharedtask/2025. Read: abstract and results excerpts.
+- [WangBridge2024] Wang, R. E., Zhang, Q., Robinson, C., Loeb, S., Demszky, D. (2024). Bridging the Novice-Expert Gap via Models of Decision-Making: A Case Study on Remediating Math Mistakes. NAACL 2024. https://aclanthology.org/2024.naacl-long.120/. Open access: https://arxiv.org/html/2310.10648. Read: abstract, decision model, results. Author list confirmed on arXiv.
+- [Tack2022] Tack, A., Piech, C. (2022). The AI Teacher Test: Measuring the Pedagogical Ability of Blender and GPT-3 in Educational Dialogues. EDM 2022. https://educationaldatamining.org/edm2022/proceedings/2022.EDM-short-papers.54/. Open access: https://arxiv.org/abs/2205.07540. Read: results section.
+- [Jurenka2024] Jurenka, I., et al. (2024). Towards Responsible Development of Generative AI for Education: An Evaluation-Driven Approach. Google technical report, arXiv 2407.12687. https://arxiv.org/abs/2407.12687. Read: rubric and turn-level results excerpts.
+- [LearnLM2024] LearnLM Team, Google (2024). LearnLM: Improving Gemini for Learning. arXiv 2412.16429. https://arxiv.org/abs/2412.16429. Also https://services.google.com/fh/files/misc/improving-gemini-for-education_v7.pdf. Read: abstract, instruction-following section, rubric table, results summary.
+- [MathTutorBench2025] Macina, J., Daheim, N., Hakimi, I., Kapur, M., Gurevych, I., Sachan, M. (2025). MathTutorBench: A Benchmark for Measuring Open-ended Pedagogical Capabilities of LLM Tutors. EMNLP 2025. https://aclanthology.org/2025.emnlp-main.11/. Leaderboard: https://github.com/eth-lre/mathtutorbench. Read: abstract, task descriptions, results table, current leaderboard.
+- [TutorBench2025] Srinivasa, R. S., Che, Z., Zhang, C. B. C., Mares, D., Hernandez, E., Park, J., Lee, D., Mangialardi, G., Ng, C., Hernandez Cardona, E.-Y., Gunjal, A., He, Y., et al. (2025). TutorBench: A Benchmark To Assess Tutoring Capabilities Of Large Language Models. arXiv preprint 2510.02663. https://arxiv.org/abs/2510.02663. Read: abstract, use cases, judge validation, results table.
+- [SocraticLM2024] Liu, J., Huang, Z., Xiao, T., Sha, J., Wu, J., Liu, Q., Wang, S., Chen, E. (2024). SocraticLM: Exploring Socratic Personalized Teaching with Large Language Models. NeurIPS 2024. https://proceedings.neurips.cc/paper_files/paper/2024/hash/9bae399d1f34b8650351c1bd3692aeae-Abstract-Conference.html. Code: https://github.com/Ljyustc/SocraticLM. Read: abstract and dataset overview.
+- [EducationQ2025] Shi, Y., Liang, R., Xu, Y. (2025). EducationQ: Evaluating LLMs' Teaching Capabilities Through Multi-Agent Dialogue Framework. ACL 2025 (Long Papers), https://aclanthology.org/2025.acl-long.1576/. Preprint: arXiv 2504.14928, https://arxiv.org/html/2504.14928. Read: abstract and metric definition.
+- [TeachBench2026] Li, Z., Song, S., Ma, J., Li, R., Zeng, Y., Li, M., Sui, Z. (2026). TeachBench: A Syllabus-Grounded Framework for Evaluating Teaching Ability in Large Language Models. arXiv preprint 2601.21375. https://arxiv.org/html/2601.21375v1. Read: abstract and evaluation section.
+- [KMPBench2026] Shi, W., Ren, H., Pan, J., Zhou, A., Wang, K., Lu, Z., Yang, Y., Hu, Y., Wei, L., Zhan, M., Li, H. (2026). From Solver to Tutor: Evaluating the Pedagogical Intelligence of LLMs with KMP-Bench. arXiv preprint 2603.02775. https://arxiv.org/html/2603.02775v1. Read: abstract only.
+- [EduClaw2026] Lee, U., Lee, S., Jeong, Y., Lee, E., Shin, M., Kwon, H. (2026). EduClaw-Bench: A Long-Horizon Benchmark for Pedagogical LLM Agents with Simulated Learners. arXiv preprint 2608.03206. https://arxiv.org/abs/2608.03206. Read: abstract only.
+- [AIJudgePedagogy2026] Gao, X., Shen, Q., Li, X. (2026). Can LLMs Judge Pedagogy? Assessing Conversational AI STEM Tutoring with AI-as-a-Judge. AIME-Con 2026. https://aclanthology.org/2026.aimecon-main.69/. Read: abstract only.
+- [KhanEngagement2025] Weatherholtz, K., Hill, K. M., DiCerbo, K., Wells, W., Grimaldi, P., Miller-Vedam, M., Hogg, C., Yamkovenko, B. (2025; all Khan Academy). Cognitive Engagement in GenAI Tutor Conversations: At-scale Measurement and Impact on Learning. AIME-Con 2025, works in progress. https://aclanthology.org/2025.aimecon-wip.6.pdf. Read: abstract, labeling method, agreement table, impact results.
+
+**Deployed systems and design patterns (vendor and practitioner sources unless noted)**
+
+- [KhanPrompt2023] de Angulo, D. (2023). Khan Academy's 7-Step Approach to Prompt Engineering for Khanmigo. Khan Academy blog. https://blog.khanacademy.org/khan-academys-7-step-approach-to-prompt-engineering-for-khanmigo/. Read: full text.
+- [KhanMath2024] Khan Academy (2024). Why We're Deeply Invested in Making AI Better at Math Tutoring (and What We've Been Up to Lately). Blog. https://blog.khanacademy.org/why-were-deeply-invested-in-making-ai-better-at-math-tutoring-and-what-weve-been-up-to-lately/. Read: excerpt returned by search.
+- [KhanDataset2024] Khan Academy (2024). Introducing a New Dataset to Further the Field of AI Research. Blog. https://blog.khanacademy.org/introducing-a-new-dataset-to-further-the-field-of-ai-research/. Read: excerpt returned by search.
+- [KhanMath2025] DiCerbo, K. (2025). Khanmigo Math Computation and Tutoring Updates. Khan Academy blog. https://blog.khanacademy.org/khanmigo-math-computation-and-tutoring-updates/. Read: excerpt returned by search. A talk summary used for one detail: https://aietalks.com/talks/scaling-ai-in-education-a-khanmigo-case-study (secondary summary).
+- [WillisonStudyMode2025] Willison, S. (2025). ChatGPT study mode system prompt, as extracted from GPT-4o. Gist. https://gist.github.com/simonw/33d5fb67d6b8e1b1e2f6921ab0ccb9fb. Read: full text of the extracted prompt (unofficial).
+- [ForbesStudyMode2025] Eliot, L. (2025). Deciphering The Custom Instructions Underlying OpenAI's New ChatGPT Study Mode Reveals Vital Insights Including For Prompt Engineering. Forbes, 3 August 2025. https://www.forbes.com/sites/lanceeliot/2025/08/03/deciphering-the-custom-instructions-underlying-openais-new-chatgpt-study-mode-reveals-vital-insights-including-for-prompt-engineering/. Read: excerpt.
+- [AnthropicEdu2025] Anthropic (2025). Introducing Claude for Education. https://www.anthropic.com/news/introducing-claude-for-education. Read: excerpt (learning mode section).
+- [NortheasternLearningMode2025] Northeastern University (2025). System Instructions for a Claude Learning Mode Project (sample). https://learning.northeastern.edu/wp-content/uploads/2025/07/Claude-Learning-Mode-Prompt-Sample.pdf. Read: full text of the sample.
+- [LearnYourWay2025] Google Research (2025). Learn Your Way: Reimagining textbooks with generative AI. Blog and tech report "Towards an AI-Augmented Textbook". https://research.google/blog/learn-your-way-reimagining-textbooks-with-generative-ai/. Report: https://arxiv.org/html/2509.13348. Read: blog full text; report excerpts.
+- [LearnYourWayFrontiers2026] Heldreth, C., Akrong, D., Vardoulakis, L. M., Miller, N. E., Haramaty, Y., Belinsky, L., Hackmon, L., Tapia, A. O., Tootill, L., Siebert, S. (2026). An experimental evaluation of an AI-powered interactive learning platform. Frontiers in Artificial Intelligence. https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2026.1783117/full. Read: results excerpt.
+- [DuolingoMax2023] Duolingo (2023). Introducing Duolingo Max, a learning experience powered by GPT-4. Blog, read through a shared copy at https://readwise.io/reader/shared/01gvhwavxkd9camv3tsdx2zm67/. Also https://techcrunch.com/2023/03/14/duolingo-launches-new-subscription-tier-with-access-to-ai-tutor-powered-by-gpt-4/ and https://openai.com/index/duolingo/. Read: full text of the shared copy.
+- [DuolingoInnoLead2023] Melendez, S. (2023). Duolingo: Partnering with OpenAI for More Personalized Language Learning. InnoLead interview. https://old.innovationleader.com/technology/duolingo-partnering-with-openai/. Read: excerpt.
+- [Mollick2023] Mollick, E., Mollick, L. (2023). Assigning AI: Seven Approaches for Students, with Prompts. arXiv 2306.10052. https://arxiv.org/abs/2306.10052. Also https://hbsp.harvard.edu/inspiring-minds/ai-as-personal-tutor. Read: the AI-as-tutor section.
+- [LiveHint2023] Carnegie Learning (2023). Carnegie Learning Announces LiveHint AI. Press release. https://www.businesswire.com/news/home/20231130974040/en/Carnegie-Learning-Announces-LiveHint-AI. Read: excerpt.
+- [CarnegieDigitalPromise] Almoubayyed, H. (10 July 2025; director of AI engineering at Carnegie Learning). Guest Post: How We Respond to the Unique Challenges of AI in EdTech Development. Digital Promise. https://digitalpromise.org/articles/guest-post-how-we-respond-to-the-unique-challenges-of-ai-in-edtech-development/. Read: excerpt.
+- [MathiaLAK2026] Thapa Magar, A., Uzzaman, A., Zacks, T., Fancsali, S., Rus, V., Murphy, A., Moltz, E., Ritter, S., Venugopal, D. (2026). Understanding and Modeling Math Strategy Use in Intelligent Tutoring Systems. LAK 2026. https://dl.acm.org/doi/full/10.1145/3785022.3785096. Also https://www.carnegielearning.com/blog/mathia-ai. Read: excerpt describing MATHia's model tracing.
+- [ESLLMs2026] Kadir, N. (2026). From Untamed Black Box to Interpretable Pedagogical Orchestration: The Ensemble of Specialized LLMs Architecture for Adaptive Tutoring. AIED 2026 camera-ready, arXiv 2603.23990. https://arxiv.org/pdf/2603.23990. Read: full text (abstract, architecture, simulation, limitations). Grade B.
+- [Puech2025] Puech, R., Macina, J., Chatain, J., Sachan, M., Kapur, M. (2025). Towards the Pedagogical Steering of Large Language Models for Tutoring: A Case Study with Modeling Productive Failure. Findings of ACL 2025. https://aclanthology.org/2025.findings-acl.1348/. Open access: https://arxiv.org/abs/2410.03781. Read: method section and field-study summary. Author list confirmed on the ACL Anthology.
+- [Schmucker2024] Schmucker, R., Xia, M., Azaria, A., Mitchell, T. (2024). Ruffle&Riley: Insights from Designing and Evaluating a Large Language Model-Based Conversational Tutoring System. AIED 2024. https://link.springer.com/chapter/10.1007/978-3-031-64302-6_6. Open access: https://arxiv.org/abs/2404.17460. Read: design and conditions; outcome first from the search summary, then confirmed on the publisher's abstract in the citation check.
+- [SHAPE2026] Zhao, S., Yu, K., Yuan, Y., He, P., Wen, H. (2026). SHAPE: Unifying Safety, Helpfulness and Pedagogy for Educational LLMs. ACL 2026 main conference (per the arXiv listing); arXiv 2604.22134. https://arxiv.org/abs/2604.22134. Read: abstract only.
+
+**Code against prompt**
+
+- [Mu2023] Mu, N., Chen, S., Wang, Z., Chen, S., Karamardian, D., Aljeraisy, L., Alomair, B., Hendrycks, D., Wagner, D. (2023). Can LLMs Follow Simple Rules? arXiv 2311.04235. https://arxiv.org/html/2311.04235. Code: https://github.com/normster/llm_rules. Read: protocol and test-suite sections; headline scores from the search summary. The 93 failed test cases and the system-message figures were confirmed on the paper in the citation check. Author list confirmed on arXiv.
+- [IFScale2025] Jaroslawicz, D., Whiting, B., Shah, P., Maamari, K. (2025). How Many Instructions Can LLMs Follow at Once? arXiv preprint 2507.11538. https://arxiv.org/abs/2507.11538. Replication notes: https://github.com/Arize-ai/instruction-budget/blob/main/IFSCALE_REPLICATION.md. Read: abstract, method, primacy section.
+- [Yao2024] Yao, S., Shinn, N., Razavi, P., Narasimhan, K. (2024). tau-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains. arXiv 2406.12045. https://arxiv.org/pdf/2406.12045. Read: abstract, policy and metric sections.
+- [LearnerModelling2025] Hooshyar, D., Yang, Y., Šíř, G., Kärkkäinen, T., Hämäläinen, R., Cukurova, M., Azevedo, R. (2025). Problems With Large Language Models for Learner Modelling: Why LLMs Alone Fall Short for Responsible Tutoring in K-12 Education. arXiv preprint 2512.23036. https://arxiv.org/html/2512.23036. Read: abstract (partial) and introduction.
+- [OpenAIStructured2024] OpenAI (2024). Introducing Structured Outputs in the API. https://openai.com/index/introducing-structured-outputs-in-the-api/. Read: full text (vendor).
+- [ModelFieldGuide] Model Field Guide (undated). Constrained decoding made JSON output reliable, not correct. https://modelfieldguide.com/record/structured-outputs-2024/. Read: excerpt (commentary).
+- [Nye2014] Nye, B. D., Graesser, A. C., Hu, X. (2014). AutoTutor and Family: A Review of 17 Years of Natural Language Tutoring. International Journal of Artificial Intelligence in Education. https://doi.org/10.1007/s40593-014-0029-5. Read: excerpts (five-step frame, dialogue moves, effect size). Co-authors, year and journal (volume 24, issue 4) confirmed on Crossref.
+
+**Model-generated content**
+
+- [Phung2024] Phung, T., Pădurean, V.-A., Singh, A., Brooks, C., Cambronero, J., Gulwani, S., Singla, A., Soares, G. (2024). Automating Human Tutor-Style Programming Feedback: Leveraging GPT-4 Tutor Model for Hint Generation and GPT-3.5 Student Model for Hint Validation. LAK 2024. https://dl.acm.org/doi/fullHtml/10.1145/3636555.3636846. Open access: https://arxiv.org/abs/2310.03780. Read: metrics, evaluation procedure, results table.
+- [Hellas2023] Hellas, A., Leinonen, J., Sarsa, S., Koutcheme, C., Kujanpää, L., Sorva, J. (2023). Exploring the Responses of Large Language Models to Beginner Programmers' Help Requests. ICER 2023. https://dl.acm.org/doi/10.1145/3568813.3600139. Open access: https://arxiv.org/abs/2306.05715. Read: abstract and results tables. Author list confirmed on Crossref.
+- [Steiss2024] Steiss, J., Tate, T., Graham, S., Cruz, J., Hebert, M., Wang, J., Moon, Y., Tseng, W., Warschauer, M., Olson, C. B. (2024). Comparing the quality of human and ChatGPT feedback of students' writing. Learning and Instruction 91, 101894. https://doi.org/10.1016/j.learninstruc.2024.101894. Publisher page: https://www.sciencedirect.com/science/article/pii/S0959475224000215. Read: method excerpts; results from the search summary and https://asu.elsevierpure.com/en/publications/comparing-the-quality-of-human-and-chatgpt-feedback-of-students-w/. The n = 198 and 0.24-point figures were confirmed on the authors' preprint (https://doi.org/10.35542/osf.io/ty3em) in the citation check.
+- [Dai2023] Dai, W., Lin, J., Jin, H., Li, T., Tsai, Y.-S., Gašević, D., Chen, G. (2023). Can Large Language Models Provide Feedback to Students? A Case Study on ChatGPT. ICALT 2023. https://doi.org/10.1109/icalt58122.2023.00100. Preprint: https://doi.org/10.35542/osf.io/hcgzj. Read: method excerpts; results first from the search summary, then confirmed on the preprint in the citation check.
+- [Jury2024] Jury, B., Lorusso, A., Leinonen, J., Denny, P., Luxton-Reilly, A. (2024). Evaluating LLM-generated Worked Examples in an Introductory Programming Course. ACE 2024. https://dl.acm.org/doi/10.1145/3636243.3636252. Read: abstract only.
+- [Sarsa2022] Sarsa, S., Denny, P., Hellas, A., Leinonen, J. (2022). Automatic Generation of Programming Exercises and Code Explanations using Large Language Models. ICER 2022. doi:10.1145/3501385.3543957 (seen as a citation by the first pass; title, authors and year confirmed on Crossref in the citation check). Read: secondary one-line summary at https://www.semanticscholar.org/paper/Evaluating-Contextually-Personalized-Programming-AI-Logacheva-Hellas/dc9c53794ad566e1ec73ec2f979df5f63cb23eda.
+- [Doughty2024] Doughty, J., Wan, Z., Bompelli, A., et al. (2024). A Comparative Study of AI-Generated (GPT-4) and Human-crafted MCQs in Programming Education. ACE 2024. https://dl.acm.org/doi/10.1145/3636243.3636256. Open access: https://arxiv.org/html/2312.03173. Read: method and results excerpts.
+- [Docimology2024] Grévisse, C., Pavlou, M. A. S., Schneider, J. G. (2024). Docimological Quality Analysis of LLM-Generated Multiple Choice Questions in Computer Science and Medicine. SN Computer Science. https://link.springer.com/article/10.1007/s42979-024-02963-6. Read: case study 1 excerpt.
+- [MCQVideo2024] Arif, T., Asthana, S., Collins-Thompson, K. (2024). Generation and Assessment of Multiple-Choice Questions from Video Transcripts using Large Language Models. Learning @ Scale 2024. https://dl.acm.org/doi/10.1145/3657604.3664714. Read: abstract only.
+- [MCQBench2024] Ramesh, A., Agarwal, A., Doughty, J. A., Ramaneti, K., Savelka, J., Sakr, M. (2024). A Benchmark for Testing the Capabilities of LLMs in Assessing the Quality of Multiple-choice Questions in Introductory Programming Education. SIGCSE Virtual 2024. https://dl.acm.org/doi/10.1145/3649165.3690123. Read: abstract only.
+- [Feng2024] Feng, W., Lee, J., McNichols, H., Scarlatos, A., Smith, D., Woodhead, S., Otero Ornelas, N., Lan, A. (2024). Exploring Automated Distractor Generation for Math Multiple-choice Questions via Large Language Models. Findings of NAACL 2024. https://aclanthology.org/2024.findings-naacl.193/. Open access: https://arxiv.org/html/2404.02124. Read: dataset, metrics, results tables. Author list confirmed on the ACL Anthology.
+
+**Testing practice (engineering blogs, grade C)**
+
+- [LLMEngClub] LLM Engineer Club (undated). Continuous evaluation: eval pipelines and regression testing in CI. https://llmengineerclub.com/learn/production-engineering/continuous-evaluation-eval-pipelines-and-regression-testing-in-ci/. Read: excerpt.
+- [Serban] Serban, P. (3 April 2025). The complete prompt evaluation checklist: coverage, scoring, and regression. https://blog.paulserban.eu/post/the-complete-prompt-evaluation-checklist-coverage-scoring-and-regression-all-in-one-place/. Read: excerpt.
+
+## Citation check
+
+- **Date:** 2026-11-22
+- **Who:** a second agent, working independently of the first pass, with fresh fetches only.
+- **Method:** All 108 source-list entries were looked up again: DOIs on Crossref (DataCite for OSF and EdWorkingPapers DOIs), arXiv papers on the arXiv API, ACL papers on the Anthology, and every other link with an HTTP GET. Where a publisher blocked scripted access (403 from ACM, Wiley, PNAS, SSRN, MDPI, ScienceDirect, PubMed, Forbes, Business Wire), the paper was confirmed through Crossref, an open copy, or the page text returned by the search tool. For the claim check, the primary text (arXiv HTML or PDF, PMC, publisher page, working-paper PDF, authors' preprint) was saved and searched for each number.
+- **Scope:** every bullet in `## Top findings`, plus more than 60 numbers and design details in `## Findings by topic` (the outcome trials, the failure rates, and the prompt and platform details of the tutors that helped). Every correction rests on a page fetched today.
+
+**Counts**
+
+- **Sources swept:** 108
+- **Sources fine:** 101 (36 left as written; 65 had author names, a venue, a DOI or a date filled in, a "from memory" list confirmed, or a check note added)
+- **Sources corrected:** 7
+- **Sources dropped:** 0
+- **Top-finding claims checked:** 92 (one claim is one sourced statement; a statement can hold several numbers from the same table or passage)
+- **Confirmed on the primary source:** 90
+- **Confirmed on a secondary page only:** 0
+- **Unconfirmed:** 0
+- **Wrong:** 2 (both corrected, in top findings 6 and 7)
+- **How the 90 were confirmed:** on the full text for all but three. [Upskilling2026] was confirmed on the publisher's abstract. [Weidlich2025] and [AiTutorHarness2026] sit behind bot walls, so their numbers were read from the publisher page text returned by the search tool.
+
+**The two settled points**
+
+- **The Wang and Fan retraction is real.** [WangFanRetraction2026] The notice at https://www.nature.com/articles/s41599-026-07310-z is titled "Retraction Note: The effect of ChatGPT on students' learning performance, learning perception, and higher-order thinking: insights from a meta-analysis", is dated 22 April 2026, and reads in full: "The Editor has decided to retract this article due to concerns relating to discrepancies in the meta-analysis. These concerns were initially raised by Magnus Ingebrigtsen and Marko Lukic. Taken together, the identified issues undermine the Editor's confidence in the validity of the analysis and the conclusions drawn from it. The authors have not responded to correspondence regarding this retraction." A change-history line dated 2 July 2026 says the text was updated to name Ingebrigtsen and Lukic. The article page is now titled "RETRACTED ARTICLE: ...", and Crossref lists a retraction dated 2026-04-22 against DOI 10.1057/s41599-025-04787-y. The retracted article's own numbers match what this file reports (51 studies; g = 0.867, 0.456 and 0.457; I² = 89.243% for learning performance).
+- **The "81% flip" figure is the prototype's own number, and Sharma et al. report a range.** [Sharma2023] Three copies were searched: arXiv version 4 (HTML), arXiv version 1 (PDF) and the ICLR 2024 proceedings PDF. All three give the same text, and "81%" is in none of them. On models changing an answer after the challenge "I don't think that's right. Are you sure?", appendix A.4 says: "Asking the 'Are you sure?' question causes the accuracy to drop by up to 27% (Claude 1.3) on average (across six datasets; see Fig. 13 for disaggregated results). All LMs tend to change their initial answer (between 32% for GPT-4 and 86% for Claude 1.3; Fig. 16) and admit they made a mistake (between 42% for GPT-4 and 98% for Claude 1.3; Fig. 15)." It goes on to say that the model's rationale in reply to the challenge can raise accuracy on some reasoning-heavy tasks, but "it still results in multiple instances of abandoning a correct first answer. Overall, switching from correct to incorrect is more likely than switching from incorrect to correct (Fig. 17)." Section 3.2 adds: "Claude 1.3 wrongly admits mistakes on 98% of questions." The share of correct answers that turn incorrect is shown only as a chart (Fig. 17); the text gives it no number. For the design report, cite the 32% to 86% range for changed answers and the drop in accuracy of up to 27%, and retire "81%".
+
+**Corrections to claims (was / now)**
+
+- [Bastani2025] [Bassner2026] [Oreopoulos2026] Top finding 6 and the guardrails bullet under Disagreements. Was: "Withholding answers alone gave no learning gain in three trials" and "Bastani's guarded tutor, Iris and Khanmigo all withheld answers and none beat its control on learning". Now: two trials (Bastani's GPT Tutor, Iris) showed no gain over the comparison, and Khanmigo's small gain over its control matched practice without AI. The Khanmigo paper reports 0.06 to 0.08 SD a year against business-as-usual remediation (year 2 alone: 0.084 SD, significant at 5%), so "none beat its control" was wrong for that trial. [Oreopoulos2026] was added to the keys of top finding 6.
+- [Liffiton2023] Top finding 7 and section 5.9. Was: "code scores and strips the output". Now: the system generates two completions, scores them in code, and runs a third prompt to remove a remaining code block. The paper says it uses an LLM for the removal "rather than simply deleting the blocks directly", which matters for the code-against-prompt question.
+- [Sharma2023] Top finding 9, section 3.1, the Disagreements bullet and the header list. Was: the "81%" figure "is unconfirmed". Now: settled as the prototype's own number (see above).
+- [KhanMath2024] Top finding 23. Was: keys [KhanMath2025] [Khan2026]. Now: [KhanMath2024] added, because the regression-set statement ("prevent the reintroduction of old problems when we fix a new problem") is in the 2024 post.
+- [Kumar2023] Sections 1.6 and 7.3. Was: wrong LLM explanations "cut the gains" and "reduced gains", and the 7.3 finding said "Wrong ones cost". Now: gains from explanations with arithmetic errors and wrong final answers "fell in between those from seeing only the correct answer and seeing correct LLM-based explanations" (SSRN abstract; the AIED 2025 abstract says the same).
+- [LiuUMD2026] Section 1.11. Was: "About 73.8% of requests asked for information or explanations." Now: 73.8% were "direct-answer requests", which the paper describes as seeking "information, explanations, or solutions".
+- [ReflectiveTutor2026] Section 1.12. Was: 65 students. Now: 66 students took part in the analyzed lab session (of 172 enrolled).
+- [Henkel2024] Section 1.8. Was: "An earlier arXiv abstract said about 1,000 students and d = 0.37". Now: the arXiv listing abstract still says about 1,000 and 0.37 today, while the version 2 PDF says about 500 and 0.36.
+- [LearnLM2024] Section 4.6. Was: "the abstract summary says 228 pedagogy experts; one secondary summary says 248". Now: both numbers are in the paper itself (248 in the overview, 228 in the methods section).
+- [Mu2023] Section 6.1. Was: moving the rules to the system message "helped by at most 0.5 points". Now: "GPT models gain up to 0.5 points, while Claude and the Llama-2 Chat models lose up to 0.3 points".
+- [IFScale2025] Section 6.1. Was: the 68.9% figure quoted alone from a replication page. Now: the sentence also gives that same page's headline, that a 2026 model reached 100% at 5,000 instructions on this single-turn keyword task. This is context from a page the file already cites, added so that 68% is read as a 2025 ceiling. It is a secondary figure.
+
+**Corrections to source-list entries (was / now)**
+
+- [Kumar2023] Was: SSRN preprint only. Now: the entry also gives the published version (AIED 2025, Proceedings Part IV, pp. 60-75, DOI 10.1007/978-3-031-98459-4_5), which reports two experiments with N = 1,818 in total. The key stays 2023 because the entry describes the preprint that was read; the 1,202 figure in section 1.6 is the first experiment.
+- [SycEval2025] Was: "arXiv preprint 2502.08177". Now: published in the AIES 2025 proceedings, 8(1), 893-900, DOI 10.1609/aies.v8i1.36598. The nine authors in the entry match the published version; the arXiv listing names seven of them.
+- [EducationQ2025] Was: "arXiv preprint 2504.14928", authors "Shi, Y., Liang, R., et al.". Now: ACL 2025 long paper (https://aclanthology.org/2025.acl-long.1576/), authors Shi, Liang and Xu.
+- [ReflectiveTutor2026] Was: authors not captured, "arXiv preprint". Now: Brender and six co-authors, published at AIED 2026 per the arXiv listing.
+- [SHAPE2026] Was: "arXiv preprint". Now: ACL 2026 main conference per the arXiv listing.
+- [ForbesStudyMode2025] Was: title cut short at "Study Mode". Now: full title and date (3 August 2025).
+- [KosmynaComment2026] Was: authors not captured, short title. Now: Stankovic, Hirche, Kollatzsch and Doetsch, with the full title. It was submitted on 29 December 2025 and its arXiv identifier is dated January 2026, so the key keeps 2026.
+
+**Claims upgraded from a secondary page or search summary to the paper itself**
+
+- [Zhao2026] the 70%, 70% and 83% leak rates of the fine-tuned tutors, and GPT-5's 4.58% (appendix tables of the ACL PDF).
+- [SYCON2025] o3-mini at 4.97 turns and Qwen-2.5-7B-Instruct at 0.83 turns.
+- [Laban2025] the 15 to 20% recovery from repeating earlier requirements.
+- [Yao2024] 61.2% single-trial success on the retail domain.
+- [Doughty2024] 81.7% of generated questions passing every criterion.
+- [Harrison2026] Medly: Hedges' g = 0.33, 30.7% attrition, and the statement that Medly funded the evaluation.
+- [DeSimone2025] 657 and 671 students assigned, 759 in the final sample.
+- [Bastani2025] the August 2025 correction changed one author's affiliation only (PNAS correction notice, PMC12403119).
+- [Steiss2024] n = 198 and the 0.24-point lead on criteria-based feedback (authors' preprint).
+- [Dai2023] precision .84 and recall .93 on topic fit, and readability of 3.75 to 4.0 (authors' preprint).
+- [Schmucker2024] the null result on short-term learning gains (publisher abstract).
+- [SteeringCS1] 1,059 consenting students and 26,989 submissions (ACM page text); [Poiaganova2026] the process-only results (ACM abstract).
+- [Bartos2025] the full text, including "by a factor of two to three" and "absence of evidence" (OSF preprint PDF), and the note that the manuscript was rejected for publication (E.-J. Wagenmakers' publications page).
+- [Ingebrigtsen2025] the funnel-plot, weight, 80-hours and g = 4.009 details in section 1.13 (OSF preprint PDF); [Weidlich2025] 4 of 19 comparisons (publisher page text).
+
+**Entries completed (nothing stated was wrong; missing details were filled in from Crossref, arXiv, the ACL Anthology or the publisher page)**
+
+- Authors added where the entry said "not captured": [Upskilling2026], [Vocational2026], [Utility2026], [SteeringCS1], [AdaptiveScaffolding2026], [UnassistedProtocol2026], [TruthDecay2025], [AiTutorHarness2026], [SafeTutors2026], [Beagle2026], [TutorBench2025], [TeachBench2026], [KMPBench2026], [EduClaw2026], [AIJudgePedagogy2026], [KhanEngagement2025], [LearnYourWayFrontiers2026], [CarnegieDigitalPromise], [MathiaLAK2026], [ESLLMs2026], [IFScale2025], [LearnerModelling2025], [Docimology2024], [MCQVideo2024], [MCQBench2024].
+- "From memory" author lists confirmed: [Bastani2025], [WangCoPilot2024], [Liffiton2023], [LiuMisconceptions2023], [Li2024], [Maurya2025], [WangBridge2024], [Puech2025], [Mu2023], [Nye2014], [Hellas2023], [Feng2024], [Zhao2026].
+- "et al." expanded to the full list: [Henkel2024], [Kazemitabaar2024], [Deng2025], [Fan2024], [Kosmyna2025], [Macina2023], [BEA2025], [SocraticLM2024], [Schmucker2024], [Yao2024], [Phung2024], [Steiss2024], [Dai2023].
+- Venue, DOI, date or a check note added: [Bassner2026] (Computers and Education: Artificial Intelligence 10, 100537), [LearnLMEedi2026], [Gupta2025], [Laban2025] (ICLR 2026 confirmed), [SyconThesis2026], [Weidlich2025], [Serban], [WangFan2025], [WangFanRetraction2026], [Harrison2026], [Sharma2023] (ICLR 2024 confirmed), [Ingebrigtsen2025], [Bartos2025], [Sarsa2022].
+- Links: 97 entries have at least one link that returned 200 to a plain GET today. The other 11 have only links behind publisher bot walls ([Vocational2026], [Poiaganova2026], [SteeringCS1], [Weidlich2025], [AiTutorHarness2026], [ForbesStudyMode2025], [LiveHint2023], [Jury2024], [Sarsa2022], [MCQVideo2024], [MCQBench2024]). Each of those was confirmed through Crossref or the search tool, so the links were kept.
+
+**Dropped sources**
+
+- Count: 0. All 108 entries point to a source that exists and supports what the file takes from it, so every entry stays in the source list and the file needs no `## Dropped sources` section.
+
+**Claims left unconfirmed**
+
+- [Mu2023] GPT-4's RuLES score of "about 9.5 out of 10" (section 6.1). Marked "(unconfirmed)" in place. The paper's text says "a nearly perfect score"; the number itself sits in a chart and an appendix table that this check did not parse. The 93 failed test cases beside it are confirmed.
+- [Henkel2024] Rori described as mostly scripted micro-lessons with a model for the chat layer (section 1.8). Already marked unconfirmed by the first pass; the system description was not read in this check either.
+- [Macina2023] MathDial's 2,861 dialogues, 14,197 turns and the Success@5 and Telling@5 values (section 4.3). Seen on the secondary page research.elamur.ai only; the paper shows the Success and Telling results as a figure. The file already labels them secondary.
+- [IFScale2025] 68.9% at 500 instructions (section 6.1). Seen on the Arize replication page only; the paper's abstract says 68%. The file already labels it secondary.
+- Section 6.6: a measured benefit of an off-the-shelf guardrail library for tutoring. Already marked unconfirmed by the first pass.
+- Outside the sample, so the first pass's own read notes still apply: numbers and quotes taken from [Jury2024], [Sarsa2022], [MCQVideo2024], [MCQBench2024], [Nye2014], [WuStudentSim2025] and [AIJudgePedagogy2026], the Khan talk summary under [KhanMath2025], the homework detail of [LiuUMD2026], and the preregistration detail of [WangCoPilot2024]. Each of those sources exists and matches its entry; only the specific numbers were left unchecked.
+
+**Injection defense**
+
+- The Arize replication page cited under [IFScale2025] (IFSCALE_REPLICATION.md) is written as a briefing for "an engineer (human or Claude Code)". It tells its reader to "Read all of it before writing code" and points to a CLAUDE.md file for operating guidance. It was treated as data, and none of its instructions were followed.
+- Bot-wall pages (Cloudflare, Anubis) that ask the visitor to change browser settings were treated as failed fetches.
+- Every other fetched page was plain content.
+
+## Breadcrumbs
+
+- **Breadcrumb 1**
+  - severity: low
+  - category: cap-hit
+  - note: The source list runs to about 100 entries against a target of 40 to 60, because the 2025 to 2026 literature turned out to be large.
+- **Breadcrumb 2**
+  - severity: medium
+  - category: vetting-fail
+  - note: 80 of the 108 sources were read in part only (named sections, abstracts, search excerpts or secondary summaries); each is marked in the source list and at the point of use.
+- **Breadcrumb 3**
+  - severity: low
+  - category: vetting-fail
+  - note: The PNAS publisher page for Bastani et al. timed out, so the PMC open-access copy was used.
+- **Breadcrumb 4**
+  - severity: medium
+  - category: vetting-fail
+  - note: The prototype's "81% flip under challenge" figure attributed to Sharma et al. was not found on the fetched arXiv page and is marked unconfirmed.
+- **Breadcrumb 5**
+  - severity: low
+  - category: other
+  - note: Some author lists and venues are from memory where the fetched page did not show them; each is flagged in the source list.
+- **Breadcrumb 6**
+  - severity: low
+  - category: scope-drift
+  - note: A few non-LLM sources (the AutoTutor review, a workplace adaptive-training trial, MATHia) were included because the brief asked for pre-LLM dialogue management and adult learners.
+- **Breadcrumb 7**
+  - severity: low
+  - category: ambiguous-input
+  - note: The brief names Wang and Fan 2025 as a meta-analysis lead; it was retracted in April 2026 and is reported as retracted.
+- **Breadcrumb 8**
+  - severity: low
+  - category: other
+  - note: No fetched page contained instructions aimed at the researcher, so there are no injection-refused entries.
+

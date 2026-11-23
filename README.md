@@ -140,7 +140,7 @@ A sample script is a JSON list of steps: page commands, chat lines, scripted stu
 
 ## Layout
 
-- `design/` - the two design reference files. The app must match them.
+- `design/` - the two design reference files, `chat-panel.html` and `page-contact-sheet.html`. The app must match them. `adaptive-learning-research.md` is the research report on how to build the lesson-plan builder and the tutor, and `research/` holds the nine files of research notes behind it.
 - `images/` - the concept renders shown at the top of this file and in `vision.md`.
 - `crates/pedagogue-session/` - the lesson model, the chat transcript and the session handle that a host drives.
 - `crates/pedagogue-demo/` - a sample script player and a stand-in tutor.
