@@ -1,9 +1,9 @@
 {
-  "name": "pedagogue-ui",
+  "name": "teachpad-ui",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Pedagogue UI: TypeScript sources bundled by esbuild into dist/ and served by pedagogue-server.",
+  "description": "TeachPad UI: TypeScript sources bundled by esbuild into dist/ and served by teachpad-server.",
   "engines": {
     "node": ">=24.15"
   },

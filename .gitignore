@@ -5,4 +5,4 @@
 /ui/node_modules/
 /ui/dist/
 # tauri-build's generated ACL schemas, regenerated on every desktop build.
-/crates/pedagogue-desktop/gen/
+/crates/teachpad-desktop/gen/

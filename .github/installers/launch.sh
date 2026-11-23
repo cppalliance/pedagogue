@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Starts an installed Pedagogue on macOS or Linux and checks that it works.
+# Starts an installed TeachPad on macOS or Linux and checks that it works.
 #
 # 1. The app prints its address.
 # 2. It serves its page and its script on that address.
@@ -11,8 +11,8 @@
 # first one. launch.ps1 is the same check for Windows.
 #
 # Usage: launch.sh <command> [<argument> ...]
-#   launch.sh /Applications/Pedagogue.app/Contents/MacOS/pedagogue
-#   launch.sh xvfb-run -a pedagogue
+#   launch.sh /Applications/TeachPad.app/Contents/MacOS/teachpad
+#   launch.sh xvfb-run -a teachpad
 set -euo pipefail
 
 if [ "$#" -lt 1 ]; then

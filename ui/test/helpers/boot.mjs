@@ -52,7 +52,7 @@ export function sampleFrames() {
 export function studentFrames() {
   return readJson(
     "crates",
-    "pedagogue-session",
+    "teachpad-session",
     "fixtures",
     "student-frames.json",
   );

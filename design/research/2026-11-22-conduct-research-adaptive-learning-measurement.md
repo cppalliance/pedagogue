@@ -1,6 +1,6 @@
 ---
 produced: 2026-11-22
-title: "Adaptive learning measurement research - student models, Bayesian knowledge tracing, mastery criteria, N correct in a row, scoring retries and partial credit, answer until correct, hints and gaming the system, item response theory, adaptive testing, response time, confidence and metacognition, LLM grading of short answers and code, normalized gain, next-item correctness, small-n study designs (Pedagogue stream 3)"
+title: "Adaptive learning measurement research - student models, Bayesian knowledge tracing, mastery criteria, N correct in a row, scoring retries and partial credit, answer until correct, hints and gaming the system, item response theory, adaptive testing, response time, confidence and metacognition, LLM grading of short answers and code, normalized gain, next-item correctness, small-n study designs (TeachPad stream 3)"
 ---
 
 # Stream 3 - Measurement: how do you know what a student knows, and how well they are learning
@@ -312,7 +312,7 @@ title: "Adaptive learning measurement research - student models, Bayesian knowle
   - Gaming the system [Baker2004]: 70 students aged about 12 to 14, classroom observation in 20-second windows. Gaming was defined as "systematic and rapid incorrect answers or use of help ... Examples include entering 1,2,3,4... or clicking every checkbox in a set of multiple-choice answers until an answer is identified as correct". Gaming took 3 percent of observed time; 24 percent of students did it at least once. Frequency of gaming correlated r = -0.38 with posttest (partial r = -0.34 controlling for pretest and general achievement). No other off-task behavior correlated significantly (off-task talk r = -0.19). The eight heaviest gamers averaged 44 percent on the posttest; the tutor group overall went from 40 to 71 percent.
   - Detecting it [Baker2008b]: a detector built from log features told gaming students with poor learning from non-gamers with A' = 0.80 on training data and 0.73 under leave-one-out cross-validation (237 students), and kept A' = 0.80 on a lesson it was not trained on.
   - Signals the BKT guess and slip models found useful [Baker2008]: time taken relative to other students, the number of the last 5 or 8 actions that were errors or help requests, and repeated actions on the same interface element.
-- Caveats: the gaming studies are from middle school classrooms. Whether adults learning a work tool game a tutor at similar rates is untested in what I read. The retry design in the Pedagogue brief (click options until right) is the exact behavior Baker lists as an example of gaming.
+- Caveats: the gaming studies are from middle school classrooms. Whether adults learning a work tool game a tutor at similar rates is untested in what I read. The retry design in the TeachPad brief (click options until right) is the exact behavior Baker lists as an example of gaming.
 - Grade: B for the correlational studies, C for the system rules.
 - Sources: [Baker2008] [ASSISTmentsSB] [ASSISTmentsSupports] [Xiong2017] [Cosyn2021] [Matayoshi2025] [Ostrow2015] [AlevenKoedinger2000] [Baker2004] [Baker2008b]
 

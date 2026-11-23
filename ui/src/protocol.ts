@@ -1,5 +1,5 @@
 // The frames on the socket, both ways. The Rust side defines them in
-// crates/pedagogue-session (frames.rs and the page view beside the lesson
+// crates/teachpad-session (frames.rs and the page view beside the lesson
 // model), and shared fixtures pin both sides: a field renamed there fails a
 // test here.
 import * as z from "zod";

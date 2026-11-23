@@ -1,0 +1,37 @@
+[package]
+name = "teachpad-desktop"
+description = "The TeachPad desktop app: a Tauri window on the in-process server."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+build = "build.rs"
+
+[[bin]]
+name = "teachpad"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+teachpad-demo.workspace = true
+teachpad-server.workspace = true
+teachpad-session.workspace = true
+tauri.workspace = true
+tauri-plugin-opener.workspace = true
+# `sync` for the stop signal and `time` for the bound on the stop. The
+# tasks run on Tauri's async runtime, which is tokio.
+tokio = { workspace = true, features = ["sync", "time"] }
+tracing.workspace = true
+tracing-subscriber.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[build-dependencies]
+tauri-build.workspace = true
+
+[lints]
+workspace = true

@@ -1,10 +1,10 @@
-# Pedagogue Vision: Adaptive Learning in a Living Textbook
+# TeachPad Vision: An Adaptive Learning Companion
 
 ## Executive summary
 
-The Pedagogue is an adaptive learning program. It teaches one student at a time, measures what that student understands as the lesson goes, and picks each next step from that measurement. In studies Benjamin Bloom reported in 1984, the average tutored student scored above 98 percent of a conventional class. Our aim is that result for every learner.
+TeachPad is an adaptive learning program. It teaches one student at a time, measures what that student understands as the lesson goes, and picks each next step from that measurement. In studies Benjamin Bloom reported in 1984, the average tutored student scored above 98 percent of a conventional class. Our aim is that result for every learner.
 
-The student sees a living textbook: a page on one side and a tutor on the other. The tutor writes the page as the lesson unfolds: explanations, diagrams, worked examples and quizzes. Every answer, every retry and every question in the chat tells the tutor where the student stands.
+The student sees a learning companion: a page on one side and a tutor on the other. The tutor writes the page as the lesson unfolds: explanations, diagrams, worked examples and quizzes. Every answer, every retry and every question in the chat tells the tutor where the student stands.
 
 Then it adapts. A student who answers well moves quickly past what they already know. A student who gets stuck gets a smaller step, a second explanation from a new angle, a return to the idea underneath, and fresh research from the web when the lesson plan runs thin. Moving on takes a demonstrated skill, so a lucky guess earns a second question. The tutor remembers each student and picks up where they stopped.
 
@@ -20,7 +20,7 @@ Three pieces exist today: a tutor prompt that teaches through mastery-gated mile
 
 In 1984 Benjamin Bloom reported what two of his doctoral students had found. Learners taught by a tutor, alone or in groups of two or three, with a check and a correction after each unit, finished about two standard deviations above a conventional class. A tutor for every student costs more than most schools and employers can pay. So Bloom asked for teaching methods that reach the same result at scale, and he called that search [the 2 sigma problem][bloom]. Later reviews of tutoring and of tutoring systems report smaller effects, and question Q13 below takes up how large an effect to expect.
 
-A good tutor works in a loop, and so does the Pedagogue.
+A good tutor works in a loop, and so does TeachPad.
 
 ```mermaid
 flowchart TD
@@ -162,7 +162,7 @@ flowchart TD
   Tutor -->|"every step"| Record[Run record]
 ```
 
-*Figure 2. The Pedagogue as a Runvil Host, the design for the next step.*
+*Figure 2. TeachPad as a Runvil Host, the design for the next step.*
 
 One tutor prompt serves every lesson, and the lesson plan is its input. The Gateway is the one process that holds the model vendors' keys, so they stay out of the app and the page.
 

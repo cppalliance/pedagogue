@@ -30,7 +30,7 @@ function workspaceVersion(manifest) {
  */
 function internalEntries(manifest) {
   const entries = tableOf(manifest, "workspace.dependencies") ?? "";
-  return [...entries.matchAll(/^(pedagogue-[\w-]+)\s*=\s*\{(.*)\}\s*$/gm)].map(
+  return [...entries.matchAll(/^(teachpad-[\w-]+)\s*=\s*\{(.*)\}\s*$/gm)].map(
     ([, name, fields]) => ({
       name,
       version: fields.match(/\bversion\s*=\s*"([^"]+)"/)?.[1],
@@ -94,18 +94,18 @@ describe("the version", () => {
   it("is read from each internal entry, whatever the order of its keys", () => {
     const manifest = [
       "[workspace.dependencies]",
-      'pedagogue-session = { path = "crates/pedagogue-session", version = "1.2.3" }',
-      'pedagogue-demo = { version = "1.2.0", path = "crates/pedagogue-demo" }',
-      'pedagogue-bare = { path = "crates/pedagogue-bare" }',
+      'teachpad-session = { path = "crates/teachpad-session", version = "1.2.3" }',
+      'teachpad-demo = { version = "1.2.0", path = "crates/teachpad-demo" }',
+      'teachpad-bare = { path = "crates/teachpad-bare" }',
       'serde = { version = "1", features = ["derive"] }',
       "",
       "[workspace.lints.rust]",
-      'pedagogue-late = { path = "elsewhere", version = "9.9.9" }',
+      'teachpad-late = { path = "elsewhere", version = "9.9.9" }',
     ].join("\n");
     assert.deepEqual(internalEntries(manifest), [
-      { name: "pedagogue-session", version: "1.2.3" },
-      { name: "pedagogue-demo", version: "1.2.0" },
-      { name: "pedagogue-bare", version: undefined },
+      { name: "teachpad-session", version: "1.2.3" },
+      { name: "teachpad-demo", version: "1.2.0" },
+      { name: "teachpad-bare", version: undefined },
     ]);
     assert.deepEqual(internalEntries('[package]\nname = "x"\n'), []);
   });

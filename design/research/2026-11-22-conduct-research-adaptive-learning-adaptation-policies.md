@@ -1,6 +1,6 @@
 ---
 produced: 2026-11-22
-title: "Adaptive learning adaptation policies evidence review - stuck detection, wheel-spinning, productive failure, help and hint policy, scaffolding and fading, worked examples, human tutoring moves, remediation and misconception feedback, feedback types and timing, praise, expertise reversal, pretesting and test-out, overlearning, target difficulty and 85 percent rule, task selection and spaced repetition, learner control, does adaptivity pay (Pedagogue stream 4, Q7 to Q12)"
+title: "Adaptive learning adaptation policies evidence review - stuck detection, wheel-spinning, productive failure, help and hint policy, scaffolding and fading, worked examples, human tutoring moves, remediation and misconception feedback, feedback types and timing, praise, expertise reversal, pretesting and test-out, overlearning, target difficulty and 85 percent rule, task selection and spaced repetition, learner control, does adaptivity pay (TeachPad stream 4, Q7 to Q12)"
 ---
 
 # Stream 4 - Adaptation policies: what to do when a student is stuck, and when a student is ahead
@@ -107,7 +107,7 @@ title: "Adaptive learning adaptation policies evidence review - stuck detection,
 
 #### 1.5 Being stuck in a chat with an LLM tutor
 
-- **Finding:** In real dialogues with a guarded LLM tutor, how long a student has been stuck predicts recovery, and the useful tutor move changes with that length. This is the only source here that works from chat turns, which is the signal the Pedagogue has.
+- **Finding:** In real dialogues with a guarded LLM tutor, how long a student has been stuck predicts recovery, and the useful tutor move changes with that length. This is the only source here that works from chat turns, which is the signal TeachPad has.
 - **Evidence:**
   - Setting: a GPT-4o tutor that coaches university general-chemistry students through planning a solution, with a prompt that forbids solving the problem, asks one question at a time, and calls for "increasingly specific, targeted hints" after a wrong answer. The prompt holds the problem and four scripted questions, each paired with its correct answer, and a scripted question is one "explicitly included in the prompt's scripted sequence". 1,260 sessions, 20,462 student turns, 8 problems. [Ahtisham2026]
   - Impasse turns were defined from the text alone: (a) a conceptual error (answer coded completely incorrect, partially incorrect or not specific enough), (b) expressed uncertainty ("I think", "maybe", "is it...?"), or (c) help-seeking ("I don't understand", "idk", or a question that proposes no answer). 6,630 impasse turns in 4,170 episodes: 34.9 percent errors, 29.7 percent uncertainty, 35.4 percent help requests. An LLM annotator matched human coding at kappa .79 to .86. [Ahtisham2026]

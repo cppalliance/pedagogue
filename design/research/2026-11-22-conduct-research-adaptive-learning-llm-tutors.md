@@ -84,7 +84,7 @@ title: "LLM tutors evidence review - large language model AI tutor learning outc
 
 - **Finding:** Screened ChatGPT hints produced learning gains that did not differ statistically from human tutor-authored hints, but a third of raw hints were wrong.
 - **Evidence:** 274 Mechanical Turk adults after exclusions (90 control, 86 human hints, 98 ChatGPT hints), four math subjects, pre-test and post-test. ChatGPT hints: 43.51% to 60.52% (about +17 points). Human hints: 53.46% to 65.09% (+11.62 points). No-hint control: 55.15% to 57.01% (+1.85 points). Raw hint quality: of 75 problems, 24 hints (32%) were thrown out for a wrong answer or wrong work (Elementary Algebra 25%, Intermediate Algebra 47%, College Algebra 27%, Statistics 29%). Checking a hint by hand took 37.6 seconds on average. Self-consistency (generate ten hints, keep the one with the most common answer) cut the error rate to 0% (Elementary Algebra), 2% (Intermediate and College Algebra) and 13% (Statistics).
-- **Caveats:** Crowd workers, not enrolled students (they are adults, which is closer to the Pedagogue's population than most studies). ChatGPT 3.5 era. Only hints that passed the human check were used in the learning experiment, so the learning result is for reviewed content. Pre-test averages differed between arms.
+- **Caveats:** Crowd workers, not enrolled students (they are adults, which is closer to TeachPad's population than most studies). ChatGPT 3.5 era. Only hints that passed the human check were used in the learning experiment, so the learning result is for reviewed content. Pre-test averages differed between arms.
 - **Grade:** A for the experiment; B for the error-rate audit.
 - **Sources:** [Pardos2024]
 
@@ -269,7 +269,7 @@ Each entry gives the rate, the conditions, and the countermeasure the source its
 - **Evidence (SYCON-Bench, Hong et al. 2025, EMNLP Findings):** 17 models, 500 five-turn prompts with escalating pressure. Reasoning and larger models held longer (confirmed on the paper: o3-mini held for 4.97 of 5 turns in the debate setting; Qwen-2.5-7B-Instruct held for 0.83 turns). "Alignment tuning amplifies sycophantic behavior". A 2026 thesis reusing the method found about 40 to 41% of dialogues flipped within five turns for Llama-3.3-70B, Qwen3-32B and DeepSeek-V4-Flash, and that "once a model changes its answer, it usually sticks with that new answer".
 - **Evidence (Truth Decay, 2025, preprint):** Claude Haiku, GPT-4o-mini and Llama 3.1 8B. Models that began with a correct answer changed it about 10% of the time across turns; models that began wrong changed up to 50% by turn four. Rebuttals with a rationale were more destabilizing (36 to 42% change rates).
 - **Countermeasures in the sources:** SYCON: a third-person persona framing improved turn-of-flip by up to 63.8% in the debate setting; an explicit anti-sycophancy instruction added up to 28% in another. Sharma: GPT-4 was the most robust; no prompt fix tested. SycEval separates good flips (student is right) from bad ones, which matters for a tutor because sometimes the student's pushback is correct.
-- **Caveats:** None of these tests a tutor with the correct answer and worked solution in its context, which is the Pedagogue's case. I found no measurement of flip rates under that condition (open question).
+- **Caveats:** None of these tests a tutor with the correct answer and worked solution in its context, which is TeachPad's case. I found no measurement of flip rates under that condition (open question).
 - **Grade:** B (benchmarks with partly automated labels).
 - **Sources:** [Sharma2023], [SycEval2025], [SYCON2025], [SyconThesis2026], [TruthDecay2025]
 
@@ -281,7 +281,7 @@ Each entry gives the rate, the conditions, and the countermeasure the source its
 - **Countermeasures tested there:** A "reasoning tutor" (explicit reasoning before the reply) and a multi-agent tutor (a second agent refines the output). Qwen-32B: 70% to 3% (reasoning) and 4% (multi-agent). Llama-8B: 34% to 3% and 6%. Qwen-7B: 82% to 38% and 61%.
 - **Evidence (AiTutor Harness, WCCCE 2026):** GPT-5.1 and Gemini-3-Flash tutoring 150 CS1/CS2 multiple choice questions under an escalating attacker, up to six turns, 900 conversations. Single-agent leakage: GPT 40.0%, Gemini 14.0%. With a supervisor model that screens each draft: 27.0% to 17.8% overall (34% relative cut). Supervisors rejected 6.40% of tutor turns. "Leakage concentrated in the first two turns". Hallucination 0.2%.
 - **Evidence (real students):** In Bastani, the most common message to the unguarded tutor was a request for the answer; with the guarded tutor, superficial first messages fell from 42% to 37% across the first session as students learned it would not comply.
-- **Caveats:** Multiple choice is a hard case for leakage (eliminating options counts as a leak). The attacker and the judge are models. For the Pedagogue, the app holds the answer key out of the page; the tutor model still knows the answer if the lesson plan supplies it.
+- **Caveats:** Multiple choice is a hard case for leakage (eliminating options counts as a leak). The attacker and the judge are models. For TeachPad, the app holds the answer key out of the page; the tutor model still knows the answer if the lesson plan supplies it.
 - **Grade:** B.
 - **Sources:** [Macina2023], [Maurya2025], [Zhao2026], [AiTutorHarness2026], [Bastani2025]
 
@@ -429,7 +429,7 @@ Each entry gives the rate, the conditions, and the countermeasure the source its
 
 - **Finding:** Across MRBench, the LearnLM rubric, Bridge, MathTutorBench, TutorBench and SAFETUTORS, the same judging questions recur: Did the tutor find the mistake? Did it locate it? Did it hold back the answer? Did it give correct guidance? Is the next step clear to the student? Is it coherent with the conversation so far? Is the tone supportive? Is it accurate? Does it fit the student's level? Is it short enough?
 - **Evidence:** Dimension lists quoted in 4.1 to 4.10.
-- **Caveats:** Every one of these rubrics scores replies or conversations. None scores gate logic, state keeping, or mastery decisions, which are the parts the Pedagogue plans to run in code.
+- **Caveats:** Every one of these rubrics scores replies or conversations. None scores gate logic, state keeping, or mastery decisions, which are the parts TeachPad plans to run in code.
 - **Grade:** B.
 - **Sources:** [Maurya2025], [LearnLM2024], [WangBridge2024], [MathTutorBench2025], [TutorBench2025], [SafeTutors2026]
 
@@ -473,7 +473,7 @@ All of 5.1 to 5.8 are practitioner or vendor sources (grade C) unless marked.
 - **Finding:** Google's position is that pedagogy should be specified by the developer in system instructions, with hard constraints and soft ones treated separately. Its Learn Your Way textbook product reports a retention gain in a small trial.
 - **Evidence (LearnLM paper):** Instructions fall into "hard constraints" (for example "do not reveal the answer") and "soft" guidelines (for example "use a motivating tone"); both matter for education. Conditional instructions such as "If the user has answered 3 questions correctly, move to the next topic" are named as a kind of system instruction the model is trained to follow. In classroom settings the tutor "should follow the system instructions in the interaction regardless of the student's instructions". Scenario types: teach me X, homework help, test prep, practice.
 - **Evidence (Learn Your Way, 2025 tech report and blog; a 2026 Frontiers paper reports the same design):** A textbook PDF is re-leveled and personalized, then rendered as immersive text with embedded questions, section quizzes of 5 to 10 multiple choice items with feedback, narrated slides, audio lessons and mind maps. RCT with 60 Chicago-area students aged 15 to 18, up to 40 minutes on one chapter: immediate test 77% against 68% (p = 0.03), retention test after 3 to 5 days 78% against 67% (p = 0.03), against a plain PDF reader.
-- **Caveats:** Vendor study, N = 60, one text, control had no quizzes or feedback, so the effect cannot be assigned to the AI features. This is the closest published analog to the Pedagogue's "living textbook" page.
+- **Caveats:** Vendor study, N = 60, one text, control had no quizzes or feedback, so the effect cannot be assigned to the AI features. This is the closest published analog to TeachPad's textbook page.
 - **Grade:** A for the trial (small, vendor-run); C for the guidance.
 - **Sources:** [LearnLM2024], [LearnYourWay2025], [LearnYourWayFrontiers2026]
 

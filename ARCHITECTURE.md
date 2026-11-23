@@ -2,7 +2,7 @@
 
 ## Bird's eye view
 
-Pedagogue shows a textbook page beside a tutor chat. A host (a model, or the sample script in this build) fills the page through page commands and writes into the chat. The student reads, answers quizzes and types messages. Everything the student does goes back to the host as one stream of events.
+TeachPad shows a textbook page beside a tutor chat. A host (a model, or the sample script in this build) fills the page through page commands and writes into the chat. The student reads, answers quizzes and types messages. Everything the student does goes back to the host as one stream of events.
 
 ```mermaid
 flowchart LR
@@ -18,29 +18,29 @@ The session is the one place that holds state. A host changes it through a handl
 
 ## Code map
 
-- `crates/pedagogue-session/` - the lesson model, the quiz rules, the chat transcript, the wire frames and the `Session` handle. It is the one crate a host depends on, and it stays free of Axum and Tauri.
+- `crates/teachpad-session/` - the lesson model, the quiz rules, the chat transcript, the wire frames and the `Session` handle. It is the one crate a host depends on, and it stays free of Axum and Tauri.
   - `src/lesson.rs` holds the `Lesson`, its fold `Lesson::apply`, and the calls a student's actions go through. Its children are plain data and logic: `command.rs` (one argument struct per page command), `block.rs` (the blocks those arguments become), `quiz.rs` (quiz blocks and the part of them the UI receives), `quiz_rules.rs` (the quiz rules, as plain functions), `page.rs`, `id.rs` and `refusal.rs` (why a command or an action is refused).
   - `src/session.rs` holds the `Session` handle: one lock around the lesson and the chat, a version that rises with every change, and `changes_since`, which returns the pages and the chat changed since a reader's cursor. A student action first waits for room on the event channel and then takes the lock, so events reach the host in the order of the changes they report.
   - `src/chat.rs` holds the chat transcript, `src/frames.rs` the frames on the wire both ways, `src/changes.rs` the `Version` and what a reader gets back, and `src/error.rs` the two error types.
   - `src/event.rs` holds the events a host hears about the student.
   - `src/wording.rs` writes everything a model reads: receipts, refusals, and the line that reports each student event.
   - `fixtures/student-frames.json` holds one example of each frame the UI sends. The Rust tests and the UI tests both read it.
-- `crates/pedagogue-demo/` - a sample script player and a stand-in tutor. It uses the session crate exactly as a real host would, down to reading a new block's id out of its receipt.
+- `crates/teachpad-demo/` - a sample script player and a stand-in tutor. It uses the session crate exactly as a real host would, down to reading a new block's id out of its receipt.
   - `src/script.rs` reads a script, a JSON list of steps, and checks each step's shape and names up front.
   - `src/player.rs` holds `play`, which plays a script to its end, and `run`, which plays it and then answers the live student until its caller drops it. Neither spawns a task.
   - `src/stand_in.rs` is the stand-in: the typing dots and one fixed reply to a message, and a chat line with the text a tutor would be sent for everything else.
   - `src/wording.rs` holds the stand-in's lines, and `src/pace.rs` the two speeds a script plays at.
 - `samples/` - the sample scripts. `contact-sheet.json` draws the two design files state for state, and `contact-sheet.frames.json` holds the frames the app sends for it. A Rust test keeps that file current, and the UI tests read it.
-- `crates/pedagogue-server/` - the Axum router: the UI files, the socket and a command route. Its build script runs `ui/build.mjs`, and the bundle is embedded into the binary.
+- `crates/teachpad-server/` - the Axum router: the UI files, the socket and a command route. Its build script runs `ui/build.mjs`, and the bundle is embedded into the binary.
   - `src/serve.rs` holds `bind`, which opens the loopback listener, and `serve`, one future that its caller runs. It stops on the caller's signal and ends when every socket has closed.
   - `src/app.rs` joins the routes of each feature and holds the state they share. `src/assets.rs` serves the three UI files by name, `src/socket.rs` runs one task per `/ws` connection with a cursor into the session, and `src/commands.rs` is `POST /commands`.
   - `src/cross_site.rs` guards the socket and the command route against other sites, `src/csp.rs` stamps the content policy on every response, and `src/error.rs` holds the refusals sent over HTTP.
   - `examples/serve.rs` runs the server and the demo together for a browser.
-- `crates/pedagogue-desktop/` - the Tauri app. It owns the session and the one async runtime, starts the server and the demo on it, and opens a window on the server's address.
+- `crates/teachpad-desktop/` - the Tauri app. It owns the session and the one async runtime, starts the server and the demo on it, and opens a window on the server's address.
   - `src/run.rs` holds `run`: it reads the script and opens the listener before the window exists, spawns the server and the demo on Tauri's async runtime, and after the window closes it signals the server and waits for it for a few seconds at most.
   - `src/navigation.rs` is the navigation policy: the window loads only the app's own address, and any other link opens in the system browser. The page has no access to Tauri's API, so links are handled in Rust.
   - `src/main.rs` only calls `run` and returns its exit code. `app-icon.png` is the source of the files in `icons/`, made with `cargo tauri icon`.
-- `crates/pedagogue-installer/` - the build tool behind the alias `cargo installer`. It builds the installers of one target with the Tauri bundler and copies each one into `target/installer/<target>/` under its release name. The app's crates stay independent of it.
+- `crates/teachpad-installer/` - the build tool behind the alias `cargo installer`. It builds the installers of one target with the Tauri bundler and copies each one into `target/installer/<target>/` under its release name. The app's crates stay independent of it.
   - `src/platform.rs` holds the four targets, the system each one is built on, the formats it gets, and the one definition of the release file names. `src/args.rs` reads the command line.
   - `src/tauri.rs` builds the command line of the Tauri CLI, the copy that `npm ci` installs under `ui/node_modules`, and tells it the target folder, so the build writes where the tool reads. `src/collect.rs` clears the folders a build writes to, and afterwards finds the one file each bundler left and copies it.
   - `src/run.rs` holds `run`: the steps in order and the exit code. Each child process starts through a closure, so the tests record every command and write the files a real build would.

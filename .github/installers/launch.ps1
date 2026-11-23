@@ -1,4 +1,4 @@
-# Starts an installed Pedagogue on Windows and checks that it works.
+# Starts an installed TeachPad on Windows and checks that it works.
 #
 # 1. The app prints its address.
 # 2. It serves its page and its script on that address.
@@ -9,7 +9,7 @@
 # "socket opened" for each socket, and the page in the window opens the
 # first one. launch.sh is the same check for macOS and Linux.
 #
-# Usage: launch.ps1 -App <path to pedagogue.exe>
+# Usage: launch.ps1 -App <path to teachpad.exe>
 param([Parameter(Mandatory = $true)][string]$App)
 
 $ErrorActionPreference = 'Stop'
@@ -18,7 +18,7 @@ $ProgressPreference = 'SilentlyContinue'
 # How long each wait may take, in seconds. On a fresh machine the first
 # start sets up the web view's profile, which takes most of that time.
 $limit = if ($env:LAUNCH_LIMIT) { [int]$env:LAUNCH_LIMIT } else { 120 }
-$logs = Join-Path ([IO.Path]::GetTempPath()) ('pedagogue-launch-' + [Guid]::NewGuid().ToString('N'))
+$logs = Join-Path ([IO.Path]::GetTempPath()) ('teachpad-launch-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Force -Path $logs | Out-Null
 $stdout = Join-Path $logs 'stdout.log'
 $stderr = Join-Path $logs 'stderr.log'

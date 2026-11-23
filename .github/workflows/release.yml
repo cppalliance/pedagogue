@@ -1,5 +1,5 @@
 name: Release
-run-name: Pedagogue installers (${{ github.event_name == 'push' && github.ref_name || github.event_name == 'pull_request' && 'pull request' || 'dispatched' }})
+run-name: TeachPad installers (${{ github.event_name == 'push' && github.ref_name || github.event_name == 'pull_request' && 'pull request' || 'dispatched' }})
 
 # Builds the five installers (a setup for Windows, a disk image each for
 # Apple silicon and Intel Macs, a Debian package and an AppImage for Linux),
@@ -16,7 +16,7 @@ run-name: Pedagogue installers (${{ github.event_name == 'push' && github.ref_na
 #
 # What starts a run:
 # - A pushed vX.Y.Z tag that names the workspace version: build, check,
-#   assemble and publish. Only cppalliance/pedagogue publishes: in a copy
+#   assemble and publish. Only cppalliance/teachpad publishes: in a copy
 #   of the repository the run ends after assemble.
 # - A pull request that touches the paths below, or a manual run on any
 #   ref: build, check and assemble. The files stay as workflow artifacts
@@ -34,9 +34,9 @@ on:
     paths:
       - .github/workflows/release.yml
       - .github/installers/**
-      - crates/pedagogue-installer/**
-      - crates/pedagogue-desktop/tauri.conf.json
-      - crates/pedagogue-desktop/icons/**
+      - crates/teachpad-installer/**
+      - crates/teachpad-desktop/tauri.conf.json
+      - crates/teachpad-desktop/icons/**
       - .cargo/config.toml
       - Cargo.toml
       - Cargo.lock
@@ -211,13 +211,13 @@ jobs:
         run: cargo installer --target "$TRIPLE"
 
       # A silent install, the first one on this runner. The setup installs
-      # for the current user, into %LOCALAPPDATA%\Pedagogue.
+      # for the current user, into %LOCALAPPDATA%\TeachPad.
       - name: Install the setup and check the app
         if: matrix.platform == 'windows'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $setup = Join-Path $PWD "target\installer\$env:TRIPLE\Pedagogue_${env:VERSION}_${env:ARCH}-setup.exe"
+          $setup = Join-Path $PWD "target\installer\$env:TRIPLE\TeachPad_${env:VERSION}_${env:ARCH}-setup.exe"
           if (-not (Test-Path -LiteralPath $setup)) { throw "the build left no $setup" }
           # Not -Wait, which waits for every descendant too, so a process the
           # setup leaves running would hang the job. Reading Handle at once
@@ -226,7 +226,7 @@ jobs:
           $null = $process.Handle
           if (-not $process.WaitForExit(10 * 60 * 1000)) { throw 'the setup did not exit within 10 minutes' }
           if ($process.ExitCode -ne 0) { throw "the setup exited with code $($process.ExitCode)" }
-          $app = Join-Path $env:LOCALAPPDATA 'Pedagogue\pedagogue.exe'
+          $app = Join-Path $env:LOCALAPPDATA 'TeachPad\teachpad.exe'
           if (-not (Test-Path -LiteralPath $app)) { throw "the setup did not install $app" }
           $installed = (Get-Item -LiteralPath $app).VersionInfo.ProductVersion
           if ($installed -ne $env:VERSION) { throw "$app has version '$installed', expected $env:VERSION" }
@@ -238,7 +238,7 @@ jobs:
         timeout-minutes: 10
         shell: pwsh
         run: |
-          & ./.github/installers/launch.ps1 -App (Join-Path $env:LOCALAPPDATA 'Pedagogue\pedagogue.exe')
+          & ./.github/installers/launch.ps1 -App (Join-Path $env:LOCALAPPDATA 'TeachPad\teachpad.exe')
 
       # The disk image holds the app for the target's processor, with a
       # signature that verifies. It is an ad hoc one: see tauri.conf.json.
@@ -249,14 +249,14 @@ jobs:
           LIPO: ${{ matrix.lipo }}
         run: |
           set -euo pipefail
-          image="target/installer/$TRIPLE/Pedagogue_${VERSION}_${ARCH}.dmg"
+          image="target/installer/$TRIPLE/TeachPad_${VERSION}_${ARCH}.dmg"
           [ -f "$image" ] || { echo "the build left no $image"; exit 1; }
           mount=$(mktemp -d)
           hdiutil attach -nobrowse -readonly -mountpoint "$mount" "$image"
           trap 'hdiutil detach "$mount" -quiet || true' EXIT
           ls -la "$mount"
-          app="$mount/Pedagogue.app"
-          binary="$app/Contents/MacOS/pedagogue"
+          app="$mount/TeachPad.app"
+          binary="$app/Contents/MacOS/teachpad"
           [ -x "$binary" ] || { echo "the disk image holds no executable $binary"; exit 1; }
           archs=$(lipo -archs "$binary")
           [ "$archs" = "$LIPO" ] || { echo "$binary is built for '$archs', expected '$LIPO'"; exit 1; }
@@ -266,7 +266,7 @@ jobs:
           echo "checked $app: $archs, version $shown"
           # A copy outside the image, as dragging the app to Applications
           # makes one. A later step starts it.
-          ditto "$app" "$RUNNER_TEMP/Pedagogue.app"
+          ditto "$app" "$RUNNER_TEMP/TeachPad.app"
 
       # The Intel build runs under Rosetta on this Apple silicon runner.
       - name: Install Rosetta
@@ -285,7 +285,7 @@ jobs:
         if: startsWith(matrix.platform, 'macos')
         timeout-minutes: 10
         shell: bash
-        run: bash .github/installers/launch.sh "$RUNNER_TEMP/Pedagogue.app/Contents/MacOS/pedagogue"
+        run: bash .github/installers/launch.sh "$RUNNER_TEMP/TeachPad.app/Contents/MacOS/teachpad"
 
       # The package installs on a bare Ubuntu 22.04 with the libraries it
       # names, and the app then finds every library it loads. Then the app
@@ -296,7 +296,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          package="Pedagogue_${VERSION}_${ARCH}.deb"
+          package="TeachPad_${VERSION}_${ARCH}.deb"
           [ -f "target/installer/$TRIPLE/$package" ] || { echo "the build left no $package"; exit 1; }
           docker run --rm \
             --volume "$PWD/target/installer/$TRIPLE:/dist:ro" \
@@ -306,7 +306,7 @@ jobs:
               export DEBIAN_FRONTEND=noninteractive
               apt-get update
               apt-get install -y --no-install-recommends "/dist/$PACKAGE"
-              app=$(command -v pedagogue) || { echo "the package put no pedagogue on the PATH"; exit 1; }
+              app=$(command -v teachpad) || { echo "the package put no teachpad on the PATH"; exit 1; }
               packaged=$(dpkg-deb --field "/dist/$PACKAGE" Version)
               [ "$packaged" = "$VERSION" ] || { echo "the package has version $packaged, expected $VERSION"; exit 1; }
               # Two commands: inside the condition of an `if`, a failed ldd
@@ -321,7 +321,7 @@ jobs:
               # come after the library check, so that check sees the
               # package with nothing beside what it names.
               apt-get install -y --no-install-recommends xvfb xauth curl
-              bash /installers/launch.sh xvfb-run -a pedagogue
+              bash /installers/launch.sh xvfb-run -a teachpad
             '
 
       # The AppImage unpacks without FUSE, and the tree holds the app. Then
@@ -333,18 +333,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          appimage="target/installer/$TRIPLE/Pedagogue_${VERSION}_${ARCH}.AppImage"
+          appimage="target/installer/$TRIPLE/TeachPad_${VERSION}_${ARCH}.AppImage"
           [ -f "$appimage" ] || { echo "the build left no $appimage"; exit 1; }
-          work="$RUNNER_TEMP/pedagogue-appimage"
+          work="$RUNNER_TEMP/teachpad-appimage"
           mkdir -p "$work"
           # A copy, so the file that is uploaded stays as the build left it.
-          cp "$appimage" "$work/Pedagogue.AppImage"
-          chmod +x "$work/Pedagogue.AppImage"
-          (cd "$work" && ./Pedagogue.AppImage --appimage-extract > extract.log)
-          app=$(find "$work/squashfs-root" -type f -name pedagogue -perm -u+x -print -quit)
-          [ -n "$app" ] || { echo "the AppImage holds no executable pedagogue"; cat "$work/extract.log"; exit 1; }
+          cp "$appimage" "$work/TeachPad.AppImage"
+          chmod +x "$work/TeachPad.AppImage"
+          (cd "$work" && ./TeachPad.AppImage --appimage-extract > extract.log)
+          app=$(find "$work/squashfs-root" -type f -name teachpad -perm -u+x -print -quit)
+          [ -n "$app" ] || { echo "the AppImage holds no executable teachpad"; cat "$work/extract.log"; exit 1; }
           echo "unpacked $app"
-          bash .github/installers/launch.sh xvfb-run -a "$work/Pedagogue.AppImage"
+          bash .github/installers/launch.sh xvfb-run -a "$work/TeachPad.AppImage"
 
       # A build that writes into the repository is caught here.
       - name: Clean tree
@@ -394,17 +394,17 @@ jobs:
         run: |
           set -euo pipefail
           installers=(
-            "Pedagogue_${VERSION}_x64-setup.exe"
-            "Pedagogue_${VERSION}_aarch64.dmg"
-            "Pedagogue_${VERSION}_x64.dmg"
-            "Pedagogue_${VERSION}_amd64.deb"
-            "Pedagogue_${VERSION}_amd64.AppImage"
+            "TeachPad_${VERSION}_x64-setup.exe"
+            "TeachPad_${VERSION}_aarch64.dmg"
+            "TeachPad_${VERSION}_x64.dmg"
+            "TeachPad_${VERSION}_amd64.deb"
+            "TeachPad_${VERSION}_amd64.AppImage"
           )
           for name in "${installers[@]}"; do
             [ -s "$name" ] || { echo "the builds left no $name"; ls -la; exit 1; }
           done
           # Exactly these files: a sixth one would be published too.
-          found=$(find . -maxdepth 1 -name 'Pedagogue_*' | wc -l)
+          found=$(find . -maxdepth 1 -name 'TeachPad_*' | wc -l)
           [ "$found" -eq "${#installers[@]}" ] ||
             { echo "expected ${#installers[@]} installers, found $found"; ls -la; exit 1; }
           [ -s notes.md ] || { echo "the release notes are missing"; exit 1; }
@@ -412,7 +412,7 @@ jobs:
           sha256sum --check SHA256SUMS
           ls -la
           {
-            echo "### Pedagogue $VERSION"
+            echo "### TeachPad $VERSION"
             echo
             echo '```text'
             cat SHA256SUMS
@@ -433,7 +433,7 @@ jobs:
   # has to follow, or a tag publishes nothing.
   publish:
     needs: [prepare, assemble]
-    if: ${{ github.repository == 'cppalliance/pedagogue' && github.event_name == 'push' }}
+    if: ${{ github.repository == 'cppalliance/teachpad' && github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -449,10 +449,10 @@ jobs:
         uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           tag_name: ${{ github.ref_name }}
-          name: Pedagogue ${{ github.ref_name }}
+          name: TeachPad ${{ github.ref_name }}
           body_path: dist/notes.md
           make_latest: true
           fail_on_unmatched_files: true
           files: |
-            dist/Pedagogue_*
+            dist/TeachPad_*
             dist/SHA256SUMS

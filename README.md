@@ -1,10 +1,10 @@
-[![CI](https://github.com/cppalliance/pedagogue/actions/workflows/ci.yml/badge.svg)](https://github.com/cppalliance/pedagogue/actions/workflows/ci.yml)
+[![CI](https://github.com/cppalliance/teachpad/actions/workflows/ci.yml/badge.svg)](https://github.com/cppalliance/teachpad/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-BSL--1.0-blue.svg)](LICENSE)
-[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/cppalliance/pedagogue/releases/latest)
+[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/cppalliance/teachpad/releases/latest)
 
-# Pedagogue
+# TeachPad
 
-Pedagogue is a "living textbook": a textbook page on the left and a tutor chat on the right. A model fills the page through a small set of page commands and talks with the student in the chat. The app is a Tauri 2 desktop window on an in-process Axum server, which delivers a TypeScript UI over loopback.
+TeachPad is a learning companion: a textbook page on the left and a tutor chat on the right. A model fills the page through a small set of page commands and talks with the student in the chat. The app is a Tauri 2 desktop window on an in-process Axum server, which delivers a TypeScript UI over loopback.
 
 ![Design concept: a pop quiz on the textbook page, and the tutor confirming the answer in the chat](images/ui7-18-concepts-bottom-quiz-v2.jpg)
 
@@ -14,36 +14,36 @@ Concept renders from the design phase. The app follows the reference files in `d
 
 ## Install
 
-Download the file for your system from the [latest release](https://github.com/cppalliance/pedagogue/releases/latest):
+Download the file for your system from the [latest release](https://github.com/cppalliance/teachpad/releases/latest):
 
-- Windows: `Pedagogue_0.1.0_x64-setup.exe`
-- macOS on Apple silicon: `Pedagogue_0.1.0_aarch64.dmg`
-- macOS on Intel: `Pedagogue_0.1.0_x64.dmg`
-- Debian 12, Ubuntu 22.04 and newer: `Pedagogue_0.1.0_amd64.deb`
-- Other Linux distributions: `Pedagogue_0.1.0_amd64.AppImage`
+- Windows: `TeachPad_0.1.0_x64-setup.exe`
+- macOS on Apple silicon: `TeachPad_0.1.0_aarch64.dmg`
+- macOS on Intel: `TeachPad_0.1.0_x64.dmg`
+- Debian 12, Ubuntu 22.04 and newer: `TeachPad_0.1.0_amd64.deb`
+- Other Linux distributions: `TeachPad_0.1.0_amd64.AppImage`
 
 `SHA256SUMS` on the same page holds the SHA-256 hash of each file.
 
 The installers are unsigned, so each system asks before it opens one:
 
 - **Windows.** Windows shows "Windows protected your PC". Choose More info, then Run anyway. The setup installs for the current user.
-- **macOS.** Open the disk image and drag Pedagogue into Applications. macOS blocks the first launch. Open System Settings, then Privacy & Security, and choose Open Anyway beside the line about Pedagogue. If macOS reports the app as damaged, run `xattr -dr com.apple.quarantine /Applications/Pedagogue.app` and open it again.
-- **Linux.** Install the package with `sudo apt install ./Pedagogue_0.1.0_amd64.deb`. For the AppImage, make the file executable with `chmod +x Pedagogue_0.1.0_amd64.AppImage` and run it.
+- **macOS.** Open the disk image and drag TeachPad into Applications. macOS blocks the first launch. Open System Settings, then Privacy & Security, and choose Open Anyway beside the line about TeachPad. If macOS reports the app as damaged, run `xattr -dr com.apple.quarantine /Applications/TeachPad.app` and open it again.
+- **Linux.** Install the package with `sudo apt install ./TeachPad_0.1.0_amd64.deb`. For the AppImage, make the file executable with `chmod +x TeachPad_0.1.0_amd64.AppImage` and run it.
 
 ## Run it
 
 The desktop app, from the source:
 
 ```text
-cargo run -p pedagogue-desktop
+cargo run -p teachpad-desktop
 ```
 
-It opens one window and plays the straw poll lesson. Pass a script as the first argument to play another one, such as `cargo run -p pedagogue-desktop -- samples/contact-sheet.json`. It prints its loopback address, and a browser on that address shows the same lesson.
+It opens one window and plays the straw poll lesson. Pass a script as the first argument to play another one, such as `cargo run -p teachpad-desktop -- samples/contact-sheet.json`. It prints its loopback address, and a browser on that address shows the same lesson.
 
 In a browser alone, with the server and the demo in one process:
 
 ```text
-cargo run -p pedagogue-server --example serve
+cargo run -p teachpad-server --example serve
 ```
 
 It prints the address to open and plays the straw poll lesson. Its options:
@@ -100,10 +100,10 @@ cargo installer
 
 It builds the installers for this machine with the Tauri bundler and prints the path of each one. The files land in `target/installer/<target>/`:
 
-- Windows (`x86_64-pc-windows-msvc`): `Pedagogue_<version>_x64-setup.exe`
-- macOS on Apple silicon (`aarch64-apple-darwin`): `Pedagogue_<version>_aarch64.dmg`
-- macOS on Intel (`x86_64-apple-darwin`): `Pedagogue_<version>_x64.dmg`
-- Linux (`x86_64-unknown-linux-gnu`): `Pedagogue_<version>_amd64.deb` and `Pedagogue_<version>_amd64.AppImage`
+- Windows (`x86_64-pc-windows-msvc`): `TeachPad_<version>_x64-setup.exe`
+- macOS on Apple silicon (`aarch64-apple-darwin`): `TeachPad_<version>_aarch64.dmg`
+- macOS on Intel (`x86_64-apple-darwin`): `TeachPad_<version>_x64.dmg`
+- Linux (`x86_64-unknown-linux-gnu`): `TeachPad_<version>_amd64.deb` and `TeachPad_<version>_amd64.AppImage`
 
 `cargo installer --target <triple>` builds for another target of the same system. An Apple silicon Mac builds the Intel installer that way, after `rustup target add x86_64-apple-darwin`.
 
@@ -123,30 +123,30 @@ A release is a `vX.Y.Z` tag on `master` that names the workspace version.
 1. Set the new version: `version` under `[workspace.package]` and the internal entries under `[workspace.dependencies]` in `Cargo.toml`, then `cargo check --workspace` for `Cargo.lock`, and `npm version <version> --no-git-tag-version` in `ui/`.
 2. Add a `## [<version>] - <date>` section to `CHANGELOG.md`, and put the new file names into the Install section of this file.
 3. Land the change on `master` through a pull request. The pull request builds and checks all five installers.
-4. Tag the landed commit and push the tag to `cppalliance/pedagogue`:
+4. Tag the landed commit and push the tag to `cppalliance/teachpad`:
 
 ```text
-git tag -a v0.2.0 -m "Pedagogue 0.2.0"
+git tag -a v0.2.0 -m "TeachPad 0.2.0"
 git push <remote> v0.2.0
 ```
 
-`.github/workflows/release.yml` then builds the installers again, checks each one on the runner that built it, starts each app to see the page in its window connect, and publishes them with `SHA256SUMS`. The section of `CHANGELOG.md` becomes the release notes. A tag that names another version than the workspace stops the run before anything is built. Only `cppalliance/pedagogue` publishes: the same tag in a copy of the repository builds and checks the installers and stops there.
+`.github/workflows/release.yml` then builds the installers again, checks each one on the runner that built it, starts each app to see the page in its window connect, and publishes them with `SHA256SUMS`. The section of `CHANGELOG.md` becomes the release notes. A tag that names another version than the workspace stops the run before anything is built. Only `cppalliance/teachpad` publishes: the same tag in a copy of the repository builds and checks the installers and stops there.
 
 ## Sample scripts
 
-A sample script is a JSON list of steps: page commands, chat lines, scripted student answers and a wait for Continue. The doc comment on `Script` in `crates/pedagogue-demo/src/script.rs` lists the shapes.
+A sample script is a JSON list of steps: page commands, chat lines, scripted student answers and a wait for Continue. The doc comment on `Script` in `crates/teachpad-demo/src/script.rs` lists the shapes.
 
-`samples/contact-sheet.frames.json` is written from `samples/contact-sheet.json`, and a test fails when the two disagree. After a change to the sample or to the wire shapes, set the environment variable `PEDAGOGUE_UPDATE_FIXTURES` to `1`, run `cargo test -p pedagogue-demo`, and review the diff of the file.
+`samples/contact-sheet.frames.json` is written from `samples/contact-sheet.json`, and a test fails when the two disagree. After a change to the sample or to the wire shapes, set the environment variable `TEACHPAD_UPDATE_FIXTURES` to `1`, run `cargo test -p teachpad-demo`, and review the diff of the file.
 
 ## Layout
 
 - `design/` - the two design reference files, `chat-panel.html` and `page-contact-sheet.html`. The app must match them. `adaptive-learning-research.md` is the research report on how to build the lesson-plan builder and the tutor, and `research/` holds the nine files of research notes behind it.
 - `images/` - the concept renders shown at the top of this file and in `vision.md`.
-- `crates/pedagogue-session/` - the lesson model, the chat transcript and the session handle that a host drives.
-- `crates/pedagogue-demo/` - a sample script player and a stand-in tutor.
-- `crates/pedagogue-server/` - the loopback server that delivers the UI and its socket.
-- `crates/pedagogue-desktop/` - the Tauri app. Its binary is named `pedagogue`.
-- `crates/pedagogue-installer/` - the build tool behind `cargo installer`. It makes the installers for Windows, macOS and Linux.
+- `crates/teachpad-session/` - the lesson model, the chat transcript and the session handle that a host drives.
+- `crates/teachpad-demo/` - a sample script player and a stand-in tutor.
+- `crates/teachpad-server/` - the loopback server that delivers the UI and its socket.
+- `crates/teachpad-desktop/` - the Tauri app. Its binary is named `teachpad`.
+- `crates/teachpad-installer/` - the build tool behind `cargo installer`. It makes the installers for Windows, macOS and Linux.
 - `ui/` - the TypeScript UI, bundled by esbuild.
 - `samples/` - sample scripts, as JSON. `straw-poll.json` is the lesson the app plays by default. `contact-sheet.json` draws every element of the two design files on one page, and `contact-sheet.frames.json` holds the frames the app sends for it.
 - `.github/workflows/` - `ci.yml` runs the checks on every pull request and on `master`. `release.yml` builds and checks the installers, and publishes them when a `vX.Y.Z` tag is pushed.

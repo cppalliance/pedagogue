@@ -31,7 +31,7 @@ describe("the app shell", () => {
     app = await boot();
     assert.deepEqual(findHtmlProblems(app.document), []);
     // One heading is exposed, so a screen reader has a title to read.
-    assert.equal(app.document.querySelector("h1").textContent, "Pedagogue");
+    assert.equal(app.document.querySelector("h1").textContent, "TeachPad");
   });
 
   it("takes every frame of the contact-sheet sample", async () => {

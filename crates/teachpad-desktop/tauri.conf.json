@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "TeachPad",
+  "mainBinaryName": "teachpad",
+  "identifier": "com.runvil.teachpad",
+  "app": {
+    "windows": []
+  },
+  "bundle": {
+    "active": true,
+    "category": "Education",
+    "shortDescription": "A learning companion with a tutor beside the page",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper",
+        "silent": true
+      }
+    },
+    "macOS": {
+      "signingIdentity": "-"
+    }
+  }
+}

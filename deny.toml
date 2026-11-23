@@ -1,4 +1,4 @@
-# cargo-deny configuration for the Pedagogue (BSL-1.0) workspace.
+# cargo-deny configuration for TeachPad (BSL-1.0) workspace.
 # Run locally with `cargo deny check`; CI runs the same.
 
 [graph]

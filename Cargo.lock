@@ -2596,76 +2596,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pedagogue-demo"
-version = "0.1.0"
-dependencies = [
- "pedagogue-session",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "tokio",
-]
-
-[[package]]
-name = "pedagogue-desktop"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "pedagogue-demo",
- "pedagogue-server",
- "pedagogue-session",
- "tauri",
- "tauri-build",
- "tauri-plugin-opener",
- "tempfile",
- "tokio",
- "tracing",
- "tracing-subscriber",
- "url",
-]
-
-[[package]]
-name = "pedagogue-installer"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "serde_json",
- "tempfile",
-]
-
-[[package]]
-name = "pedagogue-server"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "futures-util",
- "pedagogue-demo",
- "pedagogue-session",
- "rust-embed",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror 2.0.21",
- "tokio",
- "tokio-tungstenite",
- "tower",
- "tracing",
- "tracing-subscriber",
- "url",
-]
-
-[[package]]
-name = "pedagogue-session"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "tokio",
-]
-
-[[package]]
 name = "percent-encoding"
 version = "2.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3977,6 +3907,76 @@ dependencies = [
  "dunce",
  "embed-resource",
  "toml 1.2.2+spec-1.1.0",
+]
+
+[[package]]
+name = "teachpad-demo"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "teachpad-session",
+ "thiserror 2.0.21",
+ "tokio",
+]
+
+[[package]]
+name = "teachpad-desktop"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-opener",
+ "teachpad-demo",
+ "teachpad-server",
+ "teachpad-session",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "url",
+]
+
+[[package]]
+name = "teachpad-installer"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
+name = "teachpad-server"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "futures-util",
+ "rust-embed",
+ "serde",
+ "serde_json",
+ "teachpad-demo",
+ "teachpad-session",
+ "tempfile",
+ "thiserror 2.0.21",
+ "tokio",
+ "tokio-tungstenite",
+ "tower",
+ "tracing",
+ "tracing-subscriber",
+ "url",
+]
+
+[[package]]
+name = "teachpad-session"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "tokio",
 ]
 
 [[package]]

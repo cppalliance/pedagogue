@@ -8,7 +8,7 @@ title: "Adaptive learning research stream 7 - web source discovery and vetting f
 ## How I checked things
 
 - Date of research: 2026-11-22.
-- Context read first: the Pedagogue vision (rule H11, question Q18) and the tutor prototype (Step 1 prerequisite chain, Step 3 Pass B six-test rubric, injection-defense directive, Sideband Drill-down Protocol).
+- Context read first: the TeachPad vision (rule H11, question Q18) and the tutor prototype (Step 1 prerequisite chain, Step 3 Pass B six-test rubric, injection-defense directive, Sideband Drill-down Protocol).
 - Tools: a web search tool and a web fetch tool. The search tool returns a short machine-written synthesis, excerpts from each result page, and for some results the full page text saved for searching. The fetch tool returns the page text.
 - What "Read" means in the source list: "full text" means the full page text was fetched and I read the passages that hold the findings (abstract, method, results, limitations) by targeted search inside it, not cover to cover. "Search excerpt" means I saw only the passages the search tool returned. "Abstract only" and "secondary summary at URL" mean what they say.
 - Depth: about 30 sources were read at full-text level. The ones that matter most and got the closest reading are [Liu2023], [Tow2025], [BBCEBU2025], [Wu2024], [Walters2023], [Chelli2024], [JillWatson2024], [Min2023], [Wei2024], [Dhuliawala2023], [Willison2023], [Willison2025], [Beurer2025], [Debenedetti2025], [Nasr2025], [Hines2024], [AgentDojo2024], [Wineburg2019], [Breakstone2018], [Zittrain2021], [McNamara1996], [BrowseComp2025] and [AnthropicResearch2025].
@@ -461,7 +461,7 @@ Where the five things the report writer asked for are covered: (1) vetting rubri
 
 ## What the sources themselves recommend
 
-These are the sources' own prescriptions, attributed. They are not recommendations for the Pedagogue.
+These are the sources' own prescriptions, attributed. They are not recommendations for TeachPad.
 
 **On judging sources**
 

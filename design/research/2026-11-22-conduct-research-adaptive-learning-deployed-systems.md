@@ -1,6 +1,6 @@
 ---
 produced: 2026-11-22
-title: "Deployed adaptive learning systems teardown - Cognitive Tutor and MATHia, ALEKS knowledge spaces, ASSISTments Skill Builders and ARRS, Duolingo half-life regression and Birdbrain, Khan Academy mastery levels, Knewton alta, DreamBox, IXL SmartScore, i-Ready, Squirrel AI, Math Academy, Smart Sparrow, DARPA Digital Tutor, Area9 Rhapsode, Amplifire, Axonify, Anki and SuperMemo, LISP tutor, SQL-Tutor, Execute Program, Exercism, Codecademy, AutoTutor, Andes, Why2-Atlas, Synthesis Tutor - mastery rules, stuck and ahead handling, review schedules, content authoring cost, published effect sizes, independent versus vendor trials, 5 percent problem, in-product A/B tests, E-TRIALS, LearnLab, DataShop transaction log fields, xAPI, Caliper (Pedagogue stream 9, Q15 and Q16)"
+title: "Deployed adaptive learning systems teardown - Cognitive Tutor and MATHia, ALEKS knowledge spaces, ASSISTments Skill Builders and ARRS, Duolingo half-life regression and Birdbrain, Khan Academy mastery levels, Knewton alta, DreamBox, IXL SmartScore, i-Ready, Squirrel AI, Math Academy, Smart Sparrow, DARPA Digital Tutor, Area9 Rhapsode, Amplifire, Axonify, Anki and SuperMemo, LISP tutor, SQL-Tutor, Execute Program, Exercism, Codecademy, AutoTutor, Andes, Why2-Atlas, Synthesis Tutor - mastery rules, stuck and ahead handling, review schedules, content authoring cost, published effect sizes, independent versus vendor trials, 5 percent problem, in-product A/B tests, E-TRIALS, LearnLab, DataShop transaction log fields, xAPI, Caliper (TeachPad stream 9, Q15 and Q16)"
 ---
 
 # Stream 9 - Deployed systems teardown: what real adaptive learning systems do, and what results they publish
@@ -286,7 +286,7 @@ All of this is the company's own description, from its book "The Math Academy Wa
 
 #### DARPA Digital Tutor (Navy information technology training)
 
-This is the closest published case to the Pedagogue's first students: adults learning a technical craft, taught one to one by a machine built from expert tutors.
+This is the closest published case to TeachPad's first students: adults learning a technical craft, taught one to one by a machine built from expert tutors.
 
 - **Goal:** compress years of on-the-job experience into the 16 weeks the Navy allots for initial IT training, with the same entry requirements. The objectives went "well beyond the entry-level or journeyman-level abilities" of the standard course. [Fletcher2014]
 - **How it was built:**

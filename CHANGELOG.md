@@ -1,12 +1,12 @@
 # Changelog
 
-The releases of Pedagogue, newest first. Each release lists its changes under Added, Changed, Deprecated, Removed, Fixed and Security.
+The releases of TeachPad, newest first. Each release lists its changes under Added, Changed, Deprecated, Removed, Fixed and Security.
 
 ## [0.1.0] - 2026-11-22
 
 The first release. The app plays a sample lesson, and a stand-in tutor answers in the chat.
 
-The installers are unsigned, so each system asks before it opens one. The [Install section of the README](https://github.com/cppalliance/pedagogue#install) shows the way past each prompt.
+The installers are unsigned, so each system asks before it opens one. The [Install section of the README](https://github.com/cppalliance/teachpad#install) shows the way past each prompt.
 
 ### Added
 

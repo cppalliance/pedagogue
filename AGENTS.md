@@ -1,12 +1,12 @@
-# Pedagogue
+# TeachPad
 
-Pedagogue is a "living textbook" desktop app: a textbook page on the left and a tutor chat on the right. A model fills the page through a small set of page commands. This repository holds a Rust workspace (Tauri 2 and an in-process Axum server) and a TypeScript UI that the server delivers over loopback.
+TeachPad is a learning companion desktop app: a textbook page on the left and a tutor chat on the right. A model fills the page through a small set of page commands. This repository holds a Rust workspace (Tauri 2 and an in-process Axum server) and a TypeScript UI that the server delivers over loopback.
 
 Runvil is the team's agent framework, spelled "Runvil". A Host is an app that runs prompts through it. The student is the person learning, and the tutor is the model.
 
 ## Standing rules
 
-- **Built to change.** The quiz rules, the wording, the look and the command list will all change during user trials. Keep each kind of decision in one place: quiz rules in `crates/pedagogue-session/src/lesson/quiz_rules.rs`, text a model reads in each crate's `wording.rs`, text the student reads in `ui/src/wording.ts`, and the look in the CSS file beside each component.
+- **Built to change.** The quiz rules, the wording, the look and the command list will all change during user trials. Keep each kind of decision in one place: quiz rules in `crates/teachpad-session/src/lesson/quiz_rules.rs`, text a model reads in each crate's `wording.rs`, text the student reads in `ui/src/wording.ts`, and the look in the CSS file beside each component.
 - **Rust decides, the UI draws.** Page state and every quiz rule live in Rust. The UI sends what the student did and draws the state it gets back. The answer key stays in Rust.
 - **Match the design.** `design/page-contact-sheet.html` and `design/chat-panel.html` are the reference, and the app must match them. A change to the look goes into the design file and the app in the same commit.
 - **UI import rule.** `ui/src/page/` and `ui/src/chat/` import the shared files and never each other. Shared files never import a feature. `ui/src/main.ts` alone wires the two.
@@ -73,12 +73,12 @@ Departures: colors stay in hex, the form the palette was approved in. The app ha
 ## Releases
 
 - **One version.** The app has one version: `version` under `[workspace.package]` in `Cargo.toml`, the internal entries under `[workspace.dependencies]`, and `ui/package.json`. A release changes them together, adds a `## [<version>] - <date>` section to `CHANGELOG.md`, and puts the new file names into the README's Install section. The tests and the release workflow fail when one of these is left behind.
-- **A tag publishes.** A release is a `vX.Y.Z` tag on `master` that names that version. `.github/workflows/release.yml` builds the five installers with `cargo installer`, checks each one, and publishes them with `SHA256SUMS`. A pull request that touches the installer, the version or the changelog runs the same jobs up to the publish step. The publish step names `cppalliance/pedagogue`, so a tag in any other copy of the repository publishes nothing.
-- **One home for the file names.** The release file names come from `Installer::file_name` in `crates/pedagogue-installer/src/platform.rs`. A change there also goes into the checks and the `assemble` job of `release.yml`.
+- **A tag publishes.** A release is a `vX.Y.Z` tag on `master` that names that version. `.github/workflows/release.yml` builds the five installers with `cargo installer`, checks each one, and publishes them with `SHA256SUMS`. A pull request that touches the installer, the version or the changelog runs the same jobs up to the publish step. The publish step names `cppalliance/teachpad`, so a tag in any other copy of the repository publishes nothing.
+- **One home for the file names.** The release file names come from `Installer::file_name` in `crates/teachpad-installer/src/platform.rs`. A change there also goes into the checks and the `assemble` job of `release.yml`.
 
 ## Plans
 
 - **A plan runs from its copy in `plan/`.** Before the first step, copy the approved plan verbatim to `plan/YYYY-MM-DD-N-words.plan.md`: the date the run starts, `N` the next unused number for that date starting at 1, and one to four kebab-case words from the title. The copy is the first commit of the plan.
 - **Each commit of a plan names the copy.** The last line of the message is `Plan: /plan/` followed by the file name of the copy.
 - **The last commit of a plan records what the build found.** The copy gains a section with the result and with each point where the build differs from the plan.
-- **Three plans predate these rules.** Their copies entered `plan/` after the work. The commits of two of them name the plan by the path it had on the author's machine: `.cursor/plans/pedagogue_tauri_app_2ed96ac8.plan.md` is `plan/2026-11-21-1-pedagogue-tauri-app.plan.md`, and `.cursor/plans/pedagogue_ci_and_release_9980d68c.plan.md` is `plan/2026-11-22-1-pedagogue-ci-and-release.plan.md`. The commit of the vision document, `c7155dd`, has no `Plan:` line, and its plan is `plan/2026-11-22-2-pedagogue-vision-document.plan.md`.
+- **Three plans predate these rules.** Their copies entered `plan/` after the work. The commits of two of them name the plan by the path it had on the author's machine: `.cursor/plans/teachpad_tauri_app_2ed96ac8.plan.md` is `plan/2026-11-21-1-teachpad-tauri-app.plan.md`, and `.cursor/plans/teachpad_ci_and_release_9980d68c.plan.md` is `plan/2026-11-22-1-teachpad-ci-and-release.plan.md`. The commit of the vision document, `c7155dd`, has no `Plan:` line, and its plan is `plan/2026-11-22-2-teachpad-vision-document.plan.md`.
